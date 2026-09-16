@@ -15,7 +15,8 @@
     "Schwelle aendern            : 'thresholds' bearbeiten. Ein Szenario darf sie",
     "                             ueberschreiben, ohne diese Datei anzufassen.",
     "Neue ART von Projektion     : Funktion in soteria/matrix.py ergaenzen UND hier",
-    "                             unter 'known_projectors' eintragen."
+    "                             unter 'known_projectors' eintragen.",
+    "Ein Rohobjekt kann den Draht nicht ueberqueren -- ConfigRecord traegt nur Skalare. Ein Feld, dessen Rohform ein Objekt ist, braucht daher auch fuer 'raw' einen Projektor, der einen Skalar liefert (contact_line, curve_line). Das schwaecht nichts ab: die Matrix entscheidet weiter, WER es bekommt."
   ],
   "roles": [
     "intake",
@@ -63,20 +64,22 @@
     }
   },
   "known_projectors": [
-    "raw",
-    "coarse_cargo",
-    "coarse_trade",
-    "coarse_locality",
+    "ampel_replacement",
+    "ampel_road",
+    "ampel_route",
     "ampel_stock",
     "ampel_temperature",
-    "ampel_replacement",
-    "ampel_route",
     "ampel_urgency",
-    "ampel_road",
-    "schwelle_money",
-    "schwelle_hours",
+    "coarse_cargo",
+    "coarse_locality",
+    "coarse_trade",
+    "contact_line",
+    "count",
+    "curve_line",
     "flag",
-    "count"
+    "raw",
+    "schwelle_hours",
+    "schwelle_money"
   ],
   "fields": {
     "cargo_class": {
@@ -109,7 +112,7 @@
       },
       "note": "Die Kuehlkurve eines betroffenen Wagens. Der Bewerter bekommt eine Ampel.",
       "projectors": {
-        "raw": "raw",
+        "raw": "curve_line",
         "ampel": "ampel_temperature"
       },
       "visibility": {
@@ -193,7 +196,7 @@
       },
       "note": "Zustaendige Person beim Kunden. Personendaten -- nur die Aufnahme und der Kunde selbst. Der Bewerter erfaehrt nicht einmal, wie viele es sind: eine Anzahl ist auch Information.",
       "projectors": {
-        "raw": "raw"
+        "raw": "contact_line"
       },
       "visibility": {
         "intake": "raw",

@@ -66,7 +66,11 @@ def test_temperature_curve_becomes_a_traffic_light_for_the_assessor():
     assert project("temperature_curve", hot, "assessor", DEFAULT_THRESHOLDS) == "rot"
     assert project("temperature_curve", warm, "assessor", DEFAULT_THRESHOLDS) == "gelb"
     assert project("temperature_curve", cold, "assessor", DEFAULT_THRESHOLDS) == "gruen"
-    assert project("temperature_curve", hot, "supplier", DEFAULT_THRESHOLDS) == hot
+    # Der Zulieferer darf die Zahlen sehen -- aber als Zeile, weil ein Rohobjekt
+    # den Draht nicht ueberqueren kann. Siehe curve_line in matrix.py.
+    for_supplier = project("temperature_curve", hot, "supplier", DEFAULT_THRESHOLDS)
+    assert isinstance(for_supplier, str)
+    assert "12.0" in for_supplier and "45" in for_supplier
 
 
 def test_cargo_class_reaches_the_assessor_only_coarsely():

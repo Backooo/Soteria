@@ -180,6 +180,40 @@ def _schwelle_hours(raw: Any, th: Mapping[str, Any]) -> str:
     return "below" if _number(raw, "hours") < float(th["limit"]) else "above"
 
 
+def _contact_line(raw: Any, th: Mapping[str, Any]) -> str:
+    """Zustaendige Personen als eine Zeile.
+
+    Ein Rohobjekt kann den Draht nicht ueberqueren (`ConfigRecord` traegt nur
+    Skalare), eine Leitstelle braucht aber den Namen und die Nummer. Also ist
+    die erlaubte Darstellung eines Ansprechpartners eine Zeile -- fuer die
+    Rollen, denen die Matrix ihn zugesteht, und fuer keine andere.
+    """
+    people = raw if isinstance(raw, (list, tuple)) else [raw]
+    out = []
+    for person in people:
+        if not isinstance(person, Mapping):
+            out.append(str(person))
+            continue
+        parts = [str(person.get("name", "")).strip()]
+        if person.get("function"):
+            parts.append(str(person["function"]))
+        if person.get("phone"):
+            parts.append(str(person["phone"]))
+        if person.get("hours"):
+            parts.append(f"erreichbar {person['hours']}")
+        out.append(", ".join(p for p in parts if p))
+    return " | ".join(o for o in out if o)
+
+
+def _curve_line(raw: Any, th: Mapping[str, Any]) -> str:
+    """Die Kuehlkurve als eine Zeile, aus demselben Grund wie `_contact_line`."""
+    curve = _mapping(raw, "temperature_curve")
+    return (
+        f"{curve.get('current_c')} C (Soll {curve.get('setpoint_c')}, "
+        f"Grenze {curve.get('limit_c')}, {curve.get('minutes_out', 0)} min ausserhalb)"
+    )
+
+
 def _flag(raw: Any, th: Mapping[str, Any]) -> bool:
     """Ein Flag ist immer ein bool. Ein Text wuerde Inhalt durchlassen."""
     return bool(raw)
@@ -202,6 +236,8 @@ PROJECTORS: dict[str, Callable[[Any, Mapping[str, Any]], Any]] = {
     "ampel_road": _ampel_road,
     "schwelle_money": _schwelle_money,
     "schwelle_hours": _schwelle_hours,
+    "contact_line": _contact_line,
+    "curve_line": _curve_line,
     "flag": _flag,
     "count": _count,
 }

@@ -1,26 +1,28 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   AlertTriangle,
   ChevronUp,
   ChevronDown,
   Sparkles,
-  ShieldCheck,
-  ThermometerSnowflake,
   X,
   Bell
 } from 'lucide-react';
 import { useFleet } from '../../context/FleetContext';
+import { SOTERIA_BY_INCIDENT } from '../../data/mockFleetData';
 
 export const IncidentDrawer: React.FC = () => {
   const { 
     incidents, 
-    soteriaConsensus, 
-    isNotificationSidebarOpen, 
-    closeNotificationSidebar 
+    isNotificationSidebarOpen,
+    closeNotificationSidebar,
+    assets,
+    activeIncident,
+    focusOnAsset,
+    selectIncident
   } = useFleet();
   
-  const [isReportsOpen, setIsReportsOpen] = useState(true);
-  const [isConsensusOpen, setIsConsensusOpen] = useState(true);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const severityColor = (severity: string) =>
     severity === 'high' || severity === 'critical'
@@ -29,7 +31,8 @@ export const IncidentDrawer: React.FC = () => {
       ? 'var(--accent-amber)'
       : 'var(--accent-emerald)';
 
-  return (
+  // Portal to <body> so the sidebar sits above the top navbar and all map overlays
+  return createPortal(
     <>
       {/* Click-outside backdrop: Closes notification sidebar automatically */}
       {isNotificationSidebarOpen && (
@@ -65,7 +68,7 @@ export const IncidentDrawer: React.FC = () => {
                 Warnings & Incidents
               </h3>
               <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                {incidents.length} aktive Vorfälle im Netzwerk
+                {incidents.length} active incidents in the network
               </span>
             </div>
           </div>
@@ -90,54 +93,77 @@ export const IncidentDrawer: React.FC = () => {
             <X size={15} />
           </button>
         </div>
-            {/* Einmeldungen: real incident reports, arrived one after another with date/time */}
-            <div className="glass-card" style={{ padding: '12px' }}>
-              <div
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', marginBottom: isReportsOpen ? '10px' : '0' }}
-                onClick={() => setIsReportsOpen(!isReportsOpen)}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)' }}>
-                  <ThermometerSnowflake size={14} color="var(--accent-rose)" />
-                  <span>Einmeldungen ({incidents.length})</span>
-                </div>
-                {isReportsOpen ? <ChevronUp size={14} color="var(--text-muted)" /> : <ChevronDown size={14} color="var(--text-muted)" />}
-              </div>
 
-              {isReportsOpen && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {incidents.map((incident) => (
-                    <div key={incident.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                      <div
+            {/* Featured: opens the Agent Live Console in its own window */}
+            <button
+              type="button"
+              className="btn-agent-console"
+              onClick={() => window.open(`/console.html?incident=${activeIncident?.id ?? ''}`, 'soteria-agent-live-console', 'width=1440,height=900')}
+            >
+              <span className="btn-agent-console-dot" aria-hidden="true" />
+              <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
+                <span style={{ fontSize: '13px', fontWeight: 700 }}>Agent Live Console</span>
+                <span style={{ fontSize: '10px', fontWeight: 400, opacity: 0.8 }}>
+                  Watch every agent question, answer and approval flow
+                </span>
+              </span>
+              <span aria-hidden="true" style={{ fontSize: '14px' }}>↗</span>
+            </button>
+            {/* Incident reports: one collapsible card per report, one open at a time */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {incidents.map((incident) => {
+                const isOpen = expandedId === incident.id;
+                const isActive = activeIncident?.id === incident.id;
+                return (
+                  <div
+                    key={incident.id}
+                    className="glass-card"
+                    style={{
+                      padding: 0,
+                      overflow: 'hidden',
+                      borderLeft: `3px solid ${severityColor(incident.severity)}`,
+                      background: isActive ? 'rgba(255, 255, 255, 0.08)' : undefined,
+                    }}
+                  >
+                    <button
+                      type="button"
+                      aria-expanded={isOpen}
+                      aria-controls={`incident-details-${incident.id}`}
+                      onClick={() => {
+                        setExpandedId(isOpen ? null : incident.id);
+                        selectIncident(incident);
+                        const asset = assets.find(a => a.id === incident.assetId);
+                        if (asset) focusOnAsset(asset);
+                      }}
+                      style={{
+                        width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px',
+                        background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', color: 'inherit',
+                      }}
+                    >
+                      <span
                         style={{
-                          width: '18px',
-                          height: '18px',
-                          borderRadius: '50%',
-                          background: severityColor(incident.severity),
-                          color: '#fff',
-                          fontSize: '9px',
-                          fontWeight: 700,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          flexShrink: 0,
-                          marginTop: '1px'
+                          width: '18px', height: '18px', borderRadius: '50%', background: severityColor(incident.severity),
+                          color: '#fff', fontSize: '9px', fontWeight: 700, display: 'flex', alignItems: 'center',
+                          justifyContent: 'center', flexShrink: 0,
                         }}
                       >
                         !
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                          <span style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff' }}>
-                            {incident.assetName}
-                          </span>
-                          <span style={{ fontSize: '9px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
-                            {incident.timeAgo}
-                          </span>
-                        </div>
+                      </span>
+                      <span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        <span style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
+                          <span style={{ fontSize: '12px', fontWeight: 600, color: '#ffffff' }}>{incident.assetName}</span>
+                          <span style={{ fontSize: '9px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{incident.timeAgo}</span>
+                        </span>
+                        <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
+                          {incident.category} • Tier {incident.soteriaTier}
+                        </span>
+                      </span>
+                      {isOpen ? <ChevronUp size={14} color="var(--text-muted)" /> : <ChevronDown size={14} color="var(--text-muted)" />}
+                    </button>
 
-                        <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>
-                          {incident.reportedAt} • {incident.category}
-                        </div>
+                    {isOpen && (
+                      <div id={`incident-details-${incident.id}`} style={{ padding: '0 12px 12px 40px' }}>
+                        <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{incident.reportedAt}</div>
 
                         <div style={{ marginTop: '4px', fontSize: '11px', color: 'var(--text-secondary)' }}>
                           {incident.title}
@@ -145,104 +171,70 @@ export const IncidentDrawer: React.FC = () => {
 
                         {/* Location / affected wagons */}
                         <div style={{ marginTop: '6px', fontSize: '11px', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span>{incident.affectedLocations[0]}</span>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span style={{ fontFamily: 'var(--font-mono)' }}>{incident.affectedCount}</span>
-                          </div>
+                          <span>{incident.affectedLocations[0]}</span>
+                          <span style={{ fontFamily: 'var(--font-mono)' }}>{incident.affectedCount}</span>
                         </div>
 
-                        {/* Recommended action pill */}
-                        <div
-                          style={{
-                            marginTop: '8px',
-                            padding: '8px 10px',
-                            background: 'rgba(255, 255, 255, 0.08)',
-                            border: '1px solid rgba(255, 255, 255, 0.18)',
-                            borderRadius: '8px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            fontSize: '11px',
-                            color: '#ffffff'
-                          }}
-                        >
-                          <Sparkles size={13} color="#ffffff" />
-                          <div>
-                            <span style={{ fontWeight: 600 }}>Empfehlung:</span> {incident.recommendation}
-                          </div>
-                        </div>
+                        {/* Decision from the Soteria backend: what to do, how binding, who approved, why */}
+                        {(() => {
+                          const d = SOTERIA_BY_INCIDENT[incident.id]?.decision;
+                          if (!d) {
+                            return (
+                              <div style={{ marginTop: '8px', display: 'flex', gap: '6px', fontSize: '11px', color: '#ffffff' }}>
+                                <Sparkles size={13} color="#ffffff" />
+                                <span><strong>Recommendation:</strong> {incident.recommendation}</span>
+                              </div>
+                            );
+                          }
+                          const accent = d.status === 'blocked' ? 'var(--accent-rose)'
+                            : d.tier === 3 ? 'var(--accent-rose)' : d.tier === 2 ? 'var(--accent-amber)' : 'var(--accent-emerald)';
+                          const row = { display: 'flex', justifyContent: 'space-between', gap: '8px' } as const;
+                          return (
+                            <div style={{ marginTop: '10px', borderRadius: '10px', border: `1px solid ${accent}`, background: 'rgba(255,255,255,0.05)', padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                              <div style={{ fontSize: '9px', letterSpacing: '0.08em', fontWeight: 700, color: accent }}>
+                                {d.status === 'blocked' ? `NO DECISION · ${d.code}` : 'DECISION'}
+                              </div>
+                              {d.measures.length > 0 && (
+                                <ol style={{ margin: 0, paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                  {d.measures.map(m => (
+                                    <li key={m.code} style={{ fontSize: '14px', fontWeight: 700, color: '#ffffff' }}>{m.label}</li>
+                                  ))}
+                                </ol>
+                              )}
+                              {d.status === 'decided' && (
+                                <div style={{ fontSize: '10px', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                                  <div style={row}><span>Authority</span><span style={{ color: accent, textAlign: 'right' }}>{d.tierLabel}</span></div>
+                                  <div style={row}>
+                                    <span>Approval</span>
+                                    <span style={{ textAlign: 'right' }}>
+                                      {d.keysNeeded ? `${d.grants?.length ?? 0}/${d.keysNeeded} keys ✓ ${d.grants?.join(', ')}` : 'not required'}
+                                    </span>
+                                  </div>
+                                  <div style={row}>
+                                    <span>Decided by</span>
+                                    <span style={{ textAlign: 'right', fontFamily: 'var(--font-mono)', color: d.decidedBy === 'llm' ? 'var(--accent-emerald)' : 'var(--accent-amber)' }}>
+                                      {d.decidedBy === 'llm' ? `${d.model} (LLM)` : d.decidedBy === 'policy_fallback' ? 'rule policy (model unreachable)' : 'rule policy'}
+                                    </span>
+                                  </div>
+                                  <div style={row}><span>Reason</span><span>{d.reasonLabel}</span></div>
+                                  {d.rationale && (
+                                    <div style={{ fontStyle: 'italic', color: 'var(--text-secondary)', lineHeight: 1.4 }}>“{d.rationale}”</div>
+                                  )}
+                                  <div style={row}><span>Evidence</span><span>{d.coverage?.answered}/{d.coverage?.asked} answers</span></div>
+                                  <div style={row}><span>Receipt</span><span style={{ fontFamily: 'var(--font-mono)' }}>{d.receiptHash}</span></div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Accordion 3: Soteria Multi-Agent Need-to-Know Matrix */}
-            <div className="glass-card" style={{ padding: '12px' }}>
-              <div 
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', marginBottom: isConsensusOpen ? '10px' : '0' }}
-                onClick={() => setIsConsensusOpen(!isConsensusOpen)}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)' }}>
-                  <ShieldCheck size={14} color="var(--accent-emerald)" />
-                  <span>Soteria Need-to-Know Matrix</span>
-                </div>
-                {isConsensusOpen ? <ChevronUp size={14} color="var(--text-muted)" /> : <ChevronDown size={14} color="var(--text-muted)" />}
-              </div>
-
-              {isConsensusOpen && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {soteriaConsensus.map((agent) => (
-                    <div 
-                      key={agent.role}
-                      style={{
-                        padding: '6px 8px',
-                        background: 'rgba(255, 255, 255, 0.03)',
-                        borderRadius: '6px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '2px',
-                        fontSize: '11px',
-                        borderLeft: `2px solid ${
-                          agent.status === 'verified' ? 'var(--accent-emerald)' : 'var(--accent-amber)'
-                        }`
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{agent.label}</span>
-                        <span 
-                          style={{ 
-                            fontSize: '9px', 
-                            padding: '1px 5px', 
-                            borderRadius: '4px', 
-                            background: agent.needToKnowVisibility === 'raw' 
-                              ? 'rgba(255, 255, 255, 0.14)' 
-                              : agent.needToKnowVisibility === 'ampel' 
-                              ? 'rgba(245, 158, 11, 0.15)' 
-                              : 'rgba(16, 185, 129, 0.15)',
-                            color: agent.needToKnowVisibility === 'raw' 
-                              ? '#ffffff' 
-                              : agent.needToKnowVisibility === 'ampel' 
-                              ? 'var(--accent-amber)' 
-                              : 'var(--accent-emerald)',
-                            fontFamily: 'var(--font-mono)'
-                          }}
-                        >
-                          {agent.needToKnowVisibility.toUpperCase()}
-                        </span>
-                      </div>
-                      <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
-                        {agent.lastFact}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    )}
+                  </div>
+                );
+              })}
             </div>
       </aside>
-    </>
+    </>,
+    document.body
   );
 };

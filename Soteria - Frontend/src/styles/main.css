@@ -273,9 +273,10 @@ html, body, #root {
 .apple-notification-sidebar-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  /* Light dim only, so the map stays readable while the sidebar is open */
+  background: rgba(0, 0, 0, 0.15);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   z-index: 90;
   animation: fadeIn 0.2s ease;
 }

@@ -49,7 +49,7 @@ export const ConsensusModal: React.FC<ConsensusModalProps> = ({ isOpen, onClose 
                 Soteria — Need-to-Know Multi-Agent Matrix
               </h3>
               <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                Entscheidungsfindung bei Güterschäden ohne Offenlegung von Geheimnissen
+                Decision-making on freight damage without disclosing secrets
               </p>
             </div>
           </div>
@@ -75,7 +75,7 @@ export const ConsensusModal: React.FC<ConsensusModalProps> = ({ isOpen, onClose 
           }}
         >
           <strong style={{ color: '#ffffff' }}>Zero-Knowledge Protokoll:</strong> Kein Beteiligter darf alles wissen. 
-          Der Bewerter (Assessor) entscheidet auf Ampeln und Schwellen, ohne Rohwerte wie Firmenbestände oder Vertragsstrafen im Klartext zu sehen.
+          The assessor decides on traffic lights and thresholds, without ever seeing raw values such as company stock levels or contract penalties in plain text.
         </div>
 
         {/* Matrix Table */}
@@ -155,7 +155,7 @@ export const ConsensusModal: React.FC<ConsensusModalProps> = ({ isOpen, onClose 
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
           <button className="btn-glass btn-glass-primary" onClick={onClose}>
-            Schließen
+            Close
           </button>
         </div>
       </div>

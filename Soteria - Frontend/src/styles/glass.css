@@ -195,6 +195,50 @@
   transform: translateY(-1px);
 }
 
+/* Featured button: Agent Live Console */
+.btn-agent-console {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(16, 185, 129, 0.55);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.28), rgba(56, 189, 248, 0.18));
+  color: #ffffff;
+  font-family: var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 0 24px var(--accent-emerald-glow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-agent-console:hover,
+.btn-agent-console:focus-visible {
+  transform: translateY(-1px);
+  border-color: var(--accent-emerald);
+  box-shadow: 0 0 36px rgba(16, 185, 129, 0.45);
+  outline: none;
+}
+
+.btn-agent-console-dot {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--accent-emerald);
+  animation: agent-console-pulse 1.6s ease-out infinite;
+}
+
+@keyframes agent-console-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  100% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-agent-console-dot { animation: none; }
+}
+
 .btn-glass-primary {
   background: rgba(255, 255, 255, 0.12);
   border-color: rgba(255, 255, 255, 0.3);

@@ -35,7 +35,7 @@ export const FloatingAssetTooltip: React.FC<{ onOpenEdit?: () => void }> = ({ on
         <span 
           className="card-header-icon" 
           onClick={onOpenEdit} 
-          title="Einheit konfigurieren / bearbeiten" 
+          title="Configure / edit unit" 
           style={{ cursor: 'pointer' }}
         >
           <ArrowUpRight size={15} />

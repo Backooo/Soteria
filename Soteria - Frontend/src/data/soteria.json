@@ -1,0 +1,2011 @@
+{
+  "INC-1001": {
+    "caseId": "s1",
+    "trainId": "TR-1001",
+    "timestamp": "2026-09-16T13:05:00Z",
+    "recommendation": "Cool cargo — Tier 1, autonomous",
+    "soteriaTier": 1,
+    "marketSensitive": false,
+    "blockedChannels": [],
+    "receiptHead": "27c8e496ceaaa29d",
+    "consensus": [
+      {
+        "role": "intake",
+        "label": "Intake (damage)",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "temperature_curve (W02): traffic light GELB"
+      },
+      {
+        "role": "assessor",
+        "label": "Assessor",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "Cool cargo — Tier 1, autonomous · 13/13 answered · receipt chain verified"
+      },
+      {
+        "role": "legal",
+        "label": "Legal (contract)",
+        "status": "verified",
+        "needToKnowVisibility": "schwelle",
+        "lastFact": "contract_penalty: threshold not reached"
+      },
+      {
+        "role": "supplier",
+        "label": "Supplier",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "replacement_available (cooled): traffic light GRUEN"
+      },
+      {
+        "role": "customer",
+        "label": "Customer",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "customer_stock (cooled): traffic light GRUEN"
+      }
+    ],
+    "decision": {
+      "status": "decided",
+      "measures": [
+        {
+          "code": "cool",
+          "label": "Cool cargo"
+        }
+      ],
+      "tier": 1,
+      "tierLabel": "Tier 1 · reversible, executed autonomously",
+      "keysNeeded": 0,
+      "grants": [],
+      "reasonCode": "safety",
+      "reasonLabel": "Safety",
+      "coverage": {
+        "answered": 13,
+        "asked": 13,
+        "roles_missing": []
+      },
+      "receiptHash": "27c8e496ceaaa29d",
+      "decidedBy": "llm",
+      "model": "flower-endeavor-v1.0",
+      "rationale": "Yellow temperature with required cooling and green customer stock calls only for cooling. Track is clear and train is operational, so no stop or reroute is needed."
+    },
+    "events": [
+      {
+        "seq": 1,
+        "t": 0.001,
+        "type": "soteria.incident.open",
+        "case_id": "s1",
+        "incident_id": "INC-1001",
+        "train_id": "TR-1001",
+        "location": "Rail segment R-12, km 18.4",
+        "symptom": "Small obstruction encountered in front of the locomotive followed by minor impact",
+        "severity": "low",
+        "train_operational": "normal",
+        "track_blocked": false,
+        "affected_wagons": [
+          "W02"
+        ],
+        "cargo_classes_coarse": [
+          "cooled",
+          "general"
+        ],
+        "flags": [
+          "perishable",
+          "person_data"
+        ]
+      },
+      {
+        "seq": 2,
+        "t": 0.001,
+        "type": "soteria.role.ready",
+        "party_id": "carrier_rheinrail",
+        "party_type": "carrier",
+        "speaks_as": [
+          "intake",
+          "legal"
+        ],
+        "online": true
+      },
+      {
+        "seq": 3,
+        "t": 0.001,
+        "type": "soteria.role.ready",
+        "party_id": "supplier_nordfrost",
+        "party_type": "supplier",
+        "speaks_as": [
+          "supplier"
+        ],
+        "online": true
+      },
+      {
+        "seq": 4,
+        "t": 0.001,
+        "type": "soteria.role.ready",
+        "party_id": "customer_c1_frischemarkt",
+        "party_type": "customer",
+        "speaks_as": [
+          "customer"
+        ],
+        "online": true
+      },
+      {
+        "seq": 5,
+        "t": 0.001,
+        "type": "soteria.receipt",
+        "seq_in_chain": 1,
+        "kind": "incident",
+        "hash": "daf0f328a398118b",
+        "prev": "0000000000000000"
+      },
+      {
+        "seq": 6,
+        "t": 0.01,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "temperature_curve",
+        "reason_code": "safety",
+        "visibility": "ampel"
+      },
+      {
+        "seq": 7,
+        "t": 0.01,
+        "type": "soteria.fact",
+        "role": "intake",
+        "field": "temperature_curve",
+        "visibility": "ampel",
+        "value": "gelb",
+        "scope": "W02",
+        "flags": []
+      },
+      {
+        "seq": 8,
+        "t": 0.01,
+        "type": "soteria.receipt",
+        "seq_in_chain": 2,
+        "kind": "fact",
+        "hash": "9b8a0558ee17f245",
+        "prev": "daf0f328a398118b"
+      },
+      {
+        "seq": 9,
+        "t": 0.01,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "market_sensitive",
+        "reason_code": "confidentiality",
+        "visibility": "flag"
+      },
+      {
+        "seq": 10,
+        "t": 0.01,
+        "type": "soteria.fact",
+        "role": "legal",
+        "field": "market_sensitive",
+        "visibility": "flag",
+        "value": false,
+        "scope": "",
+        "flags": [
+          "market_sensitive"
+        ]
+      },
+      {
+        "seq": 11,
+        "t": 0.01,
+        "type": "soteria.receipt",
+        "seq_in_chain": 3,
+        "kind": "fact",
+        "hash": "6684d1f157b44082",
+        "prev": "9b8a0558ee17f245"
+      },
+      {
+        "seq": 12,
+        "t": 0.01,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "cargo_class",
+        "reason_code": "safety",
+        "visibility": "coarse"
+      },
+      {
+        "seq": 13,
+        "t": 0.01,
+        "type": "soteria.fact",
+        "role": "intake",
+        "field": "cargo_class",
+        "visibility": "coarse",
+        "value": "cooled",
+        "scope": "W02",
+        "flags": []
+      },
+      {
+        "seq": 14,
+        "t": 0.01,
+        "type": "soteria.receipt",
+        "seq_in_chain": 4,
+        "kind": "fact",
+        "hash": "b7b54dd607a5afa3",
+        "prev": "6684d1f157b44082"
+      },
+      {
+        "seq": 15,
+        "t": 0.01,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "route_weakness",
+        "reason_code": "feasibility",
+        "visibility": "ampel"
+      },
+      {
+        "seq": 16,
+        "t": 0.01,
+        "type": "soteria.fact",
+        "role": "intake",
+        "field": "route_weakness",
+        "visibility": "ampel",
+        "value": "gelb",
+        "scope": "",
+        "flags": []
+      },
+      {
+        "seq": 17,
+        "t": 0.01,
+        "type": "soteria.receipt",
+        "seq_in_chain": 5,
+        "kind": "fact",
+        "hash": "3f1f09133cb0fdb0",
+        "prev": "b7b54dd607a5afa3"
+      },
+      {
+        "seq": 18,
+        "t": 0.01,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "alt_route_status",
+        "reason_code": "feasibility",
+        "visibility": "raw"
+      },
+      {
+        "seq": 19,
+        "t": 0.01,
+        "type": "soteria.fact",
+        "role": "intake",
+        "field": "alt_route_status",
+        "visibility": "raw",
+        "value": "available_short",
+        "scope": "",
+        "flags": []
+      },
+      {
+        "seq": 20,
+        "t": 0.01,
+        "type": "soteria.receipt",
+        "seq_in_chain": 6,
+        "kind": "fact",
+        "hash": "adbfa956df038cc5",
+        "prev": "3f1f09133cb0fdb0"
+      },
+      {
+        "seq": 21,
+        "t": 0.011,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "road_access",
+        "reason_code": "feasibility",
+        "visibility": "ampel"
+      },
+      {
+        "seq": 22,
+        "t": 0.011,
+        "type": "soteria.fact",
+        "role": "intake",
+        "field": "road_access",
+        "visibility": "ampel",
+        "value": "gruen",
+        "scope": "",
+        "flags": []
+      },
+      {
+        "seq": 23,
+        "t": 0.011,
+        "type": "soteria.receipt",
+        "seq_in_chain": 7,
+        "kind": "fact",
+        "hash": "07a38baaff62a0d5",
+        "prev": "adbfa956df038cc5"
+      },
+      {
+        "seq": 24,
+        "t": 0.011,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "locality_class",
+        "reason_code": "safety",
+        "visibility": "raw"
+      },
+      {
+        "seq": 25,
+        "t": 0.011,
+        "type": "soteria.fact",
+        "role": "intake",
+        "field": "locality_class",
+        "visibility": "raw",
+        "value": "industrial",
+        "scope": "",
+        "flags": []
+      },
+      {
+        "seq": 26,
+        "t": 0.011,
+        "type": "soteria.receipt",
+        "seq_in_chain": 8,
+        "kind": "fact",
+        "hash": "df8da839e08410fe",
+        "prev": "07a38baaff62a0d5"
+      },
+      {
+        "seq": 27,
+        "t": 0.011,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "replacement_available",
+        "reason_code": "feasibility",
+        "visibility": "ampel"
+      },
+      {
+        "seq": 28,
+        "t": 0.011,
+        "type": "soteria.fact",
+        "role": "supplier",
+        "field": "replacement_available",
+        "visibility": "ampel",
+        "value": "gruen",
+        "scope": "cooled",
+        "flags": []
+      },
+      {
+        "seq": 29,
+        "t": 0.011,
+        "type": "soteria.receipt",
+        "seq_in_chain": 9,
+        "kind": "fact",
+        "hash": "4d08681e9a8738b1",
+        "prev": "df8da839e08410fe"
+      },
+      {
+        "seq": 30,
+        "t": 0.011,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "cooling_required",
+        "reason_code": "safety",
+        "visibility": "flag"
+      },
+      {
+        "seq": 31,
+        "t": 0.011,
+        "type": "soteria.fact",
+        "role": "supplier",
+        "field": "cooling_required",
+        "visibility": "flag",
+        "value": true,
+        "scope": "cooled",
+        "flags": []
+      },
+      {
+        "seq": 32,
+        "t": 0.011,
+        "type": "soteria.receipt",
+        "seq_in_chain": 10,
+        "kind": "fact",
+        "hash": "08d6673284f1fa91",
+        "prev": "4d08681e9a8738b1"
+      },
+      {
+        "seq": 33,
+        "t": 0.011,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "customer_stock",
+        "reason_code": "time",
+        "visibility": "ampel"
+      },
+      {
+        "seq": 34,
+        "t": 0.011,
+        "type": "soteria.fact",
+        "role": "customer",
+        "field": "customer_stock",
+        "visibility": "ampel",
+        "value": "gruen",
+        "scope": "cooled",
+        "flags": []
+      },
+      {
+        "seq": 35,
+        "t": 0.011,
+        "type": "soteria.receipt",
+        "seq_in_chain": 11,
+        "kind": "fact",
+        "hash": "058293ff178fa990",
+        "prev": "08d6673284f1fa91"
+      },
+      {
+        "seq": 36,
+        "t": 0.011,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "customer_urgency",
+        "reason_code": "time",
+        "visibility": "ampel"
+      },
+      {
+        "seq": 37,
+        "t": 0.011,
+        "type": "soteria.fact",
+        "role": "customer",
+        "field": "customer_urgency",
+        "visibility": "ampel",
+        "value": "gruen",
+        "scope": "cooled",
+        "flags": []
+      },
+      {
+        "seq": 38,
+        "t": 0.011,
+        "type": "soteria.receipt",
+        "seq_in_chain": 12,
+        "kind": "fact",
+        "hash": "dfe943c9667e476f",
+        "prev": "058293ff178fa990"
+      },
+      {
+        "seq": 39,
+        "t": 0.011,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "contract_penalty",
+        "reason_code": "liability",
+        "visibility": "schwelle"
+      },
+      {
+        "seq": 40,
+        "t": 0.011,
+        "type": "soteria.fact",
+        "role": "legal",
+        "field": "contract_penalty",
+        "visibility": "schwelle",
+        "value": "below",
+        "scope": "",
+        "flags": []
+      },
+      {
+        "seq": 41,
+        "t": 0.011,
+        "type": "soteria.receipt",
+        "seq_in_chain": 13,
+        "kind": "fact",
+        "hash": "05dcb0daf6b84007",
+        "prev": "dfe943c9667e476f"
+      },
+      {
+        "seq": 42,
+        "t": 0.011,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "contract_deadline_h",
+        "reason_code": "liability",
+        "visibility": "schwelle"
+      },
+      {
+        "seq": 43,
+        "t": 0.011,
+        "type": "soteria.fact",
+        "role": "legal",
+        "field": "contract_deadline_h",
+        "visibility": "schwelle",
+        "value": "above",
+        "scope": "",
+        "flags": []
+      },
+      {
+        "seq": 44,
+        "t": 0.011,
+        "type": "soteria.receipt",
+        "seq_in_chain": 14,
+        "kind": "fact",
+        "hash": "2cc1f2f416c4389b",
+        "prev": "05dcb0daf6b84007"
+      },
+      {
+        "seq": 45,
+        "t": 0.011,
+        "type": "soteria.coverage",
+        "answered": 13,
+        "asked": 13,
+        "parties_expected": [
+          "carrier_rheinrail",
+          "customer_c1_frischemarkt",
+          "supplier_nordfrost"
+        ],
+        "parties_missing": []
+      },
+      {
+        "seq": 46,
+        "t": 0.011,
+        "type": "soteria.model.request",
+        "model": "flower-endeavor-v1.0",
+        "federation": "supergrid",
+        "signals": [
+          "alt_route_status",
+          "cargo_class",
+          "contract_deadline_h",
+          "contract_penalty",
+          "cooling_required",
+          "customer_stock",
+          "customer_urgency",
+          "locality_class",
+          "market_sensitive",
+          "replacement_available",
+          "road_access",
+          "route_weakness",
+          "temperature_curve"
+        ]
+      },
+      {
+        "seq": 47,
+        "t": 49.741,
+        "type": "soteria.model.decision",
+        "model": "flower-endeavor-v1.0",
+        "decided_by": "llm",
+        "measures": [
+          "cool"
+        ],
+        "reason_code": "safety",
+        "rationale": "Yellow temperature with required cooling and green customer stock calls only for cooling. Track is clear and train is operational, so no stop or reroute is needed.",
+        "policy_measures": [
+          "cool"
+        ],
+        "agrees_with_policy": true,
+        "floor_added": [],
+        "error": "",
+        "latency_seconds": 49.73
+      },
+      {
+        "seq": 48,
+        "t": 49.741,
+        "type": "soteria.grant.required",
+        "measures": [
+          "cool"
+        ],
+        "tier": 1,
+        "keys_needed": 0
+      },
+      {
+        "seq": 49,
+        "t": 49.741,
+        "type": "soteria.receipt",
+        "seq_in_chain": 15,
+        "kind": "decision",
+        "hash": "27c8e496ceaaa29d",
+        "prev": "2cc1f2f416c4389b"
+      },
+      {
+        "seq": 50,
+        "t": 49.741,
+        "type": "soteria.decision",
+        "measures": [
+          "cool"
+        ],
+        "params": {
+          "case_id": "s1",
+          "train_id": "TR-1001"
+        },
+        "tier": 1,
+        "grants": [],
+        "coverage": {
+          "answered": 13,
+          "asked": 13,
+          "roles_missing": []
+        },
+        "reason_code": "safety",
+        "receipt_hash": "27c8e496ceaaa29d",
+        "parties_missing": [],
+        "scopes": {
+          "temperature_curve": "W02",
+          "cargo_class": "W02",
+          "replacement_available": "cooled",
+          "cooling_required": "cooled",
+          "customer_stock": "cooled",
+          "customer_urgency": "cooled"
+        },
+        "decided_by": "llm",
+        "model": "flower-endeavor-v1.0",
+        "rationale": "Yellow temperature with required cooling and green customer stock calls only for cooling. Track is clear and train is operational, so no stop or reroute is needed."
+      },
+      {
+        "seq": 51,
+        "t": 49.741,
+        "type": "soteria.done",
+        "elapsed_seconds": 49.74,
+        "refusals": 0,
+        "refusal_codes": {},
+        "asks": 13,
+        "answers": 13,
+        "quarantined": false,
+        "receipt_chain_verified": true,
+        "receipt_head": "27c8e496ceaaa29d"
+      }
+    ]
+  },
+  "INC-1002": {
+    "caseId": "s2",
+    "trainId": "TR-1002",
+    "timestamp": "2026-09-16T13:05:20Z",
+    "recommendation": "Switch to alternative transport — Tier 2, 1 key(s) (ops-lead-rheinrail-1)",
+    "soteriaTier": 2,
+    "marketSensitive": false,
+    "blockedChannels": [],
+    "receiptHead": "b7f42364c7b1f3f4",
+    "consensus": [
+      {
+        "role": "intake",
+        "label": "Intake (damage)",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "temperature_curve (W02): traffic light GELB"
+      },
+      {
+        "role": "assessor",
+        "label": "Assessor",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "Switch to alternative transport — Tier 2, 1 key(s) (ops-lead-rheinrail-1) · 13/13 answered · receipt chain verified"
+      },
+      {
+        "role": "legal",
+        "label": "Legal (contract)",
+        "status": "verified",
+        "needToKnowVisibility": "schwelle",
+        "lastFact": "contract_penalty: threshold exceeded"
+      },
+      {
+        "role": "supplier",
+        "label": "Supplier",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "replacement_available (cooled): traffic light GRUEN"
+      },
+      {
+        "role": "customer",
+        "label": "Customer",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "customer_stock (regulated): traffic light ROT"
+      }
+    ],
+    "decision": {
+      "status": "decided",
+      "measures": [
+        {
+          "code": "alt_transport",
+          "label": "Switch to alternative transport"
+        }
+      ],
+      "tier": 2,
+      "tierLabel": "Tier 2 · one human key",
+      "keysNeeded": 1,
+      "grants": [
+        "ops-lead-rheinrail-1"
+      ],
+      "reasonCode": "feasibility",
+      "reasonLabel": "Feasibility",
+      "coverage": {
+        "answered": 13,
+        "asked": 13,
+        "roles_missing": []
+      },
+      "receiptHash": "b7f42364c7b1f3f4",
+      "decidedBy": "policy_fallback",
+      "model": "flower-endeavor-v1.0",
+      "rationale": ""
+    },
+    "events": [
+      {
+        "seq": 1,
+        "t": 0.0,
+        "type": "soteria.incident.open",
+        "case_id": "s2",
+        "incident_id": "INC-1002",
+        "train_id": "TR-1002",
+        "location": "Rail segment R-08, km 31.7",
+        "symptom": "Large object obstructing the track ahead of the train",
+        "severity": "medium",
+        "train_operational": "restricted",
+        "track_blocked": true,
+        "affected_wagons": [
+          "W02"
+        ],
+        "cargo_classes_coarse": [
+          "cooled",
+          "general",
+          "regulated"
+        ],
+        "flags": [
+          "perishable",
+          "person_data"
+        ]
+      },
+      {
+        "seq": 2,
+        "t": 0.0,
+        "type": "soteria.role.ready",
+        "party_id": "carrier_rheinrail",
+        "party_type": "carrier",
+        "speaks_as": [
+          "intake",
+          "legal"
+        ],
+        "online": true
+      },
+      {
+        "seq": 3,
+        "t": 0.0,
+        "type": "soteria.role.ready",
+        "party_id": "supplier_nordfrost",
+        "party_type": "supplier",
+        "speaks_as": [
+          "supplier"
+        ],
+        "online": true
+      },
+      {
+        "seq": 4,
+        "t": 0.0,
+        "type": "soteria.role.ready",
+        "party_id": "customer_c2_stadtklinik",
+        "party_type": "customer",
+        "speaks_as": [
+          "customer"
+        ],
+        "online": true
+      },
+      {
+        "seq": 5,
+        "t": 0.0,
+        "type": "soteria.receipt",
+        "seq_in_chain": 1,
+        "kind": "incident",
+        "hash": "63de25e49722eeb6",
+        "prev": "0000000000000000"
+      },
+      {
+        "seq": 6,
+        "t": 0.011,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "temperature_curve",
+        "reason_code": "safety",
+        "visibility": "ampel"
+      },
+      {
+        "seq": 7,
+        "t": 0.011,
+        "type": "soteria.fact",
+        "role": "intake",
+        "field": "temperature_curve",
+        "visibility": "ampel",
+        "value": "gelb",
+        "scope": "W02",
+        "flags": []
+      },
+      {
+        "seq": 8,
+        "t": 0.011,
+        "type": "soteria.receipt",
+        "seq_in_chain": 2,
+        "kind": "fact",
+        "hash": "812c371a51b8b519",
+        "prev": "63de25e49722eeb6"
+      },
+      {
+        "seq": 9,
+        "t": 0.011,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "market_sensitive",
+        "reason_code": "confidentiality",
+        "visibility": "flag"
+      },
+      {
+        "seq": 10,
+        "t": 0.011,
+        "type": "soteria.fact",
+        "role": "legal",
+        "field": "market_sensitive",
+        "visibility": "flag",
+        "value": false,
+        "scope": "",
+        "flags": [
+          "market_sensitive"
+        ]
+      },
+      {
+        "seq": 11,
+        "t": 0.011,
+        "type": "soteria.receipt",
+        "seq_in_chain": 3,
+        "kind": "fact",
+        "hash": "e461f325f703e536",
+        "prev": "812c371a51b8b519"
+      },
+      {
+        "seq": 12,
+        "t": 0.011,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "cargo_class",
+        "reason_code": "safety",
+        "visibility": "coarse"
+      },
+      {
+        "seq": 13,
+        "t": 0.011,
+        "type": "soteria.fact",
+        "role": "intake",
+        "field": "cargo_class",
+        "visibility": "coarse",
+        "value": "cooled",
+        "scope": "W02",
+        "flags": []
+      },
+      {
+        "seq": 14,
+        "t": 0.011,
+        "type": "soteria.receipt",
+        "seq_in_chain": 4,
+        "kind": "fact",
+        "hash": "e8547f6243908a73",
+        "prev": "e461f325f703e536"
+      },
+      {
+        "seq": 15,
+        "t": 0.011,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "route_weakness",
+        "reason_code": "feasibility",
+        "visibility": "ampel"
+      },
+      {
+        "seq": 16,
+        "t": 0.011,
+        "type": "soteria.fact",
+        "role": "intake",
+        "field": "route_weakness",
+        "visibility": "ampel",
+        "value": "gelb",
+        "scope": "",
+        "flags": []
+      },
+      {
+        "seq": 17,
+        "t": 0.011,
+        "type": "soteria.receipt",
+        "seq_in_chain": 5,
+        "kind": "fact",
+        "hash": "2d37be71b40cb54b",
+        "prev": "e8547f6243908a73"
+      },
+      {
+        "seq": 18,
+        "t": 0.011,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "alt_route_status",
+        "reason_code": "feasibility",
+        "visibility": "raw"
+      },
+      {
+        "seq": 19,
+        "t": 0.011,
+        "type": "soteria.fact",
+        "role": "intake",
+        "field": "alt_route_status",
+        "visibility": "raw",
+        "value": "long_detour",
+        "scope": "",
+        "flags": []
+      },
+      {
+        "seq": 20,
+        "t": 0.011,
+        "type": "soteria.receipt",
+        "seq_in_chain": 6,
+        "kind": "fact",
+        "hash": "64677e94b62c1ffb",
+        "prev": "2d37be71b40cb54b"
+      },
+      {
+        "seq": 21,
+        "t": 0.011,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "road_access",
+        "reason_code": "feasibility",
+        "visibility": "ampel"
+      },
+      {
+        "seq": 22,
+        "t": 0.011,
+        "type": "soteria.fact",
+        "role": "intake",
+        "field": "road_access",
+        "visibility": "ampel",
+        "value": "gelb",
+        "scope": "",
+        "flags": []
+      },
+      {
+        "seq": 23,
+        "t": 0.011,
+        "type": "soteria.receipt",
+        "seq_in_chain": 7,
+        "kind": "fact",
+        "hash": "6057efcad97e5375",
+        "prev": "64677e94b62c1ffb"
+      },
+      {
+        "seq": 24,
+        "t": 0.011,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "locality_class",
+        "reason_code": "safety",
+        "visibility": "raw"
+      },
+      {
+        "seq": 25,
+        "t": 0.011,
+        "type": "soteria.fact",
+        "role": "intake",
+        "field": "locality_class",
+        "visibility": "raw",
+        "value": "village",
+        "scope": "",
+        "flags": []
+      },
+      {
+        "seq": 26,
+        "t": 0.011,
+        "type": "soteria.receipt",
+        "seq_in_chain": 8,
+        "kind": "fact",
+        "hash": "6b8aeca587177c16",
+        "prev": "6057efcad97e5375"
+      },
+      {
+        "seq": 27,
+        "t": 0.011,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "replacement_available",
+        "reason_code": "feasibility",
+        "visibility": "ampel"
+      },
+      {
+        "seq": 28,
+        "t": 0.011,
+        "type": "soteria.fact",
+        "role": "supplier",
+        "field": "replacement_available",
+        "visibility": "ampel",
+        "value": "gruen",
+        "scope": "cooled",
+        "flags": []
+      },
+      {
+        "seq": 29,
+        "t": 0.011,
+        "type": "soteria.receipt",
+        "seq_in_chain": 9,
+        "kind": "fact",
+        "hash": "ef446f152a914902",
+        "prev": "6b8aeca587177c16"
+      },
+      {
+        "seq": 30,
+        "t": 0.011,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "cooling_required",
+        "reason_code": "safety",
+        "visibility": "flag"
+      },
+      {
+        "seq": 31,
+        "t": 0.011,
+        "type": "soteria.fact",
+        "role": "supplier",
+        "field": "cooling_required",
+        "visibility": "flag",
+        "value": true,
+        "scope": "cooled",
+        "flags": []
+      },
+      {
+        "seq": 32,
+        "t": 0.011,
+        "type": "soteria.receipt",
+        "seq_in_chain": 10,
+        "kind": "fact",
+        "hash": "b1a33341261f256a",
+        "prev": "ef446f152a914902"
+      },
+      {
+        "seq": 33,
+        "t": 0.011,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "customer_stock",
+        "reason_code": "time",
+        "visibility": "ampel"
+      },
+      {
+        "seq": 34,
+        "t": 0.011,
+        "type": "soteria.fact",
+        "role": "customer",
+        "field": "customer_stock",
+        "visibility": "ampel",
+        "value": "rot",
+        "scope": "regulated",
+        "flags": []
+      },
+      {
+        "seq": 35,
+        "t": 0.011,
+        "type": "soteria.receipt",
+        "seq_in_chain": 11,
+        "kind": "fact",
+        "hash": "14ede3bb5e3fa070",
+        "prev": "b1a33341261f256a"
+      },
+      {
+        "seq": 36,
+        "t": 0.011,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "customer_urgency",
+        "reason_code": "time",
+        "visibility": "ampel"
+      },
+      {
+        "seq": 37,
+        "t": 0.011,
+        "type": "soteria.fact",
+        "role": "customer",
+        "field": "customer_urgency",
+        "visibility": "ampel",
+        "value": "rot",
+        "scope": "regulated",
+        "flags": []
+      },
+      {
+        "seq": 38,
+        "t": 0.011,
+        "type": "soteria.receipt",
+        "seq_in_chain": 12,
+        "kind": "fact",
+        "hash": "2fb414e17c031fe5",
+        "prev": "14ede3bb5e3fa070"
+      },
+      {
+        "seq": 39,
+        "t": 0.011,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "contract_penalty",
+        "reason_code": "liability",
+        "visibility": "schwelle"
+      },
+      {
+        "seq": 40,
+        "t": 0.011,
+        "type": "soteria.fact",
+        "role": "legal",
+        "field": "contract_penalty",
+        "visibility": "schwelle",
+        "value": "above",
+        "scope": "",
+        "flags": []
+      },
+      {
+        "seq": 41,
+        "t": 0.011,
+        "type": "soteria.receipt",
+        "seq_in_chain": 13,
+        "kind": "fact",
+        "hash": "932ac6d3efaaa8b5",
+        "prev": "2fb414e17c031fe5"
+      },
+      {
+        "seq": 42,
+        "t": 0.011,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "contract_deadline_h",
+        "reason_code": "liability",
+        "visibility": "schwelle"
+      },
+      {
+        "seq": 43,
+        "t": 0.011,
+        "type": "soteria.fact",
+        "role": "legal",
+        "field": "contract_deadline_h",
+        "visibility": "schwelle",
+        "value": "below",
+        "scope": "",
+        "flags": []
+      },
+      {
+        "seq": 44,
+        "t": 0.011,
+        "type": "soteria.receipt",
+        "seq_in_chain": 14,
+        "kind": "fact",
+        "hash": "138c75a2003df1b7",
+        "prev": "932ac6d3efaaa8b5"
+      },
+      {
+        "seq": 45,
+        "t": 0.011,
+        "type": "soteria.coverage",
+        "answered": 13,
+        "asked": 13,
+        "parties_expected": [
+          "carrier_rheinrail",
+          "customer_c2_stadtklinik",
+          "supplier_nordfrost"
+        ],
+        "parties_missing": []
+      },
+      {
+        "seq": 46,
+        "t": 0.011,
+        "type": "soteria.model.request",
+        "model": "flower-endeavor-v1.0",
+        "federation": "supergrid",
+        "signals": [
+          "alt_route_status",
+          "cargo_class",
+          "contract_deadline_h",
+          "contract_penalty",
+          "cooling_required",
+          "customer_stock",
+          "customer_urgency",
+          "locality_class",
+          "market_sensitive",
+          "replacement_available",
+          "road_access",
+          "route_weakness",
+          "temperature_curve"
+        ]
+      },
+      {
+        "seq": 47,
+        "t": 150.056,
+        "type": "soteria.model.decision",
+        "model": "flower-endeavor-v1.0",
+        "decided_by": "policy_fallback",
+        "measures": [
+          "alt_transport"
+        ],
+        "reason_code": "feasibility",
+        "rationale": "",
+        "policy_measures": [
+          "alt_transport"
+        ],
+        "agrees_with_policy": true,
+        "floor_added": [],
+        "error": "TimeoutExpired: Command '['/Users/marty/claude-projects/hackathon/collabarative_agent_hack/Soteria/.venv/bin/flwr', 'run', '/Users/marty/claude-projects/hackathon/collabarative",
+        "latency_seconds": 150.04
+      },
+      {
+        "seq": 48,
+        "t": 150.057,
+        "type": "soteria.grant.required",
+        "measures": [
+          "alt_transport"
+        ],
+        "tier": 2,
+        "keys_needed": 1
+      },
+      {
+        "seq": 49,
+        "t": 150.067,
+        "type": "soteria.grant.given",
+        "measures": [
+          "alt_transport"
+        ],
+        "human_id": "ops-lead-rheinrail-1",
+        "keys_have": 1,
+        "keys_needed": 1
+      },
+      {
+        "seq": 50,
+        "t": 150.068,
+        "type": "soteria.receipt",
+        "seq_in_chain": 15,
+        "kind": "decision",
+        "hash": "b7f42364c7b1f3f4",
+        "prev": "138c75a2003df1b7"
+      },
+      {
+        "seq": 51,
+        "t": 150.069,
+        "type": "soteria.decision",
+        "measures": [
+          "alt_transport"
+        ],
+        "params": {
+          "case_id": "s2",
+          "train_id": "TR-1002"
+        },
+        "tier": 2,
+        "grants": [
+          "ops-lead-rheinrail-1"
+        ],
+        "coverage": {
+          "answered": 13,
+          "asked": 13,
+          "roles_missing": []
+        },
+        "reason_code": "feasibility",
+        "receipt_hash": "b7f42364c7b1f3f4",
+        "parties_missing": [],
+        "scopes": {
+          "temperature_curve": "W02",
+          "cargo_class": "W02",
+          "replacement_available": "cooled",
+          "cooling_required": "cooled",
+          "customer_stock": "regulated",
+          "customer_urgency": "regulated"
+        },
+        "decided_by": "policy_fallback",
+        "model": "flower-endeavor-v1.0",
+        "rationale": ""
+      },
+      {
+        "seq": 52,
+        "t": 150.069,
+        "type": "soteria.done",
+        "elapsed_seconds": 150.07,
+        "refusals": 0,
+        "refusal_codes": {},
+        "asks": 13,
+        "answers": 13,
+        "quarantined": false,
+        "receipt_chain_verified": true,
+        "receipt_head": "b7f42364c7b1f3f4"
+      }
+    ]
+  },
+  "INC-1003": {
+    "caseId": "s3",
+    "trainId": "TR-1003",
+    "timestamp": "2026-09-16T13:05:40Z",
+    "recommendation": "Stop train, Notify authority, Cool cargo — Tier 3, 2 key(s) (ops-lead-rheinrail-1, safety-officer-rheinrail-2)",
+    "soteriaTier": 3,
+    "marketSensitive": true,
+    "blockedChannels": [
+      "browser_use",
+      "press",
+      "start_automation",
+      "web_fetch",
+      "web_search"
+    ],
+    "receiptHead": "5128617416ed1a8a",
+    "consensus": [
+      {
+        "role": "intake",
+        "label": "Intake (damage)",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "temperature_curve (W02): traffic light ROT"
+      },
+      {
+        "role": "assessor",
+        "label": "Assessor",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "Stop train, Notify authority, Cool cargo — Tier 3, 2 key(s) (ops-lead-rheinrail-1, safety-officer-rheinrail-2) · 13/13 answered · receipt chain verified"
+      },
+      {
+        "role": "legal",
+        "label": "Legal (contract)",
+        "status": "quarantined",
+        "needToKnowVisibility": "schwelle",
+        "lastFact": "contract_penalty: threshold not reached"
+      },
+      {
+        "role": "supplier",
+        "label": "Supplier",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "replacement_available (hazardous): traffic light ROT"
+      },
+      {
+        "role": "customer",
+        "label": "Customer",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "customer_stock (regulated): traffic light GELB"
+      }
+    ],
+    "decision": {
+      "status": "decided",
+      "measures": [
+        {
+          "code": "stop_train",
+          "label": "Stop train"
+        },
+        {
+          "code": "notify_authority",
+          "label": "Notify authority"
+        },
+        {
+          "code": "cool",
+          "label": "Cool cargo"
+        }
+      ],
+      "tier": 3,
+      "tierLabel": "Tier 3 · hard to reverse, two human keys",
+      "keysNeeded": 2,
+      "grants": [
+        "ops-lead-rheinrail-1",
+        "safety-officer-rheinrail-2"
+      ],
+      "reasonCode": "safety",
+      "reasonLabel": "Safety",
+      "coverage": {
+        "answered": 13,
+        "asked": 13,
+        "roles_missing": []
+      },
+      "receiptHash": "5128617416ed1a8a",
+      "decidedBy": "llm",
+      "model": "flower-endeavor-v1.0",
+      "rationale": "High-severity immobilized train with hazmat and a blocked track requires stopping and notifying the authority. Cooling is required to control the red temperature condition while the train is immobilized."
+    },
+    "events": [
+      {
+        "seq": 1,
+        "t": 0.002,
+        "type": "soteria.incident.open",
+        "case_id": "s3",
+        "incident_id": "INC-1003",
+        "train_id": "TR-1003",
+        "location": "Rail segment R-04, km 56.2",
+        "symptom": "Train collided with a large obstruction and came to a complete stop",
+        "severity": "high",
+        "train_operational": "immobilized",
+        "track_blocked": true,
+        "affected_wagons": [
+          "W02",
+          "W03",
+          "W05"
+        ],
+        "cargo_classes_coarse": [
+          "cooled",
+          "general",
+          "hazardous",
+          "regulated"
+        ],
+        "flags": [
+          "hazmat",
+          "perishable",
+          "market_sensitive",
+          "person_data"
+        ]
+      },
+      {
+        "seq": 2,
+        "t": 0.002,
+        "type": "soteria.role.ready",
+        "party_id": "carrier_rheinrail",
+        "party_type": "carrier",
+        "speaks_as": [
+          "intake",
+          "legal"
+        ],
+        "online": true
+      },
+      {
+        "seq": 3,
+        "t": 0.002,
+        "type": "soteria.role.ready",
+        "party_id": "supplier_nordfrost",
+        "party_type": "supplier",
+        "speaks_as": [
+          "supplier"
+        ],
+        "online": true
+      },
+      {
+        "seq": 4,
+        "t": 0.002,
+        "type": "soteria.role.ready",
+        "party_id": "customer_c3_chemiewerk",
+        "party_type": "customer",
+        "speaks_as": [
+          "customer"
+        ],
+        "online": true
+      },
+      {
+        "seq": 5,
+        "t": 0.002,
+        "type": "soteria.receipt",
+        "seq_in_chain": 1,
+        "kind": "incident",
+        "hash": "199182512adce5ab",
+        "prev": "0000000000000000"
+      },
+      {
+        "seq": 6,
+        "t": 0.018,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "temperature_curve",
+        "reason_code": "safety",
+        "visibility": "ampel"
+      },
+      {
+        "seq": 7,
+        "t": 0.018,
+        "type": "soteria.fact",
+        "role": "intake",
+        "field": "temperature_curve",
+        "visibility": "ampel",
+        "value": "rot",
+        "scope": "W02",
+        "flags": []
+      },
+      {
+        "seq": 8,
+        "t": 0.018,
+        "type": "soteria.receipt",
+        "seq_in_chain": 2,
+        "kind": "fact",
+        "hash": "b534764010e7c9b1",
+        "prev": "199182512adce5ab"
+      },
+      {
+        "seq": 9,
+        "t": 0.018,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "market_sensitive",
+        "reason_code": "confidentiality",
+        "visibility": "flag"
+      },
+      {
+        "seq": 10,
+        "t": 0.018,
+        "type": "soteria.fact",
+        "role": "legal",
+        "field": "market_sensitive",
+        "visibility": "flag",
+        "value": true,
+        "scope": "",
+        "flags": [
+          "market_sensitive"
+        ]
+      },
+      {
+        "seq": 11,
+        "t": 0.018,
+        "type": "soteria.receipt",
+        "seq_in_chain": 3,
+        "kind": "fact",
+        "hash": "47b73132ac2b67a2",
+        "prev": "b534764010e7c9b1"
+      },
+      {
+        "seq": 12,
+        "t": 0.018,
+        "type": "collab.taint",
+        "source": "legal"
+      },
+      {
+        "seq": 13,
+        "t": 0.018,
+        "type": "soteria.quarantine",
+        "trigger_role": "legal",
+        "field": "market_sensitive",
+        "blocked_channels": [
+          "browser_use",
+          "press",
+          "start_automation",
+          "web_fetch",
+          "web_search"
+        ]
+      },
+      {
+        "seq": 14,
+        "t": 0.018,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "cargo_class",
+        "reason_code": "safety",
+        "visibility": "coarse"
+      },
+      {
+        "seq": 15,
+        "t": 0.018,
+        "type": "soteria.fact",
+        "role": "intake",
+        "field": "cargo_class",
+        "visibility": "coarse",
+        "value": "regulated",
+        "scope": "W02",
+        "flags": []
+      },
+      {
+        "seq": 16,
+        "t": 0.018,
+        "type": "soteria.receipt",
+        "seq_in_chain": 4,
+        "kind": "fact",
+        "hash": "b93834deffdd5cd7",
+        "prev": "47b73132ac2b67a2"
+      },
+      {
+        "seq": 17,
+        "t": 0.018,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "route_weakness",
+        "reason_code": "feasibility",
+        "visibility": "ampel"
+      },
+      {
+        "seq": 18,
+        "t": 0.018,
+        "type": "soteria.fact",
+        "role": "intake",
+        "field": "route_weakness",
+        "visibility": "ampel",
+        "value": "rot",
+        "scope": "",
+        "flags": []
+      },
+      {
+        "seq": 19,
+        "t": 0.018,
+        "type": "soteria.receipt",
+        "seq_in_chain": 5,
+        "kind": "fact",
+        "hash": "7d5d37b3939486d9",
+        "prev": "b93834deffdd5cd7"
+      },
+      {
+        "seq": 20,
+        "t": 0.018,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "alt_route_status",
+        "reason_code": "feasibility",
+        "visibility": "raw"
+      },
+      {
+        "seq": 21,
+        "t": 0.018,
+        "type": "soteria.fact",
+        "role": "intake",
+        "field": "alt_route_status",
+        "visibility": "raw",
+        "value": "none",
+        "scope": "",
+        "flags": []
+      },
+      {
+        "seq": 22,
+        "t": 0.018,
+        "type": "soteria.receipt",
+        "seq_in_chain": 6,
+        "kind": "fact",
+        "hash": "41e1a36bb2db0ba4",
+        "prev": "7d5d37b3939486d9"
+      },
+      {
+        "seq": 23,
+        "t": 0.018,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "road_access",
+        "reason_code": "feasibility",
+        "visibility": "ampel"
+      },
+      {
+        "seq": 24,
+        "t": 0.018,
+        "type": "soteria.fact",
+        "role": "intake",
+        "field": "road_access",
+        "visibility": "ampel",
+        "value": "rot",
+        "scope": "",
+        "flags": []
+      },
+      {
+        "seq": 25,
+        "t": 0.018,
+        "type": "soteria.receipt",
+        "seq_in_chain": 7,
+        "kind": "fact",
+        "hash": "fe0debe973f6c435",
+        "prev": "41e1a36bb2db0ba4"
+      },
+      {
+        "seq": 26,
+        "t": 0.018,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "locality_class",
+        "reason_code": "safety",
+        "visibility": "raw"
+      },
+      {
+        "seq": 27,
+        "t": 0.018,
+        "type": "soteria.fact",
+        "role": "intake",
+        "field": "locality_class",
+        "visibility": "raw",
+        "value": "town_edge",
+        "scope": "",
+        "flags": []
+      },
+      {
+        "seq": 28,
+        "t": 0.018,
+        "type": "soteria.receipt",
+        "seq_in_chain": 8,
+        "kind": "fact",
+        "hash": "9258ef2c9e805627",
+        "prev": "fe0debe973f6c435"
+      },
+      {
+        "seq": 29,
+        "t": 0.018,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "replacement_available",
+        "reason_code": "feasibility",
+        "visibility": "ampel"
+      },
+      {
+        "seq": 30,
+        "t": 0.018,
+        "type": "soteria.fact",
+        "role": "supplier",
+        "field": "replacement_available",
+        "visibility": "ampel",
+        "value": "rot",
+        "scope": "hazardous",
+        "flags": []
+      },
+      {
+        "seq": 31,
+        "t": 0.018,
+        "type": "soteria.receipt",
+        "seq_in_chain": 9,
+        "kind": "fact",
+        "hash": "e56cff4247cd3dc3",
+        "prev": "9258ef2c9e805627"
+      },
+      {
+        "seq": 32,
+        "t": 0.018,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "cooling_required",
+        "reason_code": "safety",
+        "visibility": "flag"
+      },
+      {
+        "seq": 33,
+        "t": 0.018,
+        "type": "soteria.fact",
+        "role": "supplier",
+        "field": "cooling_required",
+        "visibility": "flag",
+        "value": true,
+        "scope": "regulated",
+        "flags": []
+      },
+      {
+        "seq": 34,
+        "t": 0.018,
+        "type": "soteria.receipt",
+        "seq_in_chain": 10,
+        "kind": "fact",
+        "hash": "66dae8c6498283b8",
+        "prev": "e56cff4247cd3dc3"
+      },
+      {
+        "seq": 35,
+        "t": 0.018,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "customer_stock",
+        "reason_code": "time",
+        "visibility": "ampel"
+      },
+      {
+        "seq": 36,
+        "t": 0.018,
+        "type": "soteria.fact",
+        "role": "customer",
+        "field": "customer_stock",
+        "visibility": "ampel",
+        "value": "gelb",
+        "scope": "regulated",
+        "flags": []
+      },
+      {
+        "seq": 37,
+        "t": 0.018,
+        "type": "soteria.receipt",
+        "seq_in_chain": 11,
+        "kind": "fact",
+        "hash": "79185fae348ed319",
+        "prev": "66dae8c6498283b8"
+      },
+      {
+        "seq": 38,
+        "t": 0.018,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "customer_urgency",
+        "reason_code": "time",
+        "visibility": "ampel"
+      },
+      {
+        "seq": 39,
+        "t": 0.018,
+        "type": "soteria.fact",
+        "role": "customer",
+        "field": "customer_urgency",
+        "visibility": "ampel",
+        "value": "rot",
+        "scope": "regulated",
+        "flags": []
+      },
+      {
+        "seq": 40,
+        "t": 0.018,
+        "type": "soteria.receipt",
+        "seq_in_chain": 12,
+        "kind": "fact",
+        "hash": "c13247bab9e3c0c0",
+        "prev": "79185fae348ed319"
+      },
+      {
+        "seq": 41,
+        "t": 0.018,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "contract_penalty",
+        "reason_code": "liability",
+        "visibility": "schwelle"
+      },
+      {
+        "seq": 42,
+        "t": 0.018,
+        "type": "soteria.fact",
+        "role": "legal",
+        "field": "contract_penalty",
+        "visibility": "schwelle",
+        "value": "below",
+        "scope": "",
+        "flags": []
+      },
+      {
+        "seq": 43,
+        "t": 0.018,
+        "type": "soteria.receipt",
+        "seq_in_chain": 13,
+        "kind": "fact",
+        "hash": "b71d33dbe3366b3c",
+        "prev": "c13247bab9e3c0c0"
+      },
+      {
+        "seq": 44,
+        "t": 0.018,
+        "type": "soteria.ask",
+        "from_role": "assessor",
+        "field": "contract_deadline_h",
+        "reason_code": "liability",
+        "visibility": "schwelle"
+      },
+      {
+        "seq": 45,
+        "t": 0.018,
+        "type": "soteria.fact",
+        "role": "legal",
+        "field": "contract_deadline_h",
+        "visibility": "schwelle",
+        "value": "above",
+        "scope": "",
+        "flags": []
+      },
+      {
+        "seq": 46,
+        "t": 0.018,
+        "type": "soteria.receipt",
+        "seq_in_chain": 14,
+        "kind": "fact",
+        "hash": "19d26c939108a585",
+        "prev": "b71d33dbe3366b3c"
+      },
+      {
+        "seq": 47,
+        "t": 0.019,
+        "type": "soteria.coverage",
+        "answered": 13,
+        "asked": 13,
+        "parties_expected": [
+          "carrier_rheinrail",
+          "customer_c3_chemiewerk",
+          "supplier_nordfrost"
+        ],
+        "parties_missing": []
+      },
+      {
+        "seq": 48,
+        "t": 0.019,
+        "type": "soteria.model.request",
+        "model": "flower-endeavor-v1.0",
+        "federation": "supergrid",
+        "signals": [
+          "alt_route_status",
+          "cargo_class",
+          "contract_deadline_h",
+          "contract_penalty",
+          "cooling_required",
+          "customer_stock",
+          "customer_urgency",
+          "locality_class",
+          "market_sensitive",
+          "replacement_available",
+          "road_access",
+          "route_weakness",
+          "temperature_curve"
+        ]
+      },
+      {
+        "seq": 49,
+        "t": 71.36,
+        "type": "soteria.model.decision",
+        "model": "flower-endeavor-v1.0",
+        "decided_by": "llm",
+        "measures": [
+          "stop_train",
+          "notify_authority",
+          "cool"
+        ],
+        "reason_code": "safety",
+        "rationale": "High-severity immobilized train with hazmat and a blocked track requires stopping and notifying the authority. Cooling is required to control the red temperature condition while the train is immobilized.",
+        "policy_measures": [
+          "stop_train",
+          "notify_authority"
+        ],
+        "agrees_with_policy": false,
+        "floor_added": [],
+        "error": "",
+        "latency_seconds": 71.34
+      },
+      {
+        "seq": 50,
+        "t": 71.36,
+        "type": "soteria.grant.required",
+        "measures": [
+          "stop_train",
+          "notify_authority",
+          "cool"
+        ],
+        "tier": 3,
+        "keys_needed": 2
+      },
+      {
+        "seq": 51,
+        "t": 71.361,
+        "type": "soteria.grant.given",
+        "measures": [
+          "stop_train",
+          "notify_authority",
+          "cool"
+        ],
+        "human_id": "ops-lead-rheinrail-1",
+        "keys_have": 2,
+        "keys_needed": 2
+      },
+      {
+        "seq": 52,
+        "t": 71.361,
+        "type": "soteria.grant.given",
+        "measures": [
+          "stop_train",
+          "notify_authority",
+          "cool"
+        ],
+        "human_id": "safety-officer-rheinrail-2",
+        "keys_have": 2,
+        "keys_needed": 2
+      },
+      {
+        "seq": 53,
+        "t": 71.362,
+        "type": "soteria.receipt",
+        "seq_in_chain": 15,
+        "kind": "decision",
+        "hash": "5128617416ed1a8a",
+        "prev": "19d26c939108a585"
+      },
+      {
+        "seq": 54,
+        "t": 71.362,
+        "type": "soteria.decision",
+        "measures": [
+          "stop_train",
+          "notify_authority",
+          "cool"
+        ],
+        "params": {
+          "case_id": "s3",
+          "train_id": "TR-1003"
+        },
+        "tier": 3,
+        "grants": [
+          "ops-lead-rheinrail-1",
+          "safety-officer-rheinrail-2"
+        ],
+        "coverage": {
+          "answered": 13,
+          "asked": 13,
+          "roles_missing": []
+        },
+        "reason_code": "safety",
+        "receipt_hash": "5128617416ed1a8a",
+        "parties_missing": [],
+        "scopes": {
+          "temperature_curve": "W02",
+          "cargo_class": "W02",
+          "replacement_available": "hazardous",
+          "cooling_required": "regulated",
+          "customer_stock": "regulated",
+          "customer_urgency": "regulated"
+        },
+        "decided_by": "llm",
+        "model": "flower-endeavor-v1.0",
+        "rationale": "High-severity immobilized train with hazmat and a blocked track requires stopping and notifying the authority. Cooling is required to control the red temperature condition while the train is immobilized."
+      },
+      {
+        "seq": 55,
+        "t": 71.363,
+        "type": "soteria.done",
+        "elapsed_seconds": 71.36,
+        "refusals": 0,
+        "refusal_codes": {},
+        "asks": 13,
+        "answers": 13,
+        "quarantined": true,
+        "receipt_chain_verified": true,
+        "receipt_head": "5128617416ed1a8a"
+      }
+    ]
+  }
+}

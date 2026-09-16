@@ -94,10 +94,10 @@ export const AddAssetModal: React.FC = () => {
             </div>
             <div>
               <h3 style={{ fontSize: '17px', fontWeight: 600, color: '#ffffff' }}>
-                Neue Flotteneinteilung hinzufügen
+                Add new fleet unit
               </h3>
               <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                3D-Objekt wird sofort auf der Karte und in den Telemetriedaten aktiv
+                The 3D object goes live on the map and in the telemetry immediately
               </p>
             </div>
           </div>
@@ -124,7 +124,7 @@ export const AddAssetModal: React.FC = () => {
                 style={{ padding: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
               >
                 <Train size={22} color={assetType === 'train' ? 'var(--accent-cyan)' : 'var(--text-muted)'} />
-                <span style={{ fontSize: '12px', fontWeight: 600 }}>Güterzug</span>
+                <span style={{ fontSize: '12px', fontWeight: 600 }}>Freight train</span>
               </button>
 
               <button
@@ -159,7 +159,7 @@ export const AddAssetModal: React.FC = () => {
                 type="text"
                 className="glass-input"
                 style={{ width: '100%', borderRadius: '10px' }}
-                placeholder={assetType === 'train' ? 'z.B. Train DB-8420' : 'z.B. Kühl-LKW TR-990'}
+                placeholder={assetType === 'train' ? 'e.g. Train DB-8420' : 'e.g. Reefer truck TR-990'}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -188,7 +188,7 @@ export const AddAssetModal: React.FC = () => {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '6px' }}>
-                <span>Geschwindigkeit</span>
+                <span>Speed</span>
                 <span style={{ color: 'var(--accent-cyan)', fontFamily: 'var(--font-mono)' }}>{speedKmh} km/h</span>
               </div>
               <input
@@ -239,7 +239,7 @@ export const AddAssetModal: React.FC = () => {
 
             <div>
               <label style={{ fontSize: '11px', fontWeight: 500, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
-                Kühlsollwert (°C)
+                Cooling setpoint (°C)
               </label>
               <input
                 type="number"
@@ -259,7 +259,7 @@ export const AddAssetModal: React.FC = () => {
               className="btn-glass"
               onClick={closeAddModal}
             >
-              Abbrechen
+              Cancel
             </button>
             <button
               type="submit"
@@ -267,7 +267,7 @@ export const AddAssetModal: React.FC = () => {
               style={{ padding: '8px 24px' }}
             >
               <Sparkles size={15} />
-              <span>Einheit Erstellen & Platzieren</span>
+              <span>Create & place unit</span>
             </button>
           </div>
 

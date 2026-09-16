@@ -126,10 +126,10 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
         <button
           className="glass-pill"
           onClick={() => openAddModal('train')}
-          title="Neuen Zug oder LKW hinzufügen"
+          title="Add a new train or truck"
         >
           <Plus size={14} />
-          <span>Einheit hinzufügen</span>
+          <span>Add unit</span>
         </button>
 
         {/* Vehicle Search & Selector in Header */}
@@ -153,7 +153,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 justifyContent: 'space-between',
                 transition: 'all 0.2s ease',
               }}
-              title="Klicken um anderes Fahrzeug zu wählen"
+              title="Click to select another vehicle"
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '7px', minWidth: 0 }}>
                 {selectedAsset.type === 'train' ? (
@@ -279,7 +279,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                   onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                 >
                   <X size={13} />
-                  <span>Auswahl aufheben (Zurück zu "Search")</span>
+                  <span>Clear selection (back to "Search")</span>
                 </div>
               )}
 
@@ -379,7 +379,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
           <button
             className={`icon-button ${isNotificationSidebarOpen ? 'active-sim' : ''}`}
             onClick={toggleNotificationSidebar}
-            title={isNotificationSidebarOpen ? 'Warnungen schließen' : 'Warnungen & Vorfälle öffnen'}
+            title={isNotificationSidebarOpen ? 'Close alerts' : 'Open alerts & incidents'}
             style={isNotificationSidebarOpen ? { borderColor: 'var(--accent-rose)', color: 'var(--accent-rose)', background: 'rgba(239, 68, 68, 0.15)' } : {}}
           >
             <Bell size={16} />

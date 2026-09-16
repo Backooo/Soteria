@@ -15,7 +15,7 @@ export const LiveVolumeChart: React.FC = () => {
     const affected = asset.compartments.filter(c => c.status !== 'nominal').length;
     const maxWagons = Math.max(...assets.map(a => a.compartments.length), 1);
     return {
-      label: asset.name.replace('Güterzug ', ''),
+      label: asset.name.replace('Freight train ', ''),
       wagonCount: asset.compartments.length,
       affected,
       highlight: affected > 0,
@@ -28,7 +28,7 @@ export const LiveVolumeChart: React.FC = () => {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
         <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)' }}>
-          Betroffene Wagen
+          Affected wagons
         </span>
         <span className="card-header-icon">
           <ArrowUpRight size={15} />
@@ -41,7 +41,7 @@ export const LiveVolumeChart: React.FC = () => {
           {affectedWagons} / {totalWagons}
         </span>
         <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-          Wagen über 3 aktive Vorfälle
+          Wagons across 3 active incidents
         </span>
       </div>
 

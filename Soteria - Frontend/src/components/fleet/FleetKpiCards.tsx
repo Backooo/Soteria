@@ -22,7 +22,7 @@ export const FleetKpiCards: React.FC = () => {
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
           <CheckCircle2 size={15} color="var(--accent-emerald)" />
           <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-secondary)' }}>
-            Online
+            In-Operation
           </span>
         </div>
         <span style={{ fontSize: '28px', fontWeight: 600, color: '#ffffff', letterSpacing: '-0.02em' }}>
@@ -45,7 +45,7 @@ export const FleetKpiCards: React.FC = () => {
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
           <AlertTriangle size={15} color="var(--accent-rose)" />
           <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-secondary)' }}>
-            Offline
+            Incidents
           </span>
         </div>
         <span style={{ fontSize: '28px', fontWeight: 600, color: '#ffffff', letterSpacing: '-0.02em' }}>

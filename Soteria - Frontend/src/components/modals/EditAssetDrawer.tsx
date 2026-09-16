@@ -58,7 +58,7 @@ export const EditAssetDrawer: React.FC<EditAssetDrawerProps> = ({ onClose }) => 
   };
 
   const handleDelete = () => {
-    if (window.confirm(`Möchtest du "${selectedAsset.name}" wirklich von der Karte und aus der Flotte entfernen?`)) {
+    if (window.confirm(`Do you really want to remove "${selectedAsset.name}" from the map and the fleet?`)) {
       deleteAsset(selectedAsset.id);
       handleClose();
     }
@@ -83,7 +83,7 @@ export const EditAssetDrawer: React.FC<EditAssetDrawerProps> = ({ onClose }) => 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Sliders size={16} color="#ffffff" />
           <h4 style={{ fontSize: '14px', fontWeight: 600, color: '#ffffff' }}>
-            Einheit Bearbeiten
+            Edit unit
           </h4>
         </div>
         <button 
@@ -140,7 +140,7 @@ export const EditAssetDrawer: React.FC<EditAssetDrawerProps> = ({ onClose }) => 
       {/* Speed Slider */}
       <div style={{ marginBottom: '12px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px' }}>
-          <span>Geschwindigkeit:</span>
+          <span>Speed:</span>
           <span style={{ color: '#ffffff', fontFamily: 'var(--font-mono)' }}>{speed} km/h</span>
         </div>
         <input 
@@ -157,7 +157,7 @@ export const EditAssetDrawer: React.FC<EditAssetDrawerProps> = ({ onClose }) => 
       {selectedAsset.currentTempC !== undefined && (
         <div style={{ marginBottom: '12px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px' }}>
-            <span>Kühltemperatur:</span>
+            <span>Cooling temperature:</span>
             <span style={{ color: temp > -16 ? 'var(--accent-rose)' : 'var(--accent-emerald)', fontFamily: 'var(--font-mono)' }}>{temp}°C</span>
           </div>
           <input 
@@ -175,7 +175,7 @@ export const EditAssetDrawer: React.FC<EditAssetDrawerProps> = ({ onClose }) => 
       {/* Delay / Schedule Variance */}
       <div style={{ marginBottom: '16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px' }}>
-          <span>Fahrplan-Verspätung:</span>
+          <span>Schedule delay:</span>
           <span style={{ color: delay > 0 ? 'var(--accent-amber)' : 'var(--accent-emerald)', fontFamily: 'var(--font-mono)' }}>
             {delay > 0 ? `+${delay}` : delay} min
           </span>
@@ -195,11 +195,11 @@ export const EditAssetDrawer: React.FC<EditAssetDrawerProps> = ({ onClose }) => 
         <button 
           className="btn-glass btn-glass-danger"
           onClick={handleDelete}
-          title="Fahrzeug löschen"
+          title="Delete vehicle"
           style={{ padding: '6px 12px', fontSize: '12px' }}
         >
           <Trash2 size={13} />
-          <span>Löschen</span>
+          <span>Delete</span>
         </button>
 
         <button 
@@ -208,7 +208,7 @@ export const EditAssetDrawer: React.FC<EditAssetDrawerProps> = ({ onClose }) => 
           style={{ padding: '6px 16px', fontSize: '12px' }}
         >
           <Save size={13} />
-          <span>Speichern</span>
+          <span>Save</span>
         </button>
       </div>
     </div>

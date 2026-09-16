@@ -1,12 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { FleetAsset, TransitRoute, IncidentAlert, SoteriaConsensusItem, FleetMetrics, AssetType } from '../types/fleet';
-import { MOCK_ASSETS, MOCK_ROUTES, MOCK_INCIDENTS, MOCK_SOTERIA_CONSENSUS, MOCK_METRICS } from '../data/mockFleetData';
+import { MOCK_ASSETS, MOCK_ROUTES, MOCK_INCIDENTS, MOCK_SOTERIA_CONSENSUS, MOCK_METRICS, SOTERIA_BY_INCIDENT } from '../data/mockFleetData';
 
 interface FleetContextType {
   assets: FleetAsset[];
   routes: TransitRoute[];
   incidents: IncidentAlert[];
   soteriaConsensus: SoteriaConsensusItem[];
+  activeIncident: IncidentAlert | null;
   metrics: FleetMetrics;
   selectedAsset: FleetAsset | null;
   hoveredAsset: FleetAsset | null;
@@ -46,10 +47,23 @@ export const FleetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [assets, setAssets] = useState<FleetAsset[]>(MOCK_ASSETS);
   const [routes] = useState<TransitRoute[]>(MOCK_ROUTES);
   const [incidents, setIncidents] = useState<IncidentAlert[]>(MOCK_INCIDENTS);
-  const [soteriaConsensus] = useState<SoteriaConsensusItem[]>(MOCK_SOTERIA_CONSENSUS);
   const [selectedAsset, setSelectedAsset] = useState<FleetAsset | null>(null);
   const [hoveredAsset, setHoveredAsset] = useState<FleetAsset | null>(null);
   const [selectedIncident, setSelectedIncident] = useState<IncidentAlert | null>(null);
+
+  // Operator switches incidents by selecting a train; otherwise the newest incident is shown
+  const activeIncident =
+    incidents.find(i => selectedAsset && i.assetId === selectedAsset.id) ?? selectedIncident ?? incidents[0] ?? null;
+  const soteriaConsensus: SoteriaConsensusItem[] =
+    (activeIncident && SOTERIA_BY_INCIDENT[activeIncident.id]?.consensus) || MOCK_SOTERIA_CONSENSUS;
+
+  // Tell an open dev console (console.html) which incident the operator is looking at
+  useEffect(() => {
+    if (!activeIncident || typeof BroadcastChannel === 'undefined') return;
+    const channel = new BroadcastChannel('soteria-console');
+    channel.postMessage({ incidentId: activeIncident.id });
+    channel.close();
+  }, [activeIncident?.id]);
   
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
   const [isNotificationSidebarOpen, setIsNotificationSidebarOpen] = useState<boolean>(false);
@@ -193,6 +207,7 @@ export const FleetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         routes,
         incidents,
         soteriaConsensus,
+        activeIncident,
         metrics,
         selectedAsset,
         hoveredAsset,

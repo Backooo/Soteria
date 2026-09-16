@@ -62,9 +62,16 @@ flowchart LR
     end
 
     A -- "projections only" --> M["<b>flower-endeavor-v1.0</b><br/>AgentApp on SuperGrid"]
-    M -- "proposed measures" --> G["<b>Guardrails in code</b><br/>measure catalogue · tier-3 safety floor<br/>0 · 1 · 2 human keys"]
-    G --> D([" Decision<br/>+ receipt chain "])
     A -. "market-sensitive" .-> Q["<b>Quarantine</b><br/>outbound channels blocked"]
+
+    subgraph OUT["Decided in code, after the model"]
+        direction TB
+        G["<b>Guardrails</b><br/>measure catalogue · tier-3 safety floor<br/>0 · 1 · 2 human keys"]
+        D([" Decision + receipt chain "])
+        G --> D
+    end
+
+    M -- "proposed measures" --> G
 ```
 
 <details>

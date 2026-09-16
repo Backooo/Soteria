@@ -49,29 +49,24 @@ receipt.
 ## How a decision happens
 
 ```mermaid
-flowchart LR
-    R([Driver report]) --> A["<b>Assessor</b><br/>ServerApp"]
+flowchart TB
+    R([Driver report]) --> A["<b>Assessor</b> · ServerApp"]
 
-    A <-- "asks a field · gets back a traffic light,<br/>a threshold or a coarse class" --> P
+    A <-- "asks a field · gets back a traffic light,<br/>a threshold or a coarse class" --> C
+    A <--> S
+    A <--> K
 
-    subgraph P["Party SuperNodes — every raw value stays here"]
-        direction TB
-        C["<b>Carrier</b><br/>intake · legal"]
-        S["<b>Supplier</b>"]
-        K["<b>Customer</b>"]
-    end
+    C["<b>Carrier</b> · SuperNode<br/>intake · legal"]
+    S["<b>Supplier</b> · SuperNode"]
+    K["<b>Customer</b> · SuperNode"]
 
-    A -- "projections only" --> M["<b>flower-endeavor-v1.0</b><br/>AgentApp on SuperGrid"]
-    A -. "market-sensitive" .-> Q["<b>Quarantine</b><br/>outbound channels blocked"]
+    A -- "projections only, never a raw value" --> M["<b>flower-endeavor-v1.0</b> · AgentApp on SuperGrid"]
+    M -- "proposed measures" --> G["<b>Guardrails in code</b><br/>measure catalogue · tier-3 safety floor · 0 · 1 · 2 human keys"]
+    G --> D([" Decision + receipt chain "])
+    A -. "market-sensitive flag" .-> Q["<b>Quarantine</b> · outbound channels blocked"]
 
-    subgraph OUT["Decided in code, after the model"]
-        direction TB
-        G["<b>Guardrails</b><br/>measure catalogue · tier-3 safety floor<br/>0 · 1 · 2 human keys"]
-        D([" Decision + receipt chain "])
-        G --> D
-    end
-
-    M -- "proposed measures" --> G
+    classDef party fill:#1f2937,stroke:#6b7280,color:#e5e7eb;
+    class C,S,K party;
 ```
 
 <details>
@@ -93,7 +88,8 @@ flowchart LR
 
 </details>
 
-The parties come from the case file, not from the code: one more customer is one more entry.
+Every party node holds only its own data. The parties come from the case file, not from the
+code: one more customer is one more entry.
 
 ## Watch it happen
 

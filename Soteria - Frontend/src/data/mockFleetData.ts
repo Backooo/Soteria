@@ -1,0 +1,424 @@
+import { FleetAsset, TransitRoute, IncidentAlert, SoteriaConsensusItem, FleetMetrics, SensorCompartment } from '../types/fleet';
+
+// Coordinates centered around dramatic Alpine Fjord basin (Lake Uri / Gotthard Freight Corridor)
+export const INITIAL_MAP_CENTER: [number, number] = [8.6180, 46.9240];
+export const INITIAL_MAP_ZOOM = 12.6;
+export const INITIAL_MAP_PITCH = 68;
+export const INITIAL_MAP_BEARING = -32;
+
+export const MOCK_ROUTES: TransitRoute[] = [
+  {
+    id: 'route-l1',
+    code: 'L1',
+    name: 'Gotthard Rail Corridor (AlpTransit)',
+    type: 'rail',
+    color: '#38bdf8',
+    activeAssetsCount: 4,
+    scheduleVarianceMin: -2.0,
+    status: 'optimal',
+    coordinates: [
+      [8.5600, 47.0100],
+      [8.5900, 46.9750],
+      [8.6180, 46.9240],
+      [8.6250, 46.9010],
+      [8.6380, 46.8650],
+      [8.6520, 46.8200],
+      [8.6700, 46.7800],
+    ],
+  },
+  {
+    id: 'route-l12',
+    code: 'L12',
+    name: 'Axenstrasse North-South Highway',
+    type: 'road',
+    color: '#10b981',
+    activeAssetsCount: 3,
+    scheduleVarianceMin: 1.0,
+    status: 'optimal',
+    coordinates: [
+      [8.6050, 46.9800],
+      [8.6150, 46.9450],
+      [8.6180, 46.9240],
+      [8.6240, 46.9030],
+      [8.6400, 46.8700],
+      [8.6600, 46.8350],
+    ],
+  },
+  {
+    id: 'route-l14',
+    code: 'L14',
+    name: 'Alpine Cold Freight Valley Link',
+    type: 'road',
+    color: '#f59e0b',
+    activeAssetsCount: 5,
+    scheduleVarianceMin: 1.5,
+    status: 'delayed',
+    coordinates: [
+      [8.5700, 46.9500],
+      [8.6000, 46.9350],
+      [8.6180, 46.9240],
+      [8.6280, 46.8900],
+      [8.6100, 46.8600],
+      [8.5800, 46.8400],
+    ],
+  },
+  {
+    id: 'route-l15',
+    code: 'L15',
+    name: 'Intermodal Lake Ferry & Terminal Feeder',
+    type: 'rail',
+    color: '#a855f7',
+    activeAssetsCount: 2,
+    scheduleVarianceMin: -1.0,
+    status: 'optimal',
+    coordinates: [
+      [8.5400, 46.9900],
+      [8.5800, 46.9600],
+      [8.6180, 46.9240],
+      [8.6450, 46.9100],
+      [8.6750, 46.9000],
+    ],
+  },
+  {
+    id: 'route-l24',
+    code: 'L24',
+    name: 'Mountain Pass High-Capacity Corridor',
+    type: 'road',
+    color: '#06b6d4',
+    activeAssetsCount: 3,
+    scheduleVarianceMin: 2.0,
+    status: 'delayed',
+    coordinates: [
+      [8.5500, 46.9100],
+      [8.5850, 46.9180],
+      [8.6180, 46.9240],
+      [8.6500, 46.9300],
+      [8.6900, 46.9350],
+    ],
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Real incident data (source: /data/s1..s3 — three simultaneous rail incidents)
+// ---------------------------------------------------------------------------
+
+interface RawWagon {
+  wagon_id: string;
+  wagon_type: 'standard' | 'refrigerated';
+  cargo_class: string;
+}
+
+interface RawTrain {
+  train_id: string;
+  locomotive: { position: string; cab: string };
+  wagon_count: number;
+  wagons: RawWagon[];
+}
+
+interface RawIncident {
+  incident_id: string;
+  train_id: string;
+  timestamp: string;
+  location: string;
+  reporter_role: string;
+  incident_type: string;
+  symptom: string;
+  obstruction: {
+    present: boolean;
+    type: string;
+    position: string;
+    blocking_track: boolean;
+  };
+  affected_wagons: { wagon_id: string; damage_description: string }[];
+  train_operational: 'normal' | 'restricted' | 'immobilized';
+  track_blocked: boolean;
+  severity: 'low' | 'medium' | 'high';
+}
+
+const S1_TRAIN: RawTrain = {
+  train_id: 'TR-1001',
+  locomotive: { position: 'front', cab: 'driver_cab' },
+  wagon_count: 6,
+  wagons: [
+    { wagon_id: 'W01', wagon_type: 'standard', cargo_class: 'general_goods' },
+    { wagon_id: 'W02', wagon_type: 'refrigerated', cargo_class: 'perishable' },
+    { wagon_id: 'W03', wagon_type: 'standard', cargo_class: 'general_goods' },
+    { wagon_id: 'W04', wagon_type: 'standard', cargo_class: 'general_goods' },
+    { wagon_id: 'W05', wagon_type: 'refrigerated', cargo_class: 'perishable' },
+    { wagon_id: 'W06', wagon_type: 'standard', cargo_class: 'general_goods' },
+  ],
+};
+
+const S1_INCIDENT: RawIncident = {
+  incident_id: 'INC-1001',
+  train_id: 'TR-1001',
+  timestamp: '2026-09-16T09:15:00Z',
+  location: 'Rail segment R-12, km 18.4',
+  reporter_role: 'driver',
+  incident_type: 'damage_and_obstruction',
+  symptom: 'Small obstruction encountered in front of the locomotive followed by minor impact',
+  obstruction: { present: true, type: 'small_object', position: 'in_front_of_locomotive', blocking_track: false },
+  affected_wagons: [{ wagon_id: 'W02', damage_description: 'Minor damage to refrigeration unit' }],
+  train_operational: 'normal',
+  track_blocked: false,
+  severity: 'low',
+};
+
+const S2_TRAIN: RawTrain = {
+  train_id: 'TR-1002',
+  locomotive: { position: 'front', cab: 'driver_cab' },
+  wagon_count: 8,
+  wagons: [
+    { wagon_id: 'W01', wagon_type: 'standard', cargo_class: 'general_goods' },
+    { wagon_id: 'W02', wagon_type: 'refrigerated', cargo_class: 'perishable' },
+    { wagon_id: 'W03', wagon_type: 'refrigerated', cargo_class: 'pharmaceutical' },
+    { wagon_id: 'W04', wagon_type: 'standard', cargo_class: 'general_goods' },
+    { wagon_id: 'W05', wagon_type: 'standard', cargo_class: 'general_goods' },
+    { wagon_id: 'W06', wagon_type: 'refrigerated', cargo_class: 'perishable' },
+    { wagon_id: 'W07', wagon_type: 'standard', cargo_class: 'general_goods' },
+    { wagon_id: 'W08', wagon_type: 'standard', cargo_class: 'general_goods' },
+  ],
+};
+
+const S2_INCIDENT: RawIncident = {
+  incident_id: 'INC-1002',
+  train_id: 'TR-1002',
+  timestamp: '2026-09-16T11:40:00Z',
+  location: 'Rail segment R-08, km 31.7',
+  reporter_role: 'driver',
+  incident_type: 'obstruction',
+  symptom: 'Large object obstructing the track ahead of the train',
+  obstruction: { present: true, type: 'large_object', position: 'in_front_of_locomotive', blocking_track: true },
+  affected_wagons: [{ wagon_id: 'W02', damage_description: 'Damage to rear coupling area caused by emergency braking' }],
+  train_operational: 'restricted',
+  track_blocked: true,
+  severity: 'medium',
+};
+
+const S3_TRAIN: RawTrain = {
+  train_id: 'TR-1003',
+  locomotive: { position: 'front', cab: 'driver_cab' },
+  wagon_count: 10,
+  wagons: [
+    { wagon_id: 'W01', wagon_type: 'standard', cargo_class: 'general_goods' },
+    { wagon_id: 'W02', wagon_type: 'refrigerated', cargo_class: 'pharmaceutical' },
+    { wagon_id: 'W03', wagon_type: 'standard', cargo_class: 'general_goods' },
+    { wagon_id: 'W04', wagon_type: 'refrigerated', cargo_class: 'perishable' },
+    { wagon_id: 'W05', wagon_type: 'standard', cargo_class: 'hazmat' },
+    { wagon_id: 'W06', wagon_type: 'standard', cargo_class: 'general_goods' },
+    { wagon_id: 'W07', wagon_type: 'refrigerated', cargo_class: 'perishable' },
+    { wagon_id: 'W08', wagon_type: 'standard', cargo_class: 'general_goods' },
+    { wagon_id: 'W09', wagon_type: 'standard', cargo_class: 'general_goods' },
+    { wagon_id: 'W10', wagon_type: 'standard', cargo_class: 'general_goods' },
+  ],
+};
+
+const S3_INCIDENT: RawIncident = {
+  incident_id: 'INC-1003',
+  train_id: 'TR-1003',
+  timestamp: '2026-09-16T13:05:00Z',
+  location: 'Rail segment R-04, km 56.2',
+  reporter_role: 'driver',
+  incident_type: 'damage_and_obstruction',
+  symptom: 'Train collided with a large obstruction and came to a complete stop',
+  obstruction: { present: true, type: 'large_structure', position: 'in_front_of_locomotive', blocking_track: true },
+  affected_wagons: [
+    { wagon_id: 'W02', damage_description: 'Refrigeration equipment damaged' },
+    { wagon_id: 'W03', damage_description: 'Severe structural damage to wagon side' },
+    { wagon_id: 'W05', damage_description: 'Damage detected around cargo compartment' },
+  ],
+  train_operational: 'immobilized',
+  track_blocked: true,
+  severity: 'high',
+};
+
+// Three distinct points along the Gotthard rail corridor (route-l1) so the
+// three simultaneous incidents render at three clearly separated locations.
+const SCENARIOS: { train: RawTrain; incident: RawIncident; coordinates: [number, number] }[] = [
+  { train: S1_TRAIN, incident: S1_INCIDENT, coordinates: [8.5900, 46.9750] },
+  { train: S2_TRAIN, incident: S2_INCIDENT, coordinates: [8.6250, 46.9010] },
+  { train: S3_TRAIN, incident: S3_INCIDENT, coordinates: [8.6700, 46.7800] },
+];
+
+const CARGO_TYPE_BY_CLASS: Record<string, FleetAsset['cargoType']> = {
+  hazmat: 'Chemicals (Hazmat)',
+  pharmaceutical: 'Pharma / Cold Chain',
+  perishable: 'Pharma / Cold Chain',
+  general_goods: 'Bulk Freight',
+};
+
+function cargoTypeFromWagons(wagons: RawWagon[]): FleetAsset['cargoType'] {
+  if (wagons.some(w => w.cargo_class === 'hazmat')) return 'Chemicals (Hazmat)';
+  if (wagons.some(w => w.cargo_class === 'pharmaceutical' || w.cargo_class === 'perishable')) return 'Pharma / Cold Chain';
+  return 'Bulk Freight';
+}
+
+function statusFromSeverity(severity: RawIncident['severity']): FleetAsset['status'] {
+  return severity === 'high' ? 'offline' : 'warning';
+}
+
+function buildCompartments(train: RawTrain, incident: RawIncident): SensorCompartment[] {
+  return train.wagons.map((wagon) => {
+    const damage = incident.affected_wagons.find(aw => aw.wagon_id === wagon.wagon_id);
+    const status: SensorCompartment['status'] = damage
+      ? (incident.severity === 'high' ? 'critical' : 'warning')
+      : 'nominal';
+    return {
+      id: `${train.train_id}-${wagon.wagon_id}`,
+      name: `${wagon.wagon_id} (${wagon.cargo_class.replace('_', ' ')})`,
+      temp: wagon.wagon_type === 'refrigerated' ? (status === 'nominal' ? -17.8 : -9.4) : undefined,
+      pressure: wagon.wagon_type === 'refrigerated' ? 1.0 : undefined,
+      status,
+    };
+  });
+}
+
+function formatDateTime(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleDateString('de-DE', { timeZone: 'UTC' }) + ', ' + d.toLocaleTimeString('de-DE', { timeZone: 'UTC', hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+}
+
+const OPERATIONAL_NEXT_STEP: Record<RawIncident['train_operational'], string> = {
+  normal: 'Fahrt wird mit Vorsicht fortgesetzt',
+  restricted: 'Wartet auf Streckenfreigabe',
+  immobilized: 'Zug immobilisiert — Bergung erforderlich',
+};
+
+function buildAssetFromScenario(train: RawTrain, incident: RawIncident, coordinates: [number, number]): FleetAsset {
+  const hasRefrigerated = train.wagons.some(w => w.wagon_type === 'refrigerated');
+  const refrigeratedAffected = incident.affected_wagons.some(aw =>
+    train.wagons.find(w => w.wagon_id === aw.wagon_id)?.wagon_type === 'refrigerated'
+  );
+  const speedKmh = incident.train_operational === 'immobilized' ? 0 : incident.train_operational === 'restricted' ? 25 : 70;
+
+  return {
+    id: `asset-${train.train_id.toLowerCase()}`,
+    name: `Güterzug ${train.train_id}`,
+    type: 'train',
+    category: 'Freight Train',
+    status: statusFromSeverity(incident.severity),
+    statusText: `${incident.severity === 'high' ? 'Kritisch' : incident.severity === 'medium' ? 'Warnung' : 'Hinweis'} — ${incident.symptom}`,
+    coordinates,
+    altitude: 435,
+    heading: 165,
+    speedKmh,
+    routeId: 'route-l1',
+    routeName: incident.location.split(',')[0],
+    currentStation: incident.location,
+    nextStation: OPERATIONAL_NEXT_STEP[incident.train_operational],
+    estimatedArrivalMin: incident.train_operational === 'immobilized' ? 0 : incident.train_operational === 'restricted' ? 55 : 22,
+    delayMin: incident.train_operational === 'immobilized' ? 120 : incident.train_operational === 'restricted' ? 35 : 5,
+    cargoType: cargoTypeFromWagons(train.wagons),
+    cargoIntegrityPct: Math.round(((train.wagon_count - incident.affected_wagons.length) / train.wagon_count) * 100),
+    targetTempC: hasRefrigerated ? -18.0 : undefined,
+    currentTempC: hasRefrigerated ? (refrigeratedAffected ? -9.4 : -17.6) : undefined,
+    loadPct: Math.min(96, 60 + train.wagon_count * 3),
+    connectivity: {
+      gps: true,
+      lte: true,
+      iotSensors: train.wagon_count * 2,
+    },
+    compartments: buildCompartments(train, incident),
+    updatedAt: formatDateTime(incident.timestamp),
+  };
+}
+
+export const MOCK_ASSETS: FleetAsset[] = SCENARIOS.map(s => buildAssetFromScenario(s.train, s.incident, s.coordinates));
+
+const INCIDENT_TYPE_LABEL: Record<string, string> = {
+  damage_and_obstruction: 'Kollision & Wagenschaden',
+  obstruction: 'Gleishindernis',
+};
+
+const RECOMMENDATION_BY_STATE: Record<RawIncident['train_operational'], string> = {
+  normal: 'Fahrt mit reduzierter Geschwindigkeit fortsetzen, betroffenen Wagen beim nächsten Halt prüfen',
+  restricted: 'Strecke gesperrt halten, Räumungstrupp entsenden, Ausweichroute für Folgezüge aktivieren',
+  immobilized: 'Rettungskräfte alarmieren, Strecke vollständig sperren, Bergungszug entsenden',
+};
+
+// "Now" reference for the command-center demo, shortly after the most recent report.
+const NOW_REFERENCE = new Date('2026-09-16T13:12:00Z');
+
+function formatTimeAgo(iso: string): string {
+  const diffMin = Math.max(0, Math.round((NOW_REFERENCE.getTime() - new Date(iso).getTime()) / 60000));
+  if (diffMin < 60) return `${diffMin}m ago`;
+  return `${Math.round(diffMin / 60)}h ${diffMin % 60}m ago`;
+}
+
+function buildIncidentAlert(train: RawTrain, incident: RawIncident): IncidentAlert {
+  const cargoClasses = train.wagons.map(w => w.cargo_class);
+  return {
+    id: incident.incident_id,
+    title: incident.symptom,
+    category: INCIDENT_TYPE_LABEL[incident.incident_type] ?? incident.incident_type,
+    severity: incident.severity,
+    assetId: `asset-${train.train_id.toLowerCase()}`,
+    assetName: `Güterzug ${train.train_id}`,
+    routeCode: incident.location.split(',')[0],
+    timeAgo: formatTimeAgo(incident.timestamp),
+    timestamp: incident.timestamp,
+    reportedAt: formatDateTime(incident.timestamp),
+    affectedCount: incident.affected_wagons.length > 0
+      ? `${incident.affected_wagons.length} von ${train.wagon_count} Wagen betroffen`
+      : 'Keine Wagen beschädigt',
+    affectedLocations: [incident.location],
+    recommendation: RECOMMENDATION_BY_STATE[incident.train_operational],
+    soteriaTier: incident.severity === 'high' ? 3 : incident.severity === 'medium' ? 2 : 1,
+    marketSensitive: cargoClasses.includes('hazmat') || cargoClasses.includes('pharmaceutical'),
+  };
+}
+
+// Newest report first, matching how the notification feed reads live incoming reports.
+export const MOCK_INCIDENTS: IncidentAlert[] = SCENARIOS
+  .map(s => buildIncidentAlert(s.train, s.incident))
+  .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+export const MOCK_SOTERIA_CONSENSUS: SoteriaConsensusItem[] = [
+  {
+    role: 'intake',
+    label: 'Intake (Schaden)',
+    status: 'verified',
+    needToKnowVisibility: 'raw',
+    lastFact: 'Report #SR-884: Temp breach +14.2°C logged at Bay R-31564',
+  },
+  {
+    role: 'assessor',
+    label: 'Assessor (Bewerter)',
+    status: 'verified',
+    needToKnowVisibility: 'ampel',
+    lastFact: 'Ampel: GELB (Dringlichkeit hoch, Ersatzkühlung verfügbar)',
+  },
+  {
+    role: 'legal',
+    label: 'Legal (Vertrag)',
+    status: 'verified',
+    needToKnowVisibility: 'schwelle',
+    lastFact: 'Schwelle: Pönale < 15k€ wenn Umladung < 45 min erfolgt',
+  },
+  {
+    role: 'supplier',
+    label: 'Supplier (Zulieferer)',
+    status: 'verified',
+    needToKnowVisibility: 'raw',
+    lastFact: 'Bio-Pharma Haltbarkeit: max 1.5h über -15°C',
+  },
+  {
+    role: 'customer',
+    label: 'Customer (Kunde)',
+    status: 'restricted',
+    needToKnowVisibility: 'ampel',
+    lastFact: 'Bestand: Ampel ROT (Produktionsstopp droht ohne Lieferung)',
+  },
+];
+
+export const MOCK_METRICS: FleetMetrics = {
+  totalVehicles: MOCK_ASSETS.length,
+  trainsCount: MOCK_ASSETS.filter(a => a.type === 'train').length,
+  trucksCount: MOCK_ASSETS.filter(a => a.type === 'truck').length,
+  onlineCount: MOCK_ASSETS.filter(a => a.status === 'online').length,
+  offlineCount: MOCK_ASSETS.filter(a => a.status !== 'online').length,
+  operationalEfficiencyPct: 78.3,
+  averageVarianceMin: 2.5,
+  wagonsInTransit: MOCK_ASSETS.reduce((sum, a) => sum + a.compartments.length, 0),
+  activeIncidentsCount: MOCK_INCIDENTS.length,
+};

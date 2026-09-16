@@ -49,24 +49,22 @@ receipt.
 ## How a decision happens
 
 ```mermaid
-flowchart TB
-    R([Driver report]) --> A["<b>Assessor</b> · ServerApp"]
+flowchart LR
+    R([Driver report]) --> A["<b>Assessor</b><br/>ServerApp"]
 
-    A -- "ask plan · 13 fields<br/>one message per node" --> P
+    A <-- "asks a field · gets back a traffic light,<br/>a threshold or a coarse class" --> P
 
     subgraph P["Party SuperNodes — every raw value stays here"]
-        direction LR
+        direction TB
         C["<b>Carrier</b><br/>intake · legal"]
         S["<b>Supplier</b>"]
         K["<b>Customer</b>"]
     end
 
-    P -- "traffic lights · thresholds · coarse classes" --> A
-    A -- "market-sensitive flag" --> Q["<b>Quarantine</b><br/>outbound channels blocked"]
     A -- "projections only" --> M["<b>flower-endeavor-v1.0</b><br/>AgentApp on SuperGrid"]
-    M -- "proposed measures" --> G{"Guardrails in code:<br/>catalogue · tier-3 safety floor"}
-    G -- "tier 1 · 2 · 3" --> H["<b>Human keys</b> · 0 · 1 · 2"]
-    H --> D([" Decision + receipt chain "])
+    M -- "proposed measures" --> G["<b>Guardrails in code</b><br/>measure catalogue · tier-3 safety floor<br/>0 · 1 · 2 human keys"]
+    G --> D([" Decision<br/>+ receipt chain "])
+    A -. "market-sensitive" .-> Q["<b>Quarantine</b><br/>outbound channels blocked"]
 ```
 
 <details>

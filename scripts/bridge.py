@@ -56,6 +56,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 _run_lock = asyncio.Lock()
+# A browser's EventSource reconnects as soon as the server closes the stream, and
+# every reconnect would start another federation run. The client sends a nonce per
+# button press; a replayed nonce is refused instead of silently running again.
+_spent_nonces: set[str] = set()
 
 
 def _sse(event: dict[str, Any]) -> str:

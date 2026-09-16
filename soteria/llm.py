@@ -30,8 +30,10 @@ import base64
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -41,8 +43,12 @@ from .grants import TIER
 
 DEFAULT_MODEL = "flower-endeavor-v1.0"
 DEFAULT_FEDERATION = "supergrid"
-AGENT_BUNDLE = Path(__file__).resolve().parents[1] / "agent"
+AGENT_BUNDLE = Path(os.getenv("SOTERIA_AGENT_BUNDLE") or Path(__file__).resolve().parents[1] / "agent")
 RESULT_PREFIX = "SOTERIA_LLM "
+# A FAB cannot carry a nested pyproject.toml (non-overridable built-in exclude in
+# flwr/cli/build.py), so the bundle ships its manifest under this name and we
+# materialize a runnable copy when the ServerApp runs from the installed FAB.
+FAB_MANIFEST = "pyproject.fab.toml"
 REASON_CODES = ("safety", "feasibility", "time", "liability", "cost", "missing_data")
 MODEL_TIMEOUT_SECONDS = 150.0
 
@@ -152,12 +158,27 @@ def parse_run_output(output: str) -> tuple[str, str]:
     raise ValueError("no SOTERIA_LLM result line in AgentApp output")
 
 
+def bundle_dir() -> Path:
+    """A directory `flwr run` accepts: the repo bundle, or a temp copy built from the FAB."""
+    if (AGENT_BUNDLE / "pyproject.toml").is_file():
+        return AGENT_BUNDLE
+    manifest = AGENT_BUNDLE / FAB_MANIFEST
+    if not manifest.is_file():
+        raise FileNotFoundError(f"agent bundle missing at {AGENT_BUNDLE} (set SOTERIA_AGENT_BUNDLE)")
+    target = Path(tempfile.gettempdir()) / f"soteria-agent-{manifest.stat().st_mtime_ns}"
+    if not (target / "pyproject.toml").is_file():
+        shutil.rmtree(target, ignore_errors=True)
+        shutil.copytree(AGENT_BUNDLE, target)
+        (target / FAB_MANIFEST).replace(target / "pyproject.toml")
+    return target
+
+
 def _call_model(config: LLMConfig, prompt: str, timeout: float) -> tuple[str, str]:
     """Run the assessor AgentApp on SuperGrid with the projected signals as input."""
     encoded = base64.b64encode(prompt.encode("utf-8")).decode("ascii")
     run_config = f'agent.input_b64="{encoded}" agent.model="{config.model}"'
     completed = subprocess.run(
-        [_flwr_cli(), "run", str(AGENT_BUNDLE), config.federation, "--stream",
+        [_flwr_cli(), "run", str(bundle_dir()), config.federation, "--stream",
          "--run-config", run_config],
         capture_output=True, text=True, timeout=timeout, check=False,
     )

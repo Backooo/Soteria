@@ -15,6 +15,7 @@ unreachable; every decision event says which of the two decided.
 
 from __future__ import annotations
 
+import json
 import time
 from typing import Any, Callable, Mapping
 
@@ -37,6 +38,27 @@ app = ServerApp()
 # Upper bound for waiting on the nodes, halved against the budget's 240 s. The
 # bundled round waits twice as long because it carries everything.
 ROUND_TIMEOUT = 30.0
+
+
+class StdoutEvents:
+    """Every event as one prefixed JSON line, for `scripts/bridge.py`.
+
+    Same shape as `scripts/record_run.py:Recorder`: `seq` counts from 1, `t` is
+    seconds since the run started. `flush=True` so the line leaves the process
+    while the run is still going -- a buffered stream would arrive only at the
+    end and there would be nothing live about it.
+    """
+
+    PREFIX = "SOTERIA_EVENT "
+
+    def __init__(self) -> None:
+        self._seq = 0
+        self._t0 = time.monotonic()
+
+    def emit(self, event: dict[str, Any]) -> None:
+        self._seq += 1
+        line = {"seq": self._seq, "t": round(time.monotonic() - self._t0, 3), **event}
+        print(self.PREFIX + json.dumps(line, ensure_ascii=False, default=str), flush=True)
 
 
 class Assessor:
@@ -364,7 +386,7 @@ def main(grid: Grid, context: Context) -> None:
         seconds=float(seconds) if isinstance(seconds, (int, float)) and seconds > 0 else 240.0,
         max_connector_calls=0,
     )
-    ledger = Ledger(budget, None)
+    ledger = Ledger(budget, StdoutEvents())
     llm = LLMConfig.from_run_config(context.run_config)
 
     print(f"\n=== Soteria: {case.title} ===")

@@ -54,3 +54,9 @@ def test_model_failure_falls_back_to_policy_and_says_so(monkeypatch):
 def test_prompt_carries_only_projections():
     prompt = llm._prompt(SHEETS, ("hazmat",), (), SITUATION)
     assert set(__import__("json").loads(prompt)) == {"driver_report", "flags", "parties_missing", "signals"}
+
+
+def test_fab_manifest_matches_the_bundle_manifest():
+    """The FAB copy of the agent manifest must not drift from the real one."""
+    from soteria.llm import AGENT_BUNDLE, FAB_MANIFEST
+    assert (AGENT_BUNDLE / "pyproject.toml").read_text() == (AGENT_BUNDLE / FAB_MANIFEST).read_text()

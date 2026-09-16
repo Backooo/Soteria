@@ -24,6 +24,10 @@ flwr-version-target = "1.35.0"
 # Die Knoten laden ihre Daten aus data/ -- ohne diese Muster fehlen sie im FAB.
 fab-include = [
   "soteria/**/*.py",
+  # The reasoning AgentApp travels with the app: the ServerApp runs from the
+  # installed FAB and starts this bundle on SuperGrid for the model call.
+  "agent/**/*.py",
+  "agent/pyproject.fab.toml",
   "data/schema/*.json",
   "data/parties/*.json",
   "data/contracts/*.json",

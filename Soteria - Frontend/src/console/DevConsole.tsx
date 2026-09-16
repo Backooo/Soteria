@@ -182,6 +182,8 @@ export const DevConsole: React.FC = () => {
   const grantGiven = played.filter(e => e.type === 'soteria.grant.given').length;
   const asks = played.filter(e => e.type === 'soteria.ask').length;
   const modelEvent = played.find(e => e.type === 'soteria.model.decision');
+  const grantRequired = played.find(e => e.type === 'soteria.grant.required');
+  const doneEvent = played.find(e => e.type === 'soteria.done');
   const keysNeeded = played.find(e => e.type === 'soteria.grant.required')?.keys_needed ?? (isLive ? '?' : entry.decision.keysNeeded ?? 0);
   const facts = played.filter(e => e.type === 'soteria.fact').length;
 
@@ -320,6 +322,55 @@ export const DevConsole: React.FC = () => {
               );
             })}
           </svg>
+          {/* The decision itself: what the agents concluded, and who decided it */}
+          <div style={{ margin: '0 16px 12px', padding: '12px 14px', borderRadius: '10px',
+                        border: `1px solid ${decided ? (decided.type === 'soteria.decision' ? COLOR.green : COLOR.red) : 'rgba(255,255,255,0.12)'}`,
+                        background: decided ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.03)' }}>
+            {!decided ? (
+              <span style={{ fontSize: '12px', color: '#a1a1aa' }}>
+                Decision pending — {asks} asked, {facts} answered{modelEvent ? ', model answered' : ''}…
+              </span>
+            ) : decided.type === 'soteria.no_decision' ? (
+              <div style={{ color: COLOR.red }}>
+                <div style={{ fontSize: '10px', letterSpacing: '0.08em', fontWeight: 700 }}>NO DECISION</div>
+                <div style={{ fontSize: '18px', fontWeight: 700 }}>{String(decided.code)}</div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: '18px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                <div style={{ minWidth: '240px' }}>
+                  <div style={{ fontSize: '10px', letterSpacing: '0.08em', fontWeight: 700, color: COLOR.green }}>DECISION</div>
+                  <div style={{ fontSize: '20px', fontWeight: 700, color: '#fff', lineHeight: 1.25 }}>
+                    {(decided.measures as string[]).join(' + ')}
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#a1a1aa', marginTop: '2px' }}>
+                    Tier {String(decided.tier)} · {String(decided.reason_code)} ·{' '}
+                    {(decided.grants as string[]).length
+                      ? `${(decided.grants as string[]).length}/${String(grantRequired?.keys_needed ?? '?')} human keys ✓`
+                      : 'no approval required'}
+                  </div>
+                </div>
+                <div style={{ flex: 1, minWidth: '260px', fontSize: '11px', color: '#d4d4d8' }}>
+                  <div>
+                    <span style={{ color: '#a1a1aa' }}>Decided by: </span>
+                    <strong style={{ color: modelEvent?.decided_by === 'llm' ? COLOR.green : COLOR.amber }}>
+                      {modelEvent?.decided_by === 'llm' ? `${String(modelEvent.model)} (LLM)` : 'rule policy (model unavailable)'}
+                    </strong>
+                    {modelEvent?.error ? <span style={{ color: COLOR.red }}> · {String(modelEvent.error)}</span> : null}
+                    {(modelEvent?.floor_added as string[] | undefined)?.length
+                      ? <span style={{ color: COLOR.amber }}> · safety floor added {(modelEvent!.floor_added as string[]).join(', ')}</span> : null}
+                  </div>
+                  {modelEvent?.rationale ? (
+                    <div style={{ fontStyle: 'italic', marginTop: '4px' }}>“{String(modelEvent.rationale)}”</div>
+                  ) : null}
+                  <div style={{ marginTop: '4px', fontFamily: 'var(--font-mono, monospace)', color: '#a1a1aa' }}>
+                    receipt {String(decided.receipt_hash)}
+                    {doneEvent ? ` · chain ${doneEvent.receipt_chain_verified ? 'verified' : 'BROKEN'} · ${String(doneEvent.elapsed_seconds)}s` : ''}
+                    {quarantined ? ' · quarantine active' : ''}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
           <p style={{ margin: 0, padding: '0 16px 12px', fontSize: '11px', color: '#71717a' }}>
             Click a node to filter the log. Each party keeps its raw data; only traffic lights, thresholds and coarse classes travel along the edges.
           </p>

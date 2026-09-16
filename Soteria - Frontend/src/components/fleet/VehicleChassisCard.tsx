@@ -152,7 +152,7 @@ export const VehicleChassisCard: React.FC<VehicleChassisCardProps> = ({
             style={{ width: '6px', height: '6px' }}
           />
           <span style={{ color: isOffline ? 'var(--accent-rose)' : isWarning ? 'var(--text-amber)' : 'var(--text-emerald)', fontWeight: 500 }}>
-            {isOffline ? 'Kritisch' : isWarning ? 'Delay Alert' : 'Online'}
+            {isOffline ? 'Critical' : isWarning ? 'Delay Alert' : 'Online'}
           </span>
         </div>
 

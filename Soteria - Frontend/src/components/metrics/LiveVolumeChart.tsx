@@ -64,7 +64,7 @@ export const LiveVolumeChart: React.FC = () => {
             <div style={{ fontSize: '10px', color: bin.highlight ? 'var(--accent-amber)' : 'var(--text-dim)', fontFamily: 'var(--font-mono)', textAlign: 'center' }}>
               <span>{bin.wagonCount}</span>
               <span style={{ display: 'block', fontSize: '8px', color: bin.highlight ? 'var(--text-amber)' : 'var(--text-dim)' }}>
-                {bin.affected > 0 ? `${bin.affected} betroffen` : 'ok'}
+                {bin.affected > 0 ? `${bin.affected} affected` : 'ok'}
               </span>
             </div>
 

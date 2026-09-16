@@ -107,7 +107,7 @@ export const FleetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const newAsset: FleetAsset = {
       ...newAssetData,
       id,
-      updatedAt: new Date().toLocaleDateString('de-DE') + ', ' + new Date().toLocaleTimeString('de-DE'),
+      updatedAt: new Date().toLocaleDateString('en-GB') + ', ' + new Date().toLocaleTimeString('en-GB'),
     };
     setAssets(prev => [newAsset, ...prev]);
     setSelectedAsset(newAsset);
@@ -122,7 +122,7 @@ export const FleetProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const updated = {
           ...item,
           ...updates,
-          updatedAt: new Date().toLocaleDateString('de-DE') + ', ' + new Date().toLocaleTimeString('de-DE'),
+          updatedAt: new Date().toLocaleDateString('en-GB') + ', ' + new Date().toLocaleTimeString('en-GB'),
         };
         if (selectedAsset?.id === id) {
           setSelectedAsset(updated);

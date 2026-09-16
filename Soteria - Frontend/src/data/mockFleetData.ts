@@ -302,7 +302,7 @@ function buildCompartments(train: RawTrain, incident: RawIncident): SensorCompar
 
 function formatDateTime(iso: string): string {
   const d = new Date(iso);
-  return d.toLocaleDateString('de-DE', { timeZone: 'UTC' }) + ', ' + d.toLocaleTimeString('de-DE', { timeZone: 'UTC', hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+  return d.toLocaleDateString('en-GB', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric' }) + ', ' + d.toLocaleTimeString('en-GB', { timeZone: 'UTC', hour: '2-digit', minute: '2-digit' }) + ' UTC';
 }
 
 const OPERATIONAL_NEXT_STEP: Record<RawIncident['train_operational'], string> = {
@@ -324,7 +324,7 @@ function buildAssetFromScenario(train: RawTrain, incident: RawIncident, coordina
     type: 'train',
     category: 'Freight Train',
     status: statusFromSeverity(incident.severity),
-    statusText: `${incident.severity === 'high' ? 'Kritisch' : incident.severity === 'medium' ? 'Warnung' : 'Hinweis'} — ${incident.symptom}`,
+    statusText: `${incident.severity === 'high' ? 'Critical' : incident.severity === 'medium' ? 'Warning' : 'Notice'} — ${incident.symptom}`,
     coordinates,
     altitude: 435,
     heading: 165,
@@ -353,8 +353,8 @@ function buildAssetFromScenario(train: RawTrain, incident: RawIncident, coordina
 export const MOCK_ASSETS: FleetAsset[] = SCENARIOS.map(s => buildAssetFromScenario(s.train, s.incident, s.coordinates));
 
 const INCIDENT_TYPE_LABEL: Record<string, string> = {
-  damage_and_obstruction: 'Kollision & Wagenschaden',
-  obstruction: 'Gleishindernis',
+  damage_and_obstruction: 'Collision & wagon damage',
+  obstruction: 'Track obstruction',
 };
 
 const RECOMMENDATION_BY_STATE: Record<RawIncident['train_operational'], string> = {

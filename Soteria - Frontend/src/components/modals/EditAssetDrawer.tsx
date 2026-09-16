@@ -124,7 +124,7 @@ export const EditAssetDrawer: React.FC<EditAssetDrawerProps> = ({ onClose }) => 
             onClick={() => setStatus('warning')}
             style={{ justifyContent: 'center', fontSize: '11px', padding: '6px 8px', color: status === 'warning' ? 'var(--accent-amber)' : 'inherit' }}
           >
-            Warnung
+            Warning
           </button>
           <button
             type="button"

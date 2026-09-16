@@ -24,7 +24,8 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
-from .charter import Budget, Role
+from .charter import OUTBOUND_CONNECTORS, Budget, Role
+from .envelope import REFUSAL, EnvelopeError
 
 
 class BudgetExceeded(RuntimeError):
@@ -106,6 +107,12 @@ class Ledger:
         self._denied_delegations = 0
         self._tainted_by: list[str] = []
         self.hops: list[Hop] = []
+        # Soteria: getippte Ablehnungen, Nachfragen, Antworten, Quarantaene.
+        self._refusals = 0
+        self._refusal_codes: dict[str, int] = {}
+        self._asks = 0
+        self._answers = 0
+        self._quarantine_trigger: tuple[str, str] | None = None
 
     # -- budget ----------------------------------------------------------
 
@@ -241,6 +248,84 @@ class Ledger:
     def warn(self, agent: str, detail: str) -> None:
         """Record a non-fatal problem, e.g. connectors being unavailable."""
         self._emit("collab.warning", {"agent": agent, "detail": detail[:280]})
+
+    # -- Soteria: getippte Ablehnungen und Quarantaene -------------------
+
+    # Alles, was Bytes vom Rechner traegt, plus die Presse als Maßnahme. Der
+    # geerbte Charter kennt nur Connectors; `press` ist eine Entscheidung, aber
+    # sie verlaesst das Haus genauso.
+    OUTBOUND_CHANNELS = frozenset(OUTBOUND_CONNECTORS) | {"press"}
+
+    def emit(self, kind: str, payload: dict[str, Any]) -> None:
+        """Oeffentliche Fassung von `_emit`, fuer die Soteria-Ereignisse."""
+        self._emit(kind, payload)
+
+    def note_refusal(self, actor: str, action: str, code: str, detail: str = "") -> None:
+        """Eine getippte Ablehnung. Datenquelle fuer Ansicht und Zahlen.
+
+        `detail` geht absichtlich **nicht** in das Ereignis, nur seine Laenge.
+        Der Oversight-Kanal darf kein zweiter Leckweg werden -- derselbe Fehler,
+        den `Hop.as_dict()` schon einmal gemacht hat.
+        """
+        if code not in REFUSAL:
+            raise ValueError(f"{code!r} is not a typed refusal")
+        self._refusals += 1
+        self._refusal_codes[code] = self._refusal_codes.get(code, 0) + 1
+        self._emit(
+            "soteria.refusal",
+            {"actor": actor, "action": action[:120], "code": code,
+             "detail_chars": len(detail)},
+        )
+
+    @property
+    def refusals(self) -> int:
+        return self._refusals
+
+    @property
+    def refusal_codes(self) -> dict[str, int]:
+        return dict(self._refusal_codes)
+
+    @property
+    def quarantined(self) -> bool:
+        return self._quarantine_trigger is not None
+
+    @property
+    def blocked_channels(self) -> tuple[str, ...]:
+        return tuple(sorted(self.OUTBOUND_CHANNELS)) if self.quarantined else ()
+
+    def mark_market_sensitive(self, role_name: str, field: str) -> None:
+        """Eine kursrelevante Tatsache ist gelesen. Gilt fuer den Rest des Laufs.
+
+        Einmal angekuendigt, nicht je Versuch -- die Ansicht braucht ein Banner,
+        keine Lawine. Die Versuche selbst zaehlt `check_outbound`.
+        """
+        if self._quarantine_trigger is not None:
+            return
+        self._quarantine_trigger = (role_name, field)
+        # Auch die geerbte Taint-Regel scharf machen, damit eine Uebergabe an
+        # eine Rolle mit Ausgangswerkzeug ebenfalls faellt.
+        self.mark_tainted(role_name)
+        self._emit(
+            "soteria.quarantine",
+            {"trigger_role": role_name, "field": field,
+             "blocked_channels": list(self.blocked_channels)},
+        )
+
+    def check_outbound(self, actor: str, channel: str) -> None:
+        """Verweigere jeden ausgehenden Kanal, solange Quarantaene gilt.
+
+        Bewusst grob: die Pruefung sieht keinen String an, also gibt es nichts,
+        was sich umformulieren liesse.
+        """
+        if not self.quarantined or channel not in self.OUTBOUND_CHANNELS:
+            return
+        trigger_role, field = self._quarantine_trigger  # type: ignore[misc]
+        detail = (
+            f"{channel} is shut for the rest of this run: {trigger_role} read "
+            f"{field}, which is market sensitive"
+        )
+        self.note_refusal(actor, channel, "quarantine", detail)
+        raise EnvelopeError("quarantine", detail)
 
     def _emit(self, kind: str, payload: dict[str, Any]) -> None:
         if self._events is None:

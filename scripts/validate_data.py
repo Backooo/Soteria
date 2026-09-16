@@ -302,6 +302,32 @@ def check_case(case_dir: Path, vocabs: dict, catalogue: dict, party_ids: set[str
                                "an agent cannot sign a grant")
                 if key.get("measure") not in measure_vocab:
                     out.append(f"{name}: keys[{i}].measure={key.get('measure')!r} is not a measure")
+                # Der Parametervertrag: eine Entscheidung traegt genau case_id und
+                # train_id, also muss eine Freigabe genau diese Parameter nennen.
+                # Ein weiteres oder fehlendes Feld ergibt zur Laufzeit
+                # grant_mismatch -- das soll hier auffallen, nicht im Lauf.
+                params = key.get("params")
+                if not isinstance(params, dict):
+                    out.append(f"{name}: keys[{i}].params must be an object")
+                else:
+                    want = {"case_id", "train_id"}
+                    got = {k for k in params if not str(k).startswith("_")}
+                    if got != want:
+                        out.append(
+                            f"{name}: keys[{i}].params has {sorted(got)}, but a decision "
+                            f"carries exactly {sorted(want)} -- anything else yields "
+                            "grant_mismatch at run time"
+                        )
+                    if params.get("case_id") != cid:
+                        out.append(f"{name}: keys[{i}].params.case_id={params.get('case_id')!r} "
+                                   f"should be {cid!r}")
+                    incident_train = (
+                        (_load(ROOT / str(sources.get("train", "")), out) or {}).get("train_id")
+                        if sources.get("train") else None
+                    )
+                    if incident_train and params.get("train_id") != incident_train:
+                        out.append(f"{name}: keys[{i}].params.train_id="
+                                   f"{params.get('train_id')!r} should be {incident_train!r}")
             for measure in measures:
                 if TIER[measure] == 1:
                     continue

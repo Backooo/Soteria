@@ -1,0 +1,617 @@
+{
+  "case": {
+    "id": "s2",
+    "title": "Gleis blockiert, Klinikversorgung im Zug, Umleitung noetig",
+    "report": {
+      "incident_id": "INC-1002",
+      "train_id": "TR-1002",
+      "location": "Rail segment R-08, km 31.7",
+      "ts": "2026-09-16T11:40:00Z",
+      "symptom": "Large object obstructing the track ahead of the train",
+      "incident_type": "obstruction",
+      "severity": "medium",
+      "train_operational": "restricted",
+      "track_blocked": true,
+      "wagon_count": 8,
+      "affected_wagons": [
+        "W02"
+      ],
+      "cargo_classes_coarse": [
+        "general",
+        "perishable",
+        "regulated"
+      ]
+    },
+    "flags": [
+      "perishable",
+      "person_data"
+    ],
+    "parties": [
+      {
+        "party_id": "carrier_rheinrail",
+        "party_type": "carrier"
+      },
+      {
+        "party_id": "supplier_nordfrost",
+        "party_type": "supplier"
+      },
+      {
+        "party_id": "customer_c2_stadtklinik",
+        "party_type": "customer"
+      }
+    ],
+    "truth": {
+      "measures": [
+        "alt_transport"
+      ],
+      "tier": 2,
+      "reason_code": "safety",
+      "why": "Gleis blockiert und Zug nur eingeschraenkt fahrbereit. Im Zug liegt Klinikversorgung mit einem halben Tag Bestand und Frist in sechs Stunden. Strasse ist einspurig mit 12-t-Grenze, Umladen also unrealistisch; die Umleitung kostet 145 Minuten und haelt die Frist.",
+      "must_not": [
+        "proceed",
+        "hold"
+      ],
+      "expect_refusal": null
+    }
+  },
+  "outcome": {
+    "decision": {
+      "measures": [
+        "alt_transport"
+      ],
+      "params": {
+        "case_id": "s2",
+        "train_id": "TR-1002"
+      },
+      "tier": 2,
+      "grants": [
+        "ops-lead-rheinrail-1"
+      ],
+      "coverage": {
+        "answered": 13,
+        "asked": 13,
+        "roles_missing": []
+      },
+      "reason_code": "feasibility",
+      "receipt_hash": "0991cba5e3cfb961"
+    },
+    "refusal": null
+  },
+  "events": [
+    {
+      "seq": 1,
+      "t": 0.0,
+      "type": "soteria.incident.open",
+      "case_id": "s2",
+      "incident_id": "INC-1002",
+      "train_id": "TR-1002",
+      "location": "Rail segment R-08, km 31.7",
+      "symptom": "Large object obstructing the track ahead of the train",
+      "severity": "medium",
+      "train_operational": "restricted",
+      "track_blocked": true,
+      "affected_wagons": [
+        "W02"
+      ],
+      "cargo_classes_coarse": [
+        "general",
+        "perishable",
+        "regulated"
+      ],
+      "flags": [
+        "perishable",
+        "person_data"
+      ]
+    },
+    {
+      "seq": 2,
+      "t": 0.0,
+      "type": "soteria.role.ready",
+      "party_id": "carrier_rheinrail",
+      "party_type": "carrier",
+      "speaks_as": [
+        "intake",
+        "legal"
+      ],
+      "online": true
+    },
+    {
+      "seq": 3,
+      "t": 0.0,
+      "type": "soteria.role.ready",
+      "party_id": "supplier_nordfrost",
+      "party_type": "supplier",
+      "speaks_as": [
+        "supplier"
+      ],
+      "online": true
+    },
+    {
+      "seq": 4,
+      "t": 0.0,
+      "type": "soteria.role.ready",
+      "party_id": "customer_c2_stadtklinik",
+      "party_type": "customer",
+      "speaks_as": [
+        "customer"
+      ],
+      "online": true
+    },
+    {
+      "seq": 5,
+      "t": 0.0,
+      "type": "soteria.receipt",
+      "seq_in_chain": 1,
+      "kind": "incident",
+      "hash": "40036a7bcb78a7a3",
+      "prev": "0000000000000000"
+    },
+    {
+      "seq": 6,
+      "t": 0.0,
+      "type": "soteria.ask",
+      "from_role": "assessor",
+      "field": "temperature_curve",
+      "reason_code": "safety",
+      "visibility": "ampel"
+    },
+    {
+      "seq": 7,
+      "t": 0.002,
+      "type": "soteria.fact",
+      "role": "intake",
+      "field": "temperature_curve",
+      "visibility": "ampel",
+      "value": "gelb",
+      "scope": "W02",
+      "flags": []
+    },
+    {
+      "seq": 8,
+      "t": 0.002,
+      "type": "soteria.receipt",
+      "seq_in_chain": 2,
+      "kind": "fact",
+      "hash": "9172d11fb1795d0e",
+      "prev": "40036a7bcb78a7a3"
+    },
+    {
+      "seq": 9,
+      "t": 0.002,
+      "type": "soteria.ask",
+      "from_role": "assessor",
+      "field": "market_sensitive",
+      "reason_code": "confidentiality",
+      "visibility": "flag"
+    },
+    {
+      "seq": 10,
+      "t": 0.002,
+      "type": "soteria.fact",
+      "role": "legal",
+      "field": "market_sensitive",
+      "visibility": "flag",
+      "value": false,
+      "scope": "",
+      "flags": [
+        "market_sensitive"
+      ]
+    },
+    {
+      "seq": 11,
+      "t": 0.002,
+      "type": "soteria.receipt",
+      "seq_in_chain": 3,
+      "kind": "fact",
+      "hash": "3b1ccb6127cc129b",
+      "prev": "9172d11fb1795d0e"
+    },
+    {
+      "seq": 12,
+      "t": 0.002,
+      "type": "soteria.ask",
+      "from_role": "assessor",
+      "field": "cargo_class",
+      "reason_code": "safety",
+      "visibility": "coarse"
+    },
+    {
+      "seq": 13,
+      "t": 0.002,
+      "type": "soteria.fact",
+      "role": "intake",
+      "field": "cargo_class",
+      "visibility": "coarse",
+      "value": "perishable",
+      "scope": "W02",
+      "flags": []
+    },
+    {
+      "seq": 14,
+      "t": 0.002,
+      "type": "soteria.receipt",
+      "seq_in_chain": 4,
+      "kind": "fact",
+      "hash": "e90050a5d53f27b3",
+      "prev": "3b1ccb6127cc129b"
+    },
+    {
+      "seq": 15,
+      "t": 0.002,
+      "type": "soteria.ask",
+      "from_role": "assessor",
+      "field": "route_weakness",
+      "reason_code": "feasibility",
+      "visibility": "ampel"
+    },
+    {
+      "seq": 16,
+      "t": 0.003,
+      "type": "soteria.fact",
+      "role": "intake",
+      "field": "route_weakness",
+      "visibility": "ampel",
+      "value": "gelb",
+      "scope": "",
+      "flags": []
+    },
+    {
+      "seq": 17,
+      "t": 0.003,
+      "type": "soteria.receipt",
+      "seq_in_chain": 5,
+      "kind": "fact",
+      "hash": "4e766cc095e5211d",
+      "prev": "e90050a5d53f27b3"
+    },
+    {
+      "seq": 18,
+      "t": 0.003,
+      "type": "soteria.ask",
+      "from_role": "assessor",
+      "field": "alt_route_status",
+      "reason_code": "feasibility",
+      "visibility": "raw"
+    },
+    {
+      "seq": 19,
+      "t": 0.003,
+      "type": "soteria.fact",
+      "role": "intake",
+      "field": "alt_route_status",
+      "visibility": "raw",
+      "value": "long_detour",
+      "scope": "",
+      "flags": []
+    },
+    {
+      "seq": 20,
+      "t": 0.003,
+      "type": "soteria.receipt",
+      "seq_in_chain": 6,
+      "kind": "fact",
+      "hash": "afcd85a9446898da",
+      "prev": "4e766cc095e5211d"
+    },
+    {
+      "seq": 21,
+      "t": 0.003,
+      "type": "soteria.ask",
+      "from_role": "assessor",
+      "field": "road_access",
+      "reason_code": "feasibility",
+      "visibility": "ampel"
+    },
+    {
+      "seq": 22,
+      "t": 0.003,
+      "type": "soteria.fact",
+      "role": "intake",
+      "field": "road_access",
+      "visibility": "ampel",
+      "value": "gelb",
+      "scope": "",
+      "flags": []
+    },
+    {
+      "seq": 23,
+      "t": 0.003,
+      "type": "soteria.receipt",
+      "seq_in_chain": 7,
+      "kind": "fact",
+      "hash": "ee5dc187520dce2e",
+      "prev": "afcd85a9446898da"
+    },
+    {
+      "seq": 24,
+      "t": 0.003,
+      "type": "soteria.ask",
+      "from_role": "assessor",
+      "field": "locality_class",
+      "reason_code": "safety",
+      "visibility": "raw"
+    },
+    {
+      "seq": 25,
+      "t": 0.004,
+      "type": "soteria.fact",
+      "role": "intake",
+      "field": "locality_class",
+      "visibility": "raw",
+      "value": "village",
+      "scope": "",
+      "flags": []
+    },
+    {
+      "seq": 26,
+      "t": 0.004,
+      "type": "soteria.receipt",
+      "seq_in_chain": 8,
+      "kind": "fact",
+      "hash": "ddedd31532a4abee",
+      "prev": "ee5dc187520dce2e"
+    },
+    {
+      "seq": 27,
+      "t": 0.004,
+      "type": "soteria.ask",
+      "from_role": "assessor",
+      "field": "replacement_available",
+      "reason_code": "feasibility",
+      "visibility": "ampel"
+    },
+    {
+      "seq": 28,
+      "t": 0.004,
+      "type": "soteria.fact",
+      "role": "supplier",
+      "field": "replacement_available",
+      "visibility": "ampel",
+      "value": "gruen",
+      "scope": "perishable",
+      "flags": []
+    },
+    {
+      "seq": 29,
+      "t": 0.004,
+      "type": "soteria.receipt",
+      "seq_in_chain": 9,
+      "kind": "fact",
+      "hash": "5f95767b87d630d7",
+      "prev": "ddedd31532a4abee"
+    },
+    {
+      "seq": 30,
+      "t": 0.004,
+      "type": "soteria.ask",
+      "from_role": "assessor",
+      "field": "cooling_required",
+      "reason_code": "safety",
+      "visibility": "flag"
+    },
+    {
+      "seq": 31,
+      "t": 0.004,
+      "type": "soteria.fact",
+      "role": "supplier",
+      "field": "cooling_required",
+      "visibility": "flag",
+      "value": true,
+      "scope": "perishable",
+      "flags": []
+    },
+    {
+      "seq": 32,
+      "t": 0.004,
+      "type": "soteria.receipt",
+      "seq_in_chain": 10,
+      "kind": "fact",
+      "hash": "034979d43b3600b0",
+      "prev": "5f95767b87d630d7"
+    },
+    {
+      "seq": 33,
+      "t": 0.004,
+      "type": "soteria.ask",
+      "from_role": "assessor",
+      "field": "customer_stock",
+      "reason_code": "time",
+      "visibility": "ampel"
+    },
+    {
+      "seq": 34,
+      "t": 0.005,
+      "type": "soteria.fact",
+      "role": "customer",
+      "field": "customer_stock",
+      "visibility": "ampel",
+      "value": "rot",
+      "scope": "pharmaceutical",
+      "flags": []
+    },
+    {
+      "seq": 35,
+      "t": 0.005,
+      "type": "soteria.receipt",
+      "seq_in_chain": 11,
+      "kind": "fact",
+      "hash": "1ad9c5d34d003dc5",
+      "prev": "034979d43b3600b0"
+    },
+    {
+      "seq": 36,
+      "t": 0.005,
+      "type": "soteria.ask",
+      "from_role": "assessor",
+      "field": "customer_urgency",
+      "reason_code": "time",
+      "visibility": "ampel"
+    },
+    {
+      "seq": 37,
+      "t": 0.005,
+      "type": "soteria.fact",
+      "role": "customer",
+      "field": "customer_urgency",
+      "visibility": "ampel",
+      "value": "rot",
+      "scope": "pharmaceutical",
+      "flags": []
+    },
+    {
+      "seq": 38,
+      "t": 0.005,
+      "type": "soteria.receipt",
+      "seq_in_chain": 12,
+      "kind": "fact",
+      "hash": "3c9484fee0c27453",
+      "prev": "1ad9c5d34d003dc5"
+    },
+    {
+      "seq": 39,
+      "t": 0.005,
+      "type": "soteria.ask",
+      "from_role": "assessor",
+      "field": "contract_penalty",
+      "reason_code": "liability",
+      "visibility": "schwelle"
+    },
+    {
+      "seq": 40,
+      "t": 0.006,
+      "type": "soteria.fact",
+      "role": "legal",
+      "field": "contract_penalty",
+      "visibility": "schwelle",
+      "value": "above",
+      "scope": "",
+      "flags": []
+    },
+    {
+      "seq": 41,
+      "t": 0.006,
+      "type": "soteria.receipt",
+      "seq_in_chain": 13,
+      "kind": "fact",
+      "hash": "b7d226d9321d3571",
+      "prev": "3c9484fee0c27453"
+    },
+    {
+      "seq": 42,
+      "t": 0.006,
+      "type": "soteria.ask",
+      "from_role": "assessor",
+      "field": "contract_deadline_h",
+      "reason_code": "liability",
+      "visibility": "schwelle"
+    },
+    {
+      "seq": 43,
+      "t": 0.006,
+      "type": "soteria.fact",
+      "role": "legal",
+      "field": "contract_deadline_h",
+      "visibility": "schwelle",
+      "value": "below",
+      "scope": "",
+      "flags": []
+    },
+    {
+      "seq": 44,
+      "t": 0.006,
+      "type": "soteria.receipt",
+      "seq_in_chain": 14,
+      "kind": "fact",
+      "hash": "24eb6eb7e2f51d1d",
+      "prev": "b7d226d9321d3571"
+    },
+    {
+      "seq": 45,
+      "t": 0.006,
+      "type": "soteria.coverage",
+      "answered": 13,
+      "asked": 13,
+      "parties_expected": [
+        "carrier_rheinrail",
+        "customer_c2_stadtklinik",
+        "supplier_nordfrost"
+      ],
+      "parties_missing": []
+    },
+    {
+      "seq": 46,
+      "t": 0.006,
+      "type": "soteria.grant.required",
+      "measures": [
+        "alt_transport"
+      ],
+      "tier": 2,
+      "keys_needed": 1
+    },
+    {
+      "seq": 47,
+      "t": 0.006,
+      "type": "soteria.grant.given",
+      "measures": [
+        "alt_transport"
+      ],
+      "human_id": "ops-lead-rheinrail-1",
+      "keys_have": 1,
+      "keys_needed": 1
+    },
+    {
+      "seq": 48,
+      "t": 0.006,
+      "type": "soteria.receipt",
+      "seq_in_chain": 15,
+      "kind": "decision",
+      "hash": "0991cba5e3cfb961",
+      "prev": "24eb6eb7e2f51d1d"
+    },
+    {
+      "seq": 49,
+      "t": 0.006,
+      "type": "soteria.decision",
+      "measures": [
+        "alt_transport"
+      ],
+      "params": {
+        "case_id": "s2",
+        "train_id": "TR-1002"
+      },
+      "tier": 2,
+      "grants": [
+        "ops-lead-rheinrail-1"
+      ],
+      "coverage": {
+        "answered": 13,
+        "asked": 13,
+        "roles_missing": []
+      },
+      "reason_code": "feasibility",
+      "receipt_hash": "0991cba5e3cfb961",
+      "parties_missing": [],
+      "scopes": {
+        "temperature_curve": "W02",
+        "cargo_class": "W02",
+        "replacement_available": "perishable",
+        "cooling_required": "perishable",
+        "customer_stock": "pharmaceutical",
+        "customer_urgency": "pharmaceutical"
+      }
+    },
+    {
+      "seq": 50,
+      "t": 0.006,
+      "type": "soteria.done",
+      "elapsed_seconds": 0.01,
+      "refusals": 0,
+      "refusal_codes": {},
+      "asks": 13,
+      "answers": 13,
+      "quarantined": false,
+      "receipt_chain_verified": true,
+      "receipt_head": "0991cba5e3cfb961"
+    }
+  ]
+}

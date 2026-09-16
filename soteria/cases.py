@@ -36,6 +36,12 @@ _RANK: dict[Any, int] = {
     "gruen": 0, "gelb": 1, "rot": 2,
     False: 0, True: 1,
     "below": 0, "above": 1,
+    # Ladungsklassen, grob und fein: Gefahrgut schlaegt Pharma schlaegt
+    # Frischware schlaegt Stueckgut. Damit nennt ein Zug mit beidem den
+    # Gefahrgutwagen als schlimmsten und nicht den erstgenannten.
+    "general": 0, "perishable": 1, "regulated": 2, "hazardous": 3,
+    "general_goods": 0, "livestock": 1, "high_value": 1,
+    "pharmaceutical": 2, "hazmat": 3,
 }
 
 
@@ -114,6 +120,21 @@ class Case:
         out.append("person_data")
         del incident
         return tuple(f for f in out if f in FLAG)
+
+    @property
+    def affected_cargo_classes(self) -> tuple[str, ...]:
+        """Die Ladungsklassen der beschaedigten Wagen.
+
+        Teil der gemeinsamen Meldung: welche Wagen beschaedigt sind, hat der
+        Fahrer gemeldet, und was sie tragen steht im Frachtbrief. Der Zulieferer
+        braucht es, um "kannst du das ersetzen" ueberhaupt beantworten zu
+        koennen.
+        """
+        incident = _read(Path(str(self.sources["incident"])))
+        train = _read(Path(str(self.sources["train"])))
+        by_wagon = {str(w.get("wagon_id")): str(w.get("cargo_class")) for w in (train.get("wagons") or [])}
+        affected = [str(w.get("wagon_id")) for w in (incident.get("affected_wagons") or [])]
+        return tuple(sorted({by_wagon[w] for w in affected if w in by_wagon}))
 
     @property
     def report(self) -> dict[str, Any]:
@@ -271,7 +292,20 @@ def raw_records_for_party(case: Case, party_id: str) -> dict[str, dict[str, Any]
 
     elif party_type == "supplier":
         supplier = _party_file(case, party_id) or {}
-        out["supplier"] = _public((supplier.get("records") or {}).get("supplier") or {})
+        block = _public((supplier.get("records") or {}).get("supplier") or {})
+        # Der Zulieferer kann vieles ersetzen. Gefragt ist aber nur, was an
+        # diesem Zug beschaedigt ist -- sonst antwortet er ueber Gefahrgut, das
+        # in diesem Vorfall nicht vorkommt. Welche Klassen betroffen sind, ist
+        # Teil der gemeinsamen Meldung, kein Geheimnis einer Partei.
+        in_scope = case.affected_cargo_classes
+        out["supplier"] = {
+            field_name: (
+                {k: v for k, v in value.items() if k in in_scope}
+                if isinstance(value, Mapping) and in_scope
+                else value
+            )
+            for field_name, value in block.items()
+        }
 
     elif party_type == "customer":
         customer = _party_file(case, party_id) or {}

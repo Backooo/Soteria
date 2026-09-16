@@ -1,0 +1,52 @@
+{
+  "case_id": "s1",
+  "catalogue_version": 1,
+  "title": "Kleines Hindernis, Kuehlaggregat an einem Frischwarenwagen beschaedigt",
+  "_comment": "Die Falldatei bindet alles zusammen und bestimmt, welche Foederationen mitspielen. Ein weiterer Kunde ist ein weiterer Eintrag in 'federations' -- nichts im Code aendert sich.",
+
+  "sources": {
+    "incident": "data/s1/s1_incident.json",
+    "train": "data/s1/s1_train.json",
+    "reporter": "data/s1/s1_reporter.json",
+    "network": "data/network/segment_R12.json",
+    "carrier": "data/parties/carrier_rheinrail.json",
+    "supplier": "data/parties/supplier_nordfrost.json",
+    "customers": ["data/parties/customer_c1_frischemarkt.json"],
+    "contracts": ["data/contracts/contract_k1.json"]
+  },
+
+  "federations": [
+    {"party_id": "carrier_rheinrail",        "party_type": "carrier",  "speaks_as": ["intake", "legal"]},
+    {"party_id": "supplier_nordfrost",       "party_type": "supplier", "speaks_as": ["supplier"]},
+    {"party_id": "customer_c1_frischemarkt", "party_type": "customer", "speaks_as": ["customer"]}
+  ],
+
+  "wagon_consignees": {
+    "W01": "customer_c1_frischemarkt", "W02": "customer_c1_frischemarkt",
+    "W03": "customer_c1_frischemarkt", "W04": "customer_c1_frischemarkt",
+    "W05": "customer_c1_frischemarkt", "W06": "customer_c1_frischemarkt"
+  },
+
+  "measurements": {
+    "_comment": "Telemetrie der betroffenen Wagen. Gehoert dem Datensatztyp 'incident'. Kann spaeter in s1_incident.json wandern, wenn der Datenstrang Telematik ergaenzt.",
+    "temperature_curve": {
+      "W02": {"setpoint_c": 4.0, "current_c": 6.5, "limit_c": 8.0, "minutes_out": 20}
+    }
+  },
+
+  "carrier_overrides": {"market_sensitive": false},
+  "offline_parties": [],
+  "thresholds": {},
+  "keys": [],
+
+  "truth": {
+    "_status": "VORSCHLAG des Engine-Strangs -- bitte vom Datenspezialisten bestaetigen oder korrigieren",
+    "measures": ["cool"],
+    "tier": 1,
+    "reason_code": "safety",
+    "why": "Aggregat unrund, Ware aber noch im Fenster (gelb). Kunde hat 4,5 Tage Bestand (gruen) und Routine-Dringlichkeit, Vertragsstrafe unter der Schwelle. Kuehlen reicht; Umladen waere teuer und unnoetig.",
+    "must_not": ["reload", "alt_transport", "stop_train"],
+    "_teaches": "Die Ampel auf dem Bestand verhindert eine teure Maßnahme. Der Bewerter erfaehrt nie, dass es 4,5 Tage sind.",
+    "expect_refusal": null
+  }
+}

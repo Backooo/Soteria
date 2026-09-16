@@ -1,0 +1,18 @@
+{
+  "_comment": "Siehe s1_reporter.json. Hier meldet zusaetzlich die Polizei -- ebenfalls ein Mensch, kein Agent.",
+  "party_type": "carrier",
+  "records": {
+    "reporter": {
+      "reporter_role": "driver",
+      "name": "Milos Varga (erfunden)",
+      "staff_id": "TF-1108",
+      "phone": "+49 170 000-03",
+      "on_site": true,
+      "reported_at": "2026-09-16T13:05:00Z",
+      "statement_de": "Aufprall auf ein grosses Bauwerk im Gleis, Zug steht und ist nicht fahrbereit. Drei Wagen sichtbar beschaedigt, darunter ein Gefahrgutwagen. Wohnbebauung in Sichtweite.",
+      "secondary_reporters": [
+        {"reporter_role": "police", "name": "PHK Berit Sandow (erfunden)", "reported_at": "2026-09-16T13:19:00Z"}
+      ]
+    }
+  }
+}

@@ -1,0 +1,184 @@
+{
+  "catalogue_version": 1,
+  "_comment": [
+    "DER FELDKATALOG. Das ist die Need-to-know-Matrix als Daten.",
+    "soteria/matrix.py laedt diese Datei und validiert sie beim Import.",
+    "",
+    "Ein neues Feld hinzufuegen  : Eintrag unter 'fields' anlegen. Kein Codeeingriff,",
+    "                             solange der 'projectors'-Eintrag nur Namen aus",
+    "                             'known_projectors' benutzt.",
+    "Ein Feld entfernen          : Eintrag loeschen. Der Validator meldet danach jede",
+    "                             Datendatei, die es noch fuehrt.",
+    "Sichtbarkeit aendern        : 'visibility' bearbeiten. Das ist die eigentliche",
+    "                             Sicherheitsentscheidung und der Ort, an dem sie",
+    "                             bestritten werden kann.",
+    "Schwelle aendern            : 'thresholds' bearbeiten. Ein Szenario darf sie",
+    "                             ueberschreiben, ohne diese Datei anzufassen.",
+    "Neue ART von Projektion     : Funktion in soteria/matrix.py ergaenzen UND hier",
+    "                             unter 'known_projectors' eintragen."
+  ],
+
+  "roles": ["intake", "assessor", "legal", "supplier", "customer"],
+
+  "record_types": {
+    "_comment": "Welcher Datensatz welchem Parteityp gehoert. Ein Knoten laedt genau die Datensaetze seines Parteityps -- und bei 'scoped_by' nur die eigenen Zeilen.",
+    "incident":  {"held_by": "carrier",  "speaks_as": "intake"},
+    "train":     {"held_by": "carrier",  "speaks_as": "intake"},
+    "reporter":  {"held_by": "carrier",  "speaks_as": "intake"},
+    "network":   {"held_by": "carrier",  "speaks_as": "intake"},
+    "carrier":   {"held_by": "carrier",  "speaks_as": "legal"},
+    "supplier":  {"held_by": "supplier", "speaks_as": "supplier"},
+    "customer":  {"held_by": "customer", "speaks_as": "customer", "scoped_by": "party_id"},
+    "contract":  {"held_by": "shared",   "speaks_as": "legal", "scoped_by": "parties",
+                  "_comment": "Ein Vertrag gehoert einem (Kunde, Zulieferer)-Paar. Beide Knoten laden ihn, der Vertragsagent des Betreibers auch. Kunde 2 laedt Vertrag 1 nie -- das ist Zeilenschutz durch die Foederation, nicht Feldschutz durch die Matrix."}
+  },
+
+  "known_projectors": [
+    "raw", "coarse_cargo", "coarse_trade", "coarse_locality",
+    "ampel_stock", "ampel_temperature", "ampel_replacement", "ampel_route",
+    "ampel_urgency", "ampel_road", "schwelle_money", "schwelle_hours",
+    "flag", "count"
+  ],
+
+  "fields": {
+    "cargo_class": {
+      "owner": "train",
+      "kind": "enum", "vocabulary": "cargo_class",
+      "per": "wagon",
+      "note": "Die Ladungsklasse eines Wagens. Der Bewerter erfaehrt die Regulierungslage, nicht die Ware.",
+      "projectors": {"raw": "raw", "coarse": "coarse_cargo"},
+      "visibility": {"intake": "coarse", "assessor": "coarse", "legal": "none", "supplier": "raw", "customer": "raw"}
+    },
+
+    "temperature_curve": {
+      "owner": "incident",
+      "kind": "object", "per": "wagon",
+      "shape": {"setpoint_c": "number", "current_c": "number", "limit_c": "number", "minutes_out": "number"},
+      "note": "Die Kuehlkurve eines betroffenen Wagens. Der Bewerter bekommt eine Ampel.",
+      "projectors": {"raw": "raw", "ampel": "ampel_temperature"},
+      "visibility": {"intake": "raw", "assessor": "ampel", "legal": "none", "supplier": "raw", "customer": "raw"},
+      "thresholds": {"margin_k": 2.0, "minutes_out_amber": 15}
+    },
+
+    "customer_stock": {
+      "owner": "customer",
+      "kind": "number", "unit": "days", "per": "consignment",
+      "note": "Bestandsdeckung in Tagen. Der Bewerter muss wissen DASS es knapp ist, nie WIE knapp.",
+      "projectors": {"raw": "raw", "ampel": "ampel_stock"},
+      "visibility": {"intake": "none", "assessor": "ampel", "legal": "none", "supplier": "none", "customer": "raw"},
+      "thresholds": {"red": 1.0, "amber": 3.0}
+    },
+
+    "customer_urgency": {
+      "owner": "customer",
+      "kind": "enum", "vocabulary": "urgency", "per": "consignment",
+      "note": "Wie dringend der Kunde die Ware braucht. Der Zulieferer darf das nicht sehen -- er wuerde danach bepreisen.",
+      "projectors": {"raw": "raw", "ampel": "ampel_urgency"},
+      "visibility": {"intake": "none", "assessor": "ampel", "legal": "none", "supplier": "none", "customer": "raw"}
+    },
+
+    "customer_trade": {
+      "owner": "customer",
+      "kind": "enum", "vocabulary": "trade",
+      "note": "Gewerbe des Kunden. Grob genug, dass der Bewerter Pflege von Handel unterscheiden kann, ohne den Kunden zu kennen.",
+      "projectors": {"raw": "raw", "coarse": "coarse_trade"},
+      "visibility": {"intake": "none", "assessor": "coarse", "legal": "raw", "supplier": "none", "customer": "raw"}
+    },
+
+    "contact_person": {
+      "owner": "customer",
+      "kind": "object", "per": "person",
+      "shape": {"name": "string", "function": "string", "phone": "string", "hours": "string"},
+      "note": "Zustaendige Person beim Kunden. Personendaten -- nur die Aufnahme und der Kunde selbst.",
+      "projectors": {"raw": "raw", "count": "count"},
+      "visibility": {"intake": "raw", "assessor": "count", "legal": "none", "supplier": "none", "customer": "raw"},
+      "flags": ["person_data"]
+    },
+
+    "contract_penalty": {
+      "owner": "contract",
+      "kind": "number", "unit": "EUR",
+      "note": "Vertragsstrafe. Kunde und Zulieferer sind die Vertragsparteien und sehen sie beide; der Vertragsagent des Betreibers fuehrt den Vertrag. Der Bewerter bekommt nur ueber/unter.",
+      "projectors": {"raw": "raw", "schwelle": "schwelle_money"},
+      "visibility": {"intake": "none", "assessor": "schwelle", "legal": "raw", "supplier": "raw", "customer": "raw"},
+      "thresholds": {"limit": 50000}
+    },
+
+    "contract_deadline_h": {
+      "owner": "contract",
+      "kind": "number", "unit": "hours",
+      "note": "Restzeit bis zur vertraglichen Frist. Der Bewerter erfaehrt, ob sie reisst.",
+      "projectors": {"raw": "raw", "schwelle": "schwelle_hours"},
+      "visibility": {"intake": "none", "assessor": "schwelle", "legal": "raw", "supplier": "raw", "customer": "raw"},
+      "thresholds": {"limit": 12}
+    },
+
+    "liability_cap": {
+      "owner": "contract",
+      "kind": "number", "unit": "EUR",
+      "note": "Haftungshoechstgrenze. Reine Vertragssache -- der Bewerter braucht sie nicht, um eine Maßnahme zu waehlen.",
+      "projectors": {"raw": "raw"},
+      "visibility": {"intake": "none", "assessor": "none", "legal": "raw", "supplier": "raw", "customer": "raw"}
+    },
+
+    "replacement_available": {
+      "owner": "supplier",
+      "kind": "object", "per": "cargo_class",
+      "shape": {"available": "bool", "eta_min": "number", "terminal": "string"},
+      "note": "Ersatzlieferung. Der Kunde sieht eine Ampel, damit er planen kann, aber nicht das Terminal des Zulieferers.",
+      "projectors": {"raw": "raw", "ampel": "ampel_replacement"},
+      "visibility": {"intake": "none", "assessor": "ampel", "legal": "none", "supplier": "raw", "customer": "ampel"},
+      "thresholds": {"eta_amber_min": 120}
+    },
+
+    "cooling_required": {
+      "owner": "supplier",
+      "kind": "bool", "per": "cargo_class",
+      "note": "Ob die Ware aktiv gekuehlt werden muss. Ein Flag reicht dem Bewerter.",
+      "projectors": {"raw": "raw", "flag": "flag"},
+      "visibility": {"intake": "flag", "assessor": "flag", "legal": "none", "supplier": "raw", "customer": "raw"}
+    },
+
+    "route_weakness": {
+      "owner": "network",
+      "kind": "number", "unit": "severity_0_3",
+      "note": "Bekannte Schwachstelle des Streckenabschnitts. Betriebsgeheimnis des Betreibers -- niemand ausser dem Bewerter sieht davon etwas, und der nur als Ampel.",
+      "projectors": {"ampel": "ampel_route"},
+      "visibility": {"intake": "none", "assessor": "ampel", "legal": "none", "supplier": "none", "customer": "none"},
+      "thresholds": {"red": 3}
+    },
+
+    "alt_route_status": {
+      "owner": "network",
+      "kind": "enum", "vocabulary": "alt_route_status",
+      "note": "Alternativroute fuer den Zug. Entscheidet, ob alt_transport ueberhaupt machbar ist.",
+      "projectors": {"raw": "raw", "ampel": "ampel_route"},
+      "visibility": {"intake": "raw", "assessor": "raw", "legal": "none", "supplier": "none", "customer": "none"}
+    },
+
+    "road_access": {
+      "owner": "network",
+      "kind": "enum", "vocabulary": "road_access",
+      "note": "Wie gut die Stelle mit dem Lkw erreichbar ist. Ohne Strasse ist Umladen keine Option.",
+      "projectors": {"raw": "raw", "ampel": "ampel_road"},
+      "visibility": {"intake": "raw", "assessor": "ampel", "legal": "none", "supplier": "ampel", "customer": "none"}
+    },
+
+    "locality_class": {
+      "owner": "network",
+      "kind": "enum", "vocabulary": "locality_class",
+      "note": "Umgebung der Unfallstelle. Bei Gefahrgut entscheidet die Naehe einer Ortschaft ueber die Stufe -- deshalb sieht der Vertragsagent sie auch.",
+      "projectors": {"raw": "raw", "coarse": "coarse_locality"},
+      "visibility": {"intake": "raw", "assessor": "raw", "legal": "coarse", "supplier": "none", "customer": "none"}
+    },
+
+    "market_sensitive": {
+      "owner": "carrier",
+      "kind": "bool",
+      "note": "Ob der Vorfall kursrelevant ist. Sobald gelesen, ist jeder ausgehende Kanal fuer den Rest des Laufs zu.",
+      "projectors": {"flag": "flag"},
+      "visibility": {"intake": "flag", "assessor": "flag", "legal": "flag", "supplier": "none", "customer": "none"},
+      "flags": ["market_sensitive"]
+    }
+  }
+}

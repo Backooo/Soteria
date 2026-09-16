@@ -1,0 +1,12 @@
+{
+  "party_id": "carrier_rheinrail",
+  "party_type": "carrier",
+  "display_name": "RheinRail Cargo (erfunden)",
+  "_comment": "Der Betreiber. Auf seinem Knoten sitzen die Aufnahme (intake) und der Vertragsagent (legal). Alle Daten erfunden.",
+  "records": {
+    "carrier": {
+      "market_sensitive": false,
+      "_note": "Je Fall in der Falldatei ueberschrieben. Hier steht der Standardwert."
+    }
+  }
+}

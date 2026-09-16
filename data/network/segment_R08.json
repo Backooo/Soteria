@@ -1,0 +1,21 @@
+{
+  "segment_id": "R-08",
+  "party_type": "carrier",
+  "location_label": "Rail segment R-08, km 31.7",
+  "records": {
+    "network": {
+      "route_weakness": 2,
+      "alt_route_status": "long_detour",
+      "road_access": "single_lane",
+      "locality_class": "village",
+      "_context": {
+        "nearest_place": "Oberbach (erfunden)",
+        "distance_to_place_km": 0.6,
+        "nearest_terminal": "Terminal West",
+        "distance_to_terminal_km": 22.0,
+        "roads": ["K 14, einspurig, 12 t Beschraenkung"],
+        "alt_routes": [{"via": "R-09 / R-21 / R-08b", "extra_minutes": 145}]
+      }
+    }
+  }
+}

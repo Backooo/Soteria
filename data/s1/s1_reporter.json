@@ -1,0 +1,15 @@
+{
+  "_comment": "Der Melder ist ein MENSCH, kein KI-Agent. Er gibt den Vorfall an die Aufnahme (intake). Sein Name sind Personendaten und verlaesst den Betreiberknoten nicht -- der Bewerter erfaehrt hoechstens, dass es einen Melder gab.",
+  "party_type": "carrier",
+  "records": {
+    "reporter": {
+      "reporter_role": "driver",
+      "name": "Jens Ahlgrimm (erfunden)",
+      "staff_id": "TF-4471",
+      "phone": "+49 170 000-01",
+      "on_site": true,
+      "reported_at": "2026-09-16T09:15:00Z",
+      "statement_de": "Kleines Hindernis vor der Lok, leichter Anprall. Zug faehrt normal weiter, Gleis frei. Am Kuehlwagen W02 laeuft das Aggregat unrund."
+    }
+  }
+}

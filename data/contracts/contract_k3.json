@@ -1,0 +1,14 @@
+{
+  "contract_id": "contract_k3",
+  "_comment": "Siehe contract_k1. Gefahrgutvertrag: Strafe niedrig, Haftung sehr hoch -- die Kosten liegen nicht in der Verspaetung, sondern im Schaden.",
+  "parties": ["customer_c3_chemiewerk", "supplier_nordfrost"],
+  "administered_by": "carrier_rheinrail",
+  "records": {
+    "contract": {
+      "contract_penalty": 9000,
+      "contract_deadline_h": 48,
+      "liability_cap": 15000000,
+      "_note": "Gefahrgutvertrag, Meldepflichten nach Anlage 3"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "segment_id": "R-04",
+  "party_type": "carrier",
+  "location_label": "Rail segment R-04, km 56.2",
+  "records": {
+    "network": {
+      "route_weakness": 3,
+      "alt_route_status": "none",
+      "road_access": "track_only",
+      "locality_class": "town_edge",
+      "_context": {
+        "nearest_place": "Klein-Ruhlau, Wohnbebauung (erfunden)",
+        "distance_to_place_km": 0.3,
+        "nearest_terminal": "Terminal Sued",
+        "distance_to_terminal_km": 41.0,
+        "roads": ["nur Bahnbetriebsweg, keine oeffentliche Zufahrt"],
+        "alt_routes": []
+      }
+    }
+  }
+}

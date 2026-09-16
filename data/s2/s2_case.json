@@ -1,0 +1,54 @@
+{
+  "case_id": "s2",
+  "catalogue_version": 1,
+  "title": "Gleis blockiert, Klinikversorgung im Zug, Umleitung noetig",
+
+  "sources": {
+    "incident": "data/s2/s2_incident.json",
+    "train": "data/s2/s2_train.json",
+    "reporter": "data/s2/s2_reporter.json",
+    "network": "data/network/segment_R08.json",
+    "carrier": "data/parties/carrier_rheinrail.json",
+    "supplier": "data/parties/supplier_nordfrost.json",
+    "customers": ["data/parties/customer_c2_stadtklinik.json"],
+    "contracts": ["data/contracts/contract_k2.json"]
+  },
+
+  "federations": [
+    {"party_id": "carrier_rheinrail",       "party_type": "carrier",  "speaks_as": ["intake", "legal"]},
+    {"party_id": "supplier_nordfrost",      "party_type": "supplier", "speaks_as": ["supplier"]},
+    {"party_id": "customer_c2_stadtklinik", "party_type": "customer", "speaks_as": ["customer"]}
+  ],
+
+  "wagon_consignees": {
+    "W01": "customer_c2_stadtklinik", "W02": "customer_c2_stadtklinik",
+    "W03": "customer_c2_stadtklinik", "W04": "customer_c2_stadtklinik",
+    "W05": "customer_c2_stadtklinik", "W06": "customer_c2_stadtklinik",
+    "W07": "customer_c2_stadtklinik", "W08": "customer_c2_stadtklinik"
+  },
+
+  "measurements": {
+    "temperature_curve": {
+      "W02": {"setpoint_c": 4.0, "current_c": 7.2, "limit_c": 8.0, "minutes_out": 35},
+      "W03": {"setpoint_c": 5.0, "current_c": 5.4, "limit_c": 8.0, "minutes_out": 0}
+    }
+  },
+
+  "carrier_overrides": {"market_sensitive": false},
+  "offline_parties": [],
+  "thresholds": {},
+  "keys": [
+    {"human_id": "ops-lead-rheinrail-1", "measure": "alt_transport", "params": {"case_id": "s2", "via": "R-09 / R-21 / R-08b"}}
+  ],
+
+  "truth": {
+    "_status": "VORSCHLAG des Engine-Strangs -- bitte bestaetigen oder korrigieren",
+    "measures": ["alt_transport"],
+    "tier": 2,
+    "reason_code": "safety",
+    "why": "Gleis blockiert und Zug nur eingeschraenkt fahrbereit. Im Zug liegt Klinikversorgung mit einem halben Tag Bestand und Frist in sechs Stunden. Strasse ist einspurig mit 12-t-Grenze, Umladen also unrealistisch; die Umleitung kostet 145 Minuten und haelt die Frist.",
+    "must_not": ["proceed", "hold"],
+    "_teaches": "Stufe 2 braucht einen menschlichen Schluessel. Der Bewerter sieht die Dringlichkeit als Ampel und die Frist als Schwelle, nie den Namen der Klinik und nie die 140.000 Euro.",
+    "expect_refusal": null
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "party_id": "supplier_nordfrost",
+  "party_type": "supplier",
+  "display_name": "Nordfrost Warenlogistik (erfunden)",
+  "_comment": "Derselbe Zulieferer in allen drei Szenarien. Er weiss, was er ersetzen kann und wie schnell -- und darf die Bestaende und Dringlichkeiten der Kunden nicht sehen.",
+  "records": {
+    "supplier": {
+      "replacement_available": {
+        "perishable":     {"available": true,  "eta_min": 35,  "terminal": "Terminal Nord"},
+        "pharmaceutical": {"available": true,  "eta_min": 180, "terminal": "Zentrallager Hamburg"},
+        "general_goods":  {"available": true,  "eta_min": 90,  "terminal": "Terminal Nord"},
+        "hazmat":         {"available": false, "eta_min": 0,   "terminal": ""}
+      },
+      "cooling_required": {
+        "perishable": true,
+        "pharmaceutical": true,
+        "general_goods": false,
+        "hazmat": false
+      }
+    }
+  }
+}

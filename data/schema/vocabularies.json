@@ -1,0 +1,74 @@
+{
+  "vocabularies_version": 1,
+  "_comment": "Geschlossene Wertelisten. Neuer Wert = hier eintragen. Der Validator prueft alle Datendateien dagegen, und soteria/vocab.py laedt sie. Alle Daten sind erfunden.",
+
+  "cargo_class": {
+    "general_goods": {"label_de": "Stueckgut", "coarse": "general", "cooled": false},
+    "perishable": {"label_de": "Frischware", "coarse": "perishable", "cooled": true},
+    "pharmaceutical": {"label_de": "Pharma", "coarse": "regulated", "cooled": true},
+    "hazmat": {"label_de": "Gefahrgut", "coarse": "hazardous", "cooled": false},
+    "livestock": {"label_de": "Lebendvieh", "coarse": "perishable", "cooled": false},
+    "high_value": {"label_de": "Hochwert", "coarse": "regulated", "cooled": false}
+  },
+
+  "wagon_type": ["standard", "refrigerated", "tank", "flatbed"],
+
+  "incident_type": [
+    "obstruction",
+    "damage_and_obstruction",
+    "cooling_failure",
+    "derailment",
+    "leak",
+    "delay"
+  ],
+
+  "obstruction_type": ["none", "small_object", "large_object", "large_structure", "landslide", "vehicle"],
+
+  "train_operational": ["normal", "restricted", "immobilized"],
+
+  "severity": ["low", "medium", "high"],
+
+  "reporter_role": {
+    "_comment": "Menschen, die melden. KEINE Agentenrollen. Ein Melder ist nie ein KI-Agent -- er ist die Person, die den Vorfall an die Aufnahme gibt.",
+    "driver": {"label_de": "Triebfahrzeugfuehrer", "reports_to": "intake", "on_site": true},
+    "dispatcher": {"label_de": "Disponent Leitstelle", "reports_to": "intake", "on_site": false},
+    "yard_staff": {"label_de": "Rangierpersonal", "reports_to": "intake", "on_site": true},
+    "sensor": {"label_de": "Telematik im Wagen", "reports_to": "intake", "on_site": true},
+    "police": {"label_de": "Polizei", "reports_to": "intake", "on_site": true}
+  },
+
+  "urgency": ["routine", "elevated", "critical", "life_safety"],
+
+  "trade": {
+    "_comment": "Gewerbe des Kunden. Bestimmt mit, wie teuer ein Ausfall ist -- aber der Bewerter sieht nur die Grobklasse.",
+    "hospital": {"label_de": "Krankenhaus", "coarse": "care", "regulated": true},
+    "pharmacy_chain": {"label_de": "Apothekenkette", "coarse": "care", "regulated": true},
+    "food_retail": {"label_de": "Lebensmittelhandel", "coarse": "retail", "regulated": false},
+    "wholesale_market": {"label_de": "Grossmarkt", "coarse": "retail", "regulated": false},
+    "manufacturing": {"label_de": "Fertigung", "coarse": "industry", "regulated": false},
+    "chemical_plant": {"label_de": "Chemiewerk", "coarse": "industry", "regulated": true}
+  },
+
+  "locality_class": ["open_country", "industrial", "village", "town_edge", "dense_urban"],
+
+  "road_access": ["none", "track_only", "single_lane", "paved_two_lane", "motorway_near"],
+
+  "alt_route_status": ["none", "long_detour", "available", "available_short"],
+
+  "measure": [
+    "proceed", "hold", "cool", "reload", "alt_transport", "contact",
+    "stop_train", "notify_authority", "press"
+  ],
+
+  "reason_code": [
+    "cost", "liability", "time", "safety", "feasibility", "confidentiality", "missing_data"
+  ],
+
+  "flag": ["market_sensitive", "hazmat", "perishable", "person_data"],
+
+  "visibility": ["raw", "coarse", "ampel", "schwelle", "flag", "count", "none"],
+
+  "ampel": ["gruen", "gelb", "rot"],
+
+  "schwelle": ["above", "below"]
+}

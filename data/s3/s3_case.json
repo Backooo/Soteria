@@ -1,0 +1,75 @@
+{
+  "case_id": "s3",
+  "catalogue_version": 1,
+  "title": "Aufprall, Zug nicht fahrbereit, Gefahrgutwagen beschaedigt, Wohnbebauung 300 m",
+  "_comment": "Der Vorzeigefall. ZWEI Kundenfoederationen gleichzeitig -- das ist der Beleg, dass die Parteienliste Daten sind und nicht Code. Keine Partei sieht den Vertrag der anderen, weil kein Knoten ihn laedt.",
+
+  "sources": {
+    "incident": "data/s3/s3_incident.json",
+    "train": "data/s3/s3_train.json",
+    "reporter": "data/s3/s3_reporter.json",
+    "network": "data/network/segment_R04.json",
+    "carrier": "data/parties/carrier_rheinrail.json",
+    "supplier": "data/parties/supplier_nordfrost.json",
+    "customers": [
+      "data/parties/customer_c2_stadtklinik.json",
+      "data/parties/customer_c3_chemiewerk.json"
+    ],
+    "contracts": ["data/contracts/contract_k2.json", "data/contracts/contract_k3.json"]
+  },
+
+  "federations": [
+    {"party_id": "carrier_rheinrail",       "party_type": "carrier",  "speaks_as": ["intake", "legal"]},
+    {"party_id": "supplier_nordfrost",      "party_type": "supplier", "speaks_as": ["supplier"]},
+    {"party_id": "customer_c2_stadtklinik", "party_type": "customer", "speaks_as": ["customer"]},
+    {"party_id": "customer_c3_chemiewerk",  "party_type": "customer", "speaks_as": ["customer"]}
+  ],
+
+  "wagon_consignees": {
+    "W01": "customer_c3_chemiewerk",  "W02": "customer_c2_stadtklinik",
+    "W03": "customer_c3_chemiewerk",  "W04": "customer_c2_stadtklinik",
+    "W05": "customer_c3_chemiewerk",  "W06": "customer_c3_chemiewerk",
+    "W07": "customer_c2_stadtklinik", "W08": "customer_c3_chemiewerk",
+    "W09": "customer_c3_chemiewerk",  "W10": "customer_c3_chemiewerk"
+  },
+
+  "measurements": {
+    "temperature_curve": {
+      "W02": {"setpoint_c": 4.0, "current_c": 11.8, "limit_c": 8.0, "minutes_out": 55},
+      "W04": {"setpoint_c": 4.0, "current_c": 6.1, "limit_c": 8.0, "minutes_out": 10},
+      "W07": {"setpoint_c": 4.0, "current_c": 5.9, "limit_c": 8.0, "minutes_out": 8}
+    }
+  },
+
+  "carrier_overrides": {
+    "market_sensitive": true,
+    "_why": "Zug nicht fahrbereit, Gefahrgut beschaedigt, Hauptstrecke gesperrt. Ein Vorfall dieser Groesse ist kursrelevant, also ist ab dem Lesen dieses Flags jeder ausgehende Kanal zu."
+  },
+  "offline_parties": [],
+  "thresholds": {},
+  "keys": [
+    {"human_id": "ops-lead-rheinrail-1", "measure": "stop_train",
+     "params": {"case_id": "s3", "train_id": "TR-1003"}},
+    {"human_id": "safety-officer-rheinrail-2", "measure": "stop_train",
+     "params": {"case_id": "s3", "train_id": "TR-1003"}},
+    {"human_id": "ops-lead-rheinrail-1", "measure": "notify_authority",
+     "params": {"case_id": "s3", "train_id": "TR-1003"}},
+    {"human_id": "safety-officer-rheinrail-2", "measure": "notify_authority",
+     "params": {"case_id": "s3", "train_id": "TR-1003"}}
+  ],
+
+  "truth": {
+    "_status": "VORSCHLAG des Engine-Strangs -- bitte bestaetigen oder korrigieren",
+    "measures": ["stop_train", "notify_authority"],
+    "tier": 3,
+    "reason_code": "safety",
+    "why": "Gefahrgutwagen W05 im Bereich des Laderaums beschaedigt, Zug nicht fahrbereit, Wohnbebauung 300 m entfernt, keine Alternativroute, keine Strassenzufahrt. Nichtwissen ueber ein Gefahrgutleck neben Wohnhaeusern ist selbst der Grund anzuhalten und zu melden.",
+    "must_not": ["proceed", "alt_transport"],
+    "also_true": {
+      "_comment": "Pro Wagen faellt die Lage unterschiedlich aus. Die Zugentscheidung dominiert, aber W02 bleibt ein eigenes Problem -- Pharma seit 55 Minuten ausserhalb des Fensters.",
+      "W02": {"measures": ["cool"], "tier": 1, "why": "Pharma rot, Zug steht, kuehlen ist autonom moeglich"}
+    },
+    "_teaches": "Stufe 3 braucht zwei VERSCHIEDENE Menschen. market_sensitive ist true, also sperrt die Quarantaene jeden ausgehenden Kanal -- sichtbar im Banner. Und zwei Kundenfoederationen laufen gleichzeitig, ohne dass eine den Vertrag der anderen laedt.",
+    "expect_refusal": null
+  }
+}

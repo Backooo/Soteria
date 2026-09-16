@@ -3,24 +3,55 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "agent"
+name = "soteria"
 version = "0.2.0"
-description = "A minimal Flower AgentApp"
+description = "Soteria: a five-role agent team that decides on freight damage without any party learning more than it may"
 license = { file = "LICENSE" }
 requires-python = ">=3.11,<4.0"
 dependencies = ["flwr>=1.35.0,<2.0", "openai>=2.16.0,<3.0.0"]
 
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
 [tool.hatch.build.targets.wheel]
-packages = ["agent"]
+packages = ["soteria"]
 
 [tool.flwr.app]
-publisher = "flwrlabs"
+publisher = "kaiser-data"
+display-name = "Soteria"
 fab-format-version = 1
 flwr-version-target = "1.35.0"
-fab-include = ["agent/**/*.py", "LICENSE"]
+# Die Knoten laden ihre Daten aus data/ -- ohne diese Muster fehlen sie im FAB.
+fab-include = [
+  "soteria/**/*.py",
+  # The reasoning AgentApp travels with the app: the ServerApp runs from the
+  # installed FAB and starts this bundle on SuperGrid for the model call.
+  "agent/**/*.py",
+  "agent/pyproject.fab.toml",
+  "data/schema/*.json",
+  "data/parties/*.json",
+  "data/contracts/*.json",
+  "data/network/*.json",
+  "data/s*/*.json",
+  "LICENSE",
+]
 
-[tool.flwr.app.config.agent]
-input = "Explain why flowers turn toward light."
-
+# KEIN agentapp-Eintrag. flwr entscheidet in
+# superlink/servicer/control/control_handlers.py:2159:
+#   TaskType.AGENT_APP if "agentapp" in components else TaskType.SERVER_APP
+# Mit agentapp wuerde die ServerApp also nie ausgefuehrt. Die Foederation ist
+# ein ServerApp/ClientApp-Bundle; eine AgentApp waere ein eigenes Bundle.
 [tool.flwr.app.components]
-agentapp = "agent.agent_app:app"
+serverapp = "soteria.assessor_app:app"
+clientapp = "soteria.party_app:app"
+
+[tool.flwr.app.config]
+case = "s1"
+budget_seconds = 240
+# The assessor decides with this LLM, via the AgentApp in agent/ on SuperGrid.
+llm = true
+model = "flower-endeavor-v1.0"
+federation = "supergrid"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,14 @@
+{
+  "contract_id": "contract_k2",
+  "_comment": "See contract_k1. Hospital contract with a supply guarantee, hence a high penalty and a short deadline.",
+  "parties": ["customer_c2_stadtklinik", "supplier_nordfrost"],
+  "administered_by": "carrier_rheinrail",
+  "records": {
+    "contract": {
+      "contract_penalty": 140000,
+      "contract_deadline_h": 6,
+      "liability_cap": 2000000,
+      "_note": "Hospital supply contract, cold chain guaranteed"
+    }
+  }
+}

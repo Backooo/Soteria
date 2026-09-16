@@ -1,0 +1,200 @@
+{
+  "vocabularies_version": 1,
+  "_comment": "Closed value lists. New value = add it here. The validator checks every data file against them, and soteria/matrix.py loads them. All data is invented.",
+  "cargo_class": {
+    "general_goods": {
+      "label": "General cargo",
+      "coarse": "general",
+      "cooled": false
+    },
+    "perishable": {
+      "label": "Fresh goods",
+      "coarse": "cooled",
+      "cooled": true
+    },
+    "pharmaceutical": {
+      "label": "Pharmaceuticals",
+      "coarse": "regulated",
+      "cooled": true
+    },
+    "hazmat": {
+      "label": "Dangerous goods",
+      "coarse": "hazardous",
+      "cooled": false
+    },
+    "livestock": {
+      "label": "Livestock",
+      "coarse": "cooled",
+      "cooled": false
+    },
+    "high_value": {
+      "label": "High-value goods",
+      "coarse": "regulated",
+      "cooled": false
+    },
+    "_comment": "A coarse class must NEVER be named like a fine value -- otherwise it cannot be checked whether coarsening happened. Hence 'cooled' and not 'perishable'."
+  },
+  "wagon_type": [
+    "standard",
+    "refrigerated",
+    "tank",
+    "flatbed"
+  ],
+  "incident_type": [
+    "obstruction",
+    "damage_and_obstruction",
+    "cooling_failure",
+    "derailment",
+    "leak",
+    "delay"
+  ],
+  "obstruction_type": [
+    "none",
+    "small_object",
+    "large_object",
+    "large_structure",
+    "landslide",
+    "vehicle"
+  ],
+  "train_operational": [
+    "normal",
+    "restricted",
+    "immobilized"
+  ],
+  "severity": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "reporter_role": {
+    "_comment": "Humans who report. NOT agent roles. A reporter is never an AI agent -- it is the person who passes the incident to the intake.",
+    "driver": {
+      "label": "Train driver",
+      "reports_to": "intake",
+      "on_site": true
+    },
+    "dispatcher": {
+      "label": "Control centre dispatcher",
+      "reports_to": "intake",
+      "on_site": false
+    },
+    "yard_staff": {
+      "label": "Yard staff",
+      "reports_to": "intake",
+      "on_site": true
+    },
+    "sensor": {
+      "label": "On-wagon telematics",
+      "reports_to": "intake",
+      "on_site": true
+    },
+    "police": {
+      "label": "Police",
+      "reports_to": "intake",
+      "on_site": true
+    }
+  },
+  "urgency": [
+    "routine",
+    "elevated",
+    "critical",
+    "life_safety"
+  ],
+  "trade": {
+    "_comment": "The customer's trade. Helps determine how expensive a disruption is -- but the assessor only sees the coarse class.",
+    "hospital": {
+      "label": "Hospital",
+      "coarse": "care",
+      "regulated": true
+    },
+    "pharmacy_chain": {
+      "label": "Pharmacy chain",
+      "coarse": "care",
+      "regulated": true
+    },
+    "food_retail": {
+      "label": "Food retail",
+      "coarse": "retail",
+      "regulated": false
+    },
+    "wholesale_market": {
+      "label": "Wholesale market",
+      "coarse": "retail",
+      "regulated": false
+    },
+    "manufacturing": {
+      "label": "Manufacturing",
+      "coarse": "industry",
+      "regulated": false
+    },
+    "chemical_plant": {
+      "label": "Chemical plant",
+      "coarse": "industry",
+      "regulated": true
+    }
+  },
+  "locality_class": [
+    "open_country",
+    "industrial",
+    "village",
+    "town_edge",
+    "dense_urban"
+  ],
+  "road_access": [
+    "none",
+    "track_only",
+    "single_lane",
+    "paved_two_lane",
+    "motorway_near"
+  ],
+  "alt_route_status": [
+    "none",
+    "long_detour",
+    "available",
+    "available_short"
+  ],
+  "measure": [
+    "proceed",
+    "hold",
+    "cool",
+    "reload",
+    "alt_transport",
+    "contact",
+    "stop_train",
+    "notify_authority",
+    "press"
+  ],
+  "reason_code": [
+    "cost",
+    "liability",
+    "time",
+    "safety",
+    "feasibility",
+    "confidentiality",
+    "missing_data"
+  ],
+  "flag": [
+    "market_sensitive",
+    "hazmat",
+    "perishable",
+    "person_data"
+  ],
+  "visibility": [
+    "raw",
+    "coarse",
+    "ampel",
+    "schwelle",
+    "flag",
+    "count",
+    "none"
+  ],
+  "ampel": [
+    "gruen",
+    "gelb",
+    "rot"
+  ],
+  "schwelle": [
+    "above",
+    "below"
+  ]
+}

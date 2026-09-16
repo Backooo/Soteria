@@ -1,0 +1,38 @@
+{
+  "party_id": "customer_c2_stadtklinik",
+  "party_type": "customer",
+  "display_name": "Stadtklinik Nordwest (fictional)",
+  "records": {
+    "customer": {
+      "customer_trade": "hospital",
+      "consignments": {
+        "pharmaceutical": {
+          "customer_stock": 0.5,
+          "customer_urgency": "life_safety"
+        },
+        "perishable": {
+          "customer_stock": 2.0,
+          "customer_urgency": "elevated"
+        },
+        "general_goods": {
+          "customer_stock": 9.0,
+          "customer_urgency": "routine"
+        }
+      },
+      "contact_person": [
+        {
+          "name": "Dr. Hanna Loos",
+          "function": "Head of pharmacy",
+          "phone": "+49 40 000-21",
+          "hours": "24/7"
+        },
+        {
+          "name": "Peer Salzmann",
+          "function": "Technical services",
+          "phone": "+49 40 000-22",
+          "hours": "24/7"
+        }
+      ]
+    }
+  }
+}

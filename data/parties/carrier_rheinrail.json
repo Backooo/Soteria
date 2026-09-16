@@ -1,0 +1,12 @@
+{
+  "party_id": "carrier_rheinrail",
+  "party_type": "carrier",
+  "display_name": "RheinRail Cargo (fictional)",
+  "_comment": "The operator. The intake and the contract agent (legal) sit on its node. All data is invented.",
+  "records": {
+    "carrier": {
+      "market_sensitive": false,
+      "_note": "Overridden per case in the case file. This is the default value."
+    }
+  }
+}

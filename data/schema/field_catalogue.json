@@ -1,0 +1,400 @@
+{
+  "catalogue_version": 1,
+  "_comment": [
+    "THE FIELD CATALOGUE. This is the need-to-know matrix as data.",
+    "soteria/matrix.py loads this file and validates it on import.",
+    "",
+    "Add a new field           : create an entry under 'fields'. No code change,",
+    "                            as long as the 'projectors' entry only uses names",
+    "                            from 'known_projectors'.",
+    "Remove a field            : delete the entry. The validator then reports every",
+    "                            data file that still holds it.",
+    "Change visibility         : edit 'visibility'. This is the actual security",
+    "                            decision and the place where it can be",
+    "                            disputed.",
+    "Change a threshold        : edit 'thresholds'. A scenario may override it",
+    "                            without touching this file.",
+    "New KIND of projection    : add a function in soteria/matrix.py AND list it",
+    "                            here under 'known_projectors'.",
+    "A raw object cannot cross the wire -- ConfigRecord only carries scalars. A field whose raw form is an object therefore needs a projector that returns a scalar even for 'raw' (contact_line, curve_line). That weakens nothing: the matrix still decides WHO gets it."
+  ],
+  "roles": [
+    "intake",
+    "assessor",
+    "legal",
+    "supplier",
+    "customer"
+  ],
+  "record_types": {
+    "_comment": "Which record belongs to which party type. A node loads exactly the records of its party type -- and with 'scoped_by' only its own rows.",
+    "incident": {
+      "held_by": "carrier",
+      "speaks_as": "intake"
+    },
+    "train": {
+      "held_by": "carrier",
+      "speaks_as": "intake"
+    },
+    "reporter": {
+      "held_by": "carrier",
+      "speaks_as": "intake"
+    },
+    "network": {
+      "held_by": "carrier",
+      "speaks_as": "intake"
+    },
+    "carrier": {
+      "held_by": "carrier",
+      "speaks_as": "legal"
+    },
+    "supplier": {
+      "held_by": "supplier",
+      "speaks_as": "supplier"
+    },
+    "customer": {
+      "held_by": "customer",
+      "speaks_as": "customer",
+      "scoped_by": "party_id"
+    },
+    "contract": {
+      "held_by": "shared",
+      "speaks_as": "legal",
+      "scoped_by": "parties",
+      "_comment": "A contract belongs to a (customer, supplier) pair. Both nodes load it, and so does the operator's contract agent. Customer 2 never loads contract 1 -- that is row-level protection by the federation, not field-level protection by the matrix."
+    }
+  },
+  "known_projectors": [
+    "ampel_replacement",
+    "ampel_road",
+    "ampel_route",
+    "ampel_stock",
+    "ampel_temperature",
+    "ampel_urgency",
+    "coarse_cargo",
+    "coarse_locality",
+    "coarse_trade",
+    "contact_line",
+    "count",
+    "curve_line",
+    "flag",
+    "offer_line",
+    "raw",
+    "schwelle_hours",
+    "schwelle_money"
+  ],
+  "fields": {
+    "cargo_class": {
+      "owner": "train",
+      "kind": "enum",
+      "vocabulary": "cargo_class",
+      "per": "wagon",
+      "note": "The cargo class of a wagon. The assessor learns the regulatory status, not the goods.",
+      "projectors": {
+        "raw": "raw",
+        "coarse": "coarse_cargo"
+      },
+      "visibility": {
+        "intake": "coarse",
+        "assessor": "coarse",
+        "legal": "none",
+        "supplier": "raw",
+        "customer": "raw"
+      }
+    },
+    "temperature_curve": {
+      "owner": "incident",
+      "kind": "object",
+      "per": "wagon",
+      "shape": {
+        "setpoint_c": "number",
+        "current_c": "number",
+        "limit_c": "number",
+        "minutes_out": "number"
+      },
+      "note": "The cooling curve of an affected wagon. The assessor gets a traffic light.",
+      "projectors": {
+        "raw": "curve_line",
+        "ampel": "ampel_temperature"
+      },
+      "visibility": {
+        "intake": "raw",
+        "assessor": "ampel",
+        "legal": "none",
+        "supplier": "raw",
+        "customer": "raw"
+      },
+      "thresholds": {
+        "margin_k": 2.0,
+        "minutes_out_amber": 15
+      }
+    },
+    "customer_stock": {
+      "owner": "customer",
+      "kind": "number",
+      "unit": "days",
+      "per": "consignment",
+      "note": "Stock cover in days. The assessor needs to know THAT it is low, never HOW low.",
+      "projectors": {
+        "raw": "raw",
+        "ampel": "ampel_stock"
+      },
+      "visibility": {
+        "intake": "none",
+        "assessor": "ampel",
+        "legal": "none",
+        "supplier": "none",
+        "customer": "raw"
+      },
+      "thresholds": {
+        "red": 1.0,
+        "amber": 3.0
+      }
+    },
+    "customer_urgency": {
+      "owner": "customer",
+      "kind": "enum",
+      "vocabulary": "urgency",
+      "per": "consignment",
+      "note": "How urgently the customer needs the goods. The supplier may not see this -- it would price accordingly.",
+      "projectors": {
+        "raw": "raw",
+        "ampel": "ampel_urgency"
+      },
+      "visibility": {
+        "intake": "none",
+        "assessor": "ampel",
+        "legal": "none",
+        "supplier": "none",
+        "customer": "raw"
+      }
+    },
+    "customer_trade": {
+      "owner": "customer",
+      "kind": "enum",
+      "vocabulary": "trade",
+      "note": "The customer's trade. Coarse enough for the assessor to tell care from retail without knowing the customer.",
+      "projectors": {
+        "raw": "raw",
+        "coarse": "coarse_trade"
+      },
+      "visibility": {
+        "intake": "none",
+        "assessor": "coarse",
+        "legal": "raw",
+        "supplier": "none",
+        "customer": "raw"
+      }
+    },
+    "contact_person": {
+      "owner": "customer",
+      "kind": "object",
+      "per": "person",
+      "shape": {
+        "name": "string",
+        "function": "string",
+        "phone": "string",
+        "hours": "string"
+      },
+      "note": "Responsible person at the customer. Personal data -- only the intake and the customer itself. The assessor does not even learn how many there are: a count is information too.",
+      "projectors": {
+        "raw": "contact_line"
+      },
+      "visibility": {
+        "intake": "raw",
+        "assessor": "none",
+        "legal": "none",
+        "supplier": "none",
+        "customer": "raw"
+      },
+      "flags": [
+        "person_data"
+      ]
+    },
+    "contract_penalty": {
+      "owner": "contract",
+      "kind": "number",
+      "unit": "EUR",
+      "note": "Contract penalty. Customer and supplier are the contracting parties and both see it; the operator's contract agent administers the contract. The assessor only gets above/below.",
+      "projectors": {
+        "raw": "raw",
+        "schwelle": "schwelle_money"
+      },
+      "visibility": {
+        "intake": "none",
+        "assessor": "schwelle",
+        "legal": "raw",
+        "supplier": "raw",
+        "customer": "raw"
+      },
+      "thresholds": {
+        "limit": 50000
+      }
+    },
+    "contract_deadline_h": {
+      "owner": "contract",
+      "kind": "number",
+      "unit": "hours",
+      "note": "Time left until the contractual deadline. The assessor learns whether it will be missed.",
+      "projectors": {
+        "raw": "raw",
+        "schwelle": "schwelle_hours"
+      },
+      "visibility": {
+        "intake": "none",
+        "assessor": "schwelle",
+        "legal": "raw",
+        "supplier": "raw",
+        "customer": "raw"
+      },
+      "thresholds": {
+        "limit": 12
+      }
+    },
+    "liability_cap": {
+      "owner": "contract",
+      "kind": "number",
+      "unit": "EUR",
+      "note": "Liability cap. Purely a contract matter -- the assessor does not need it to choose a measure.",
+      "projectors": {
+        "raw": "raw"
+      },
+      "visibility": {
+        "intake": "none",
+        "assessor": "none",
+        "legal": "raw",
+        "supplier": "raw",
+        "customer": "raw"
+      }
+    },
+    "replacement_available": {
+      "owner": "supplier",
+      "kind": "object",
+      "per": "cargo_class",
+      "shape": {
+        "available": "bool",
+        "eta_min": "number",
+        "terminal": "string"
+      },
+      "note": "Replacement delivery. The customer sees a traffic light so it can plan, but not the supplier's terminal.",
+      "projectors": {
+        "raw": "offer_line",
+        "ampel": "ampel_replacement"
+      },
+      "visibility": {
+        "intake": "none",
+        "assessor": "ampel",
+        "legal": "none",
+        "supplier": "raw",
+        "customer": "ampel"
+      },
+      "thresholds": {
+        "eta_amber_min": 120
+      }
+    },
+    "cooling_required": {
+      "owner": "supplier",
+      "kind": "bool",
+      "per": "cargo_class",
+      "note": "Whether the goods must be actively cooled. A flag is enough for the assessor.",
+      "projectors": {
+        "raw": "raw",
+        "flag": "flag"
+      },
+      "visibility": {
+        "intake": "flag",
+        "assessor": "flag",
+        "legal": "none",
+        "supplier": "raw",
+        "customer": "raw"
+      }
+    },
+    "route_weakness": {
+      "owner": "network",
+      "kind": "number",
+      "unit": "severity_0_3",
+      "note": "Known weakness of the line segment. The operator's trade secret -- nobody except the assessor sees any of it, and the assessor only as a traffic light.",
+      "projectors": {
+        "ampel": "ampel_route"
+      },
+      "visibility": {
+        "intake": "none",
+        "assessor": "ampel",
+        "legal": "none",
+        "supplier": "none",
+        "customer": "none"
+      },
+      "thresholds": {
+        "red": 3
+      }
+    },
+    "alt_route_status": {
+      "owner": "network",
+      "kind": "enum",
+      "vocabulary": "alt_route_status",
+      "note": "Alternative route for the train. Decides whether alt_transport is feasible at all.",
+      "projectors": {
+        "raw": "raw",
+        "ampel": "ampel_route"
+      },
+      "visibility": {
+        "intake": "raw",
+        "assessor": "raw",
+        "legal": "none",
+        "supplier": "none",
+        "customer": "none"
+      }
+    },
+    "road_access": {
+      "owner": "network",
+      "kind": "enum",
+      "vocabulary": "road_access",
+      "note": "How well the site can be reached by truck. Without a road, transshipment is not an option.",
+      "projectors": {
+        "raw": "raw",
+        "ampel": "ampel_road"
+      },
+      "visibility": {
+        "intake": "raw",
+        "assessor": "ampel",
+        "legal": "none",
+        "supplier": "ampel",
+        "customer": "none"
+      }
+    },
+    "locality_class": {
+      "owner": "network",
+      "kind": "enum",
+      "vocabulary": "locality_class",
+      "note": "Surroundings of the accident site. With hazmat, the proximity of a settlement decides the tier -- that is why the contract agent sees it too.",
+      "projectors": {
+        "raw": "raw",
+        "coarse": "coarse_locality"
+      },
+      "visibility": {
+        "intake": "raw",
+        "assessor": "raw",
+        "legal": "coarse",
+        "supplier": "none",
+        "customer": "none"
+      }
+    },
+    "market_sensitive": {
+      "owner": "carrier",
+      "kind": "bool",
+      "note": "Whether the incident is market sensitive. Once read, every outbound channel is shut for the rest of the run.",
+      "projectors": {
+        "flag": "flag"
+      },
+      "visibility": {
+        "intake": "flag",
+        "assessor": "flag",
+        "legal": "flag",
+        "supplier": "none",
+        "customer": "none"
+      },
+      "flags": [
+        "market_sensitive"
+      ]
+    }
+  }
+}

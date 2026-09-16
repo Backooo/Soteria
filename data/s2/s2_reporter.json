@@ -1,0 +1,15 @@
+{
+  "_comment": "See s1_reporter.json. The reporter is a human.",
+  "party_type": "carrier",
+  "records": {
+    "reporter": {
+      "reporter_role": "driver",
+      "name": "Sonja Reineke (fictional)",
+      "staff_id": "TF-2290",
+      "phone": "+49 170 000-02",
+      "on_site": true,
+      "reported_at": "2026-09-16T11:40:00Z",
+      "statement": "Large obstruction on the track, emergency braking applied. Track blocked, train only partly operational. Coupling area of W02 damaged."
+    }
+  }
+}

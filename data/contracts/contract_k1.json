@@ -1,0 +1,14 @@
+{
+  "contract_id": "contract_k1",
+  "_comment": "Contract data is specific to a (customer, supplier) pair. Both parties load this file, the operator's contract agent administers it. Another customer NEVER loads it -- that is row-level protection by the federation, not field-level protection by the matrix.",
+  "parties": ["customer_c1_frischemarkt", "supplier_nordfrost"],
+  "administered_by": "carrier_rheinrail",
+  "records": {
+    "contract": {
+      "contract_penalty": 18000,
+      "contract_deadline_h": 26,
+      "liability_cap": 250000,
+      "_note": "Framework contract for fresh goods, penalty per late shipment"
+    }
+  }
+}

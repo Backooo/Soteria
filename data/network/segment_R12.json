@@ -1,0 +1,22 @@
+{
+  "segment_id": "R-12",
+  "party_type": "carrier",
+  "_comment": "Surroundings of the line segment. route_weakness is the operator's trade secret.",
+  "location_label": "Rail segment R-12, km 18.4",
+  "records": {
+    "network": {
+      "route_weakness": 1,
+      "alt_route_status": "available_short",
+      "road_access": "paved_two_lane",
+      "locality_class": "industrial",
+      "_context": {
+        "nearest_place": "Nord industrial estate (fictional)",
+        "distance_to_place_km": 1.2,
+        "nearest_terminal": "Terminal North",
+        "distance_to_terminal_km": 6.0,
+        "roads": ["L 201 running parallel to the line", "access via service road at km 18.2"],
+        "alt_routes": [{"via": "R-13 / R-15", "extra_minutes": 25}]
+      }
+    }
+  }
+}

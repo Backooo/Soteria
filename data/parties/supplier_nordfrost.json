@@ -1,0 +1,22 @@
+{
+  "party_id": "supplier_nordfrost",
+  "party_type": "supplier",
+  "display_name": "Nordfrost Warenlogistik (fictional)",
+  "_comment": "The same supplier in all three scenarios. It knows what it can replace and how fast -- and may not see the customers' stock levels and urgencies.",
+  "records": {
+    "supplier": {
+      "replacement_available": {
+        "perishable":     {"available": true,  "eta_min": 35,  "terminal": "Terminal North"},
+        "pharmaceutical": {"available": true,  "eta_min": 180, "terminal": "Central warehouse Hamburg"},
+        "general_goods":  {"available": true,  "eta_min": 90,  "terminal": "Terminal North"},
+        "hazmat":         {"available": false, "eta_min": 0,   "terminal": ""}
+      },
+      "cooling_required": {
+        "perishable": true,
+        "pharmaceutical": true,
+        "general_goods": false,
+        "hazmat": false
+      }
+    }
+  }
+}

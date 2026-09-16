@@ -1,0 +1,15 @@
+{
+  "_comment": "The reporter is a HUMAN, not an AI agent. They pass the incident to the intake. Their name is personal data and never leaves the operator's node -- at most the assessor learns that there was a reporter.",
+  "party_type": "carrier",
+  "records": {
+    "reporter": {
+      "reporter_role": "driver",
+      "name": "Jens Ahlgrimm (fictional)",
+      "staff_id": "TF-4471",
+      "phone": "+49 170 000-01",
+      "on_site": true,
+      "reported_at": "2026-09-16T09:15:00Z",
+      "statement": "Small obstruction in front of the locomotive, light impact. Train continues normally, track clear. The refrigeration unit on reefer wagon W02 is running rough."
+    }
+  }
+}

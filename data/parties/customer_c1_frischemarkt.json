@@ -1,0 +1,18 @@
+{
+  "party_id": "customer_c1_frischemarkt",
+  "party_type": "customer",
+  "display_name": "Frischemarkt Rhein-Ruhr (fictional)",
+  "records": {
+    "customer": {
+      "customer_trade": "food_retail",
+      "consignments": {
+        "perishable":    {"customer_stock": 4.5, "customer_urgency": "routine"},
+        "general_goods": {"customer_stock": 12.0, "customer_urgency": "routine"}
+      },
+      "contact_person": [
+        {"name": "Ines Broder", "function": "Head of goods receiving", "phone": "+49 201 000-11", "hours": "06:00-18:00"},
+        {"name": "Tarek Jung", "function": "Dispatch", "phone": "+49 201 000-12", "hours": "24/7"}
+      ]
+    }
+  }
+}

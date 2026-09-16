@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "soteria-assessor-agent"
+version = "0.1.0"
+description = "Soteria assessor reasoning as a Flower AgentApp: decides measures from projected signals only"
+license = { file = "LICENSE" }
+requires-python = ">=3.11,<4.0"
+dependencies = ["flwr>=1.35.0,<2.0", "openai>=2.16.0,<3.0.0"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["soteria_assessor_agent"]
+
+[tool.flwr.app]
+publisher = "kaiser-data"
+display-name = "Soteria Assessor Agent"
+fab-format-version = 1
+flwr-version-target = "1.35.0"
+fab-include = ["soteria_assessor_agent/**/*.py", "LICENSE"]
+
+# A separate bundle on purpose: an `agentapp` component in the federation bundle
+# would switch off the ServerApp (flwr control_handlers.py:2159).
+[tool.flwr.app.components]
+agentapp = "soteria_assessor_agent.agent_app:app"
+
+[tool.flwr.app.config.agent]
+model = "flower-endeavor-v1.0"
+# Base64 JSON of {signals, flags, parties_missing, driver_report}; set per run.
+input_b64 = ""

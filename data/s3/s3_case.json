@@ -1,0 +1,144 @@
+{
+  "case_id": "s3",
+  "catalogue_version": 1,
+  "title": "Impact, train not operational, hazmat wagon damaged, residential buildings 300 m away",
+  "_comment": "The showcase case: tier 3 with two keys and quarantine. All wagons belong to one customer -- another customer would be one more entry in 'federations' and one more contract file, with no code change. For the demo it stays at one.",
+  "sources": {
+    "incident": "data/s3/s3_incident.json",
+    "train": "data/s3/s3_train.json",
+    "reporter": "data/s3/s3_reporter.json",
+    "network": "data/network/segment_R04.json",
+    "carrier": "data/parties/carrier_rheinrail.json",
+    "supplier": "data/parties/supplier_nordfrost.json",
+    "customers": [
+      "data/parties/customer_c3_chemiewerk.json"
+    ],
+    "contracts": [
+      "data/contracts/contract_k3.json"
+    ]
+  },
+  "federations": [
+    {
+      "party_id": "carrier_rheinrail",
+      "party_type": "carrier",
+      "speaks_as": [
+        "intake",
+        "legal"
+      ]
+    },
+    {
+      "party_id": "supplier_nordfrost",
+      "party_type": "supplier",
+      "speaks_as": [
+        "supplier"
+      ]
+    },
+    {
+      "party_id": "customer_c3_chemiewerk",
+      "party_type": "customer",
+      "speaks_as": [
+        "customer"
+      ]
+    }
+  ],
+  "wagon_consignees": {
+    "W01": "customer_c3_chemiewerk",
+    "W02": "customer_c3_chemiewerk",
+    "W03": "customer_c3_chemiewerk",
+    "W04": "customer_c3_chemiewerk",
+    "W05": "customer_c3_chemiewerk",
+    "W06": "customer_c3_chemiewerk",
+    "W07": "customer_c3_chemiewerk",
+    "W08": "customer_c3_chemiewerk",
+    "W09": "customer_c3_chemiewerk",
+    "W10": "customer_c3_chemiewerk"
+  },
+  "measurements": {
+    "temperature_curve": {
+      "W02": {
+        "setpoint_c": 4.0,
+        "current_c": 11.8,
+        "limit_c": 8.0,
+        "minutes_out": 55
+      },
+      "W04": {
+        "setpoint_c": 4.0,
+        "current_c": 6.1,
+        "limit_c": 8.0,
+        "minutes_out": 10
+      },
+      "W07": {
+        "setpoint_c": 4.0,
+        "current_c": 5.9,
+        "limit_c": 8.0,
+        "minutes_out": 8
+      }
+    }
+  },
+  "carrier_overrides": {
+    "market_sensitive": true,
+    "_why": "Train not operational, hazmat damaged, main line closed. An incident of this size is market sensitive, so from the moment this flag is read every outbound channel is shut."
+  },
+  "offline_parties": [],
+  "thresholds": {},
+  "keys": [
+    {
+      "human_id": "ops-lead-rheinrail-1",
+      "measure": "stop_train",
+      "params": {
+        "case_id": "s3",
+        "train_id": "TR-1003"
+      }
+    },
+    {
+      "human_id": "safety-officer-rheinrail-2",
+      "measure": "stop_train",
+      "params": {
+        "case_id": "s3",
+        "train_id": "TR-1003"
+      }
+    },
+    {
+      "human_id": "ops-lead-rheinrail-1",
+      "measure": "notify_authority",
+      "params": {
+        "case_id": "s3",
+        "train_id": "TR-1003"
+      }
+    },
+    {
+      "human_id": "safety-officer-rheinrail-2",
+      "measure": "notify_authority",
+      "params": {
+        "case_id": "s3",
+        "train_id": "TR-1003"
+      }
+    }
+  ],
+  "truth": {
+    "_status": "PROPOSAL from the engine track -- please confirm or correct",
+    "measures": [
+      "stop_train",
+      "notify_authority"
+    ],
+    "tier": 3,
+    "reason_code": "safety",
+    "why": "Hazmat wagon W05 damaged around the cargo compartment, train not operational, residential buildings 300 m away, no alternative route, no road access. Not knowing about a hazmat leak next to homes is itself the reason to stop and report.",
+    "must_not": [
+      "proceed",
+      "alt_transport"
+    ],
+    "also_true": {
+      "_comment": "The situation differs per wagon, but the train decision dominates: tier 3 is the highest tier involved, and it applies to the whole train. This block is documentation for the view, not a separate decision and not a separate grant.",
+      "W02": {
+        "measures": [
+          "cool"
+        ],
+        "tier": 1,
+        "why": "Pharma precursor outside its window for 55 minutes, train stopped"
+      }
+    },
+    "_teaches": "Tier 3 needs two DIFFERENT humans. market_sensitive is true, so the quarantine shuts every outbound channel -- visible in the banner. And the contract penalty is BELOW the threshold: the assessor picks the strictest measure even though it is the cheapest penalty.",
+    "expect_refusal": null
+  }
+}

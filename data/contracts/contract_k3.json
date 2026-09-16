@@ -1,0 +1,14 @@
+{
+  "contract_id": "contract_k3",
+  "_comment": "See contract_k1. Hazmat contract: low penalty, very high liability -- the cost lies not in the delay but in the damage.",
+  "parties": ["customer_c3_chemiewerk", "supplier_nordfrost"],
+  "administered_by": "carrier_rheinrail",
+  "records": {
+    "contract": {
+      "contract_penalty": 9000,
+      "contract_deadline_h": 48,
+      "liability_cap": 15000000,
+      "_note": "Hazmat contract, reporting obligations per Annex 3"
+    }
+  }
+}

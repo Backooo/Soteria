@@ -1,0 +1,100 @@
+{
+  "case_id": "s2",
+  "catalogue_version": 1,
+  "title": "Track blocked, hospital supplies on board, diversion needed",
+  "sources": {
+    "incident": "data/s2/s2_incident.json",
+    "train": "data/s2/s2_train.json",
+    "reporter": "data/s2/s2_reporter.json",
+    "network": "data/network/segment_R08.json",
+    "carrier": "data/parties/carrier_rheinrail.json",
+    "supplier": "data/parties/supplier_nordfrost.json",
+    "customers": [
+      "data/parties/customer_c2_stadtklinik.json"
+    ],
+    "contracts": [
+      "data/contracts/contract_k2.json"
+    ]
+  },
+  "federations": [
+    {
+      "party_id": "carrier_rheinrail",
+      "party_type": "carrier",
+      "speaks_as": [
+        "intake",
+        "legal"
+      ]
+    },
+    {
+      "party_id": "supplier_nordfrost",
+      "party_type": "supplier",
+      "speaks_as": [
+        "supplier"
+      ]
+    },
+    {
+      "party_id": "customer_c2_stadtklinik",
+      "party_type": "customer",
+      "speaks_as": [
+        "customer"
+      ]
+    }
+  ],
+  "wagon_consignees": {
+    "W01": "customer_c2_stadtklinik",
+    "W02": "customer_c2_stadtklinik",
+    "W03": "customer_c2_stadtklinik",
+    "W04": "customer_c2_stadtklinik",
+    "W05": "customer_c2_stadtklinik",
+    "W06": "customer_c2_stadtklinik",
+    "W07": "customer_c2_stadtklinik",
+    "W08": "customer_c2_stadtklinik"
+  },
+  "measurements": {
+    "temperature_curve": {
+      "W02": {
+        "setpoint_c": 4.0,
+        "current_c": 7.2,
+        "limit_c": 8.0,
+        "minutes_out": 35
+      },
+      "W03": {
+        "setpoint_c": 5.0,
+        "current_c": 5.4,
+        "limit_c": 8.0,
+        "minutes_out": 0
+      }
+    }
+  },
+  "carrier_overrides": {
+    "market_sensitive": false
+  },
+  "offline_parties": [],
+  "thresholds": {},
+  "keys": [
+    {
+      "human_id": "ops-lead-rheinrail-1",
+      "measure": "alt_transport",
+      "params": {
+        "case_id": "s2",
+        "train_id": "TR-1002"
+      },
+      "_note": "The parameters of a grant must be EXACTLY those of the decision: case_id and train_id. Any extra field yields grant_mismatch."
+    }
+  ],
+  "truth": {
+    "_status": "PROPOSAL from the engine track -- please confirm or correct",
+    "measures": [
+      "alt_transport"
+    ],
+    "tier": 2,
+    "reason_code": "safety",
+    "why": "Track blocked and train only partly operational. The train carries hospital supplies with half a day of stock and a deadline in six hours. The road is single lane with a 12 t limit, so transshipment is unrealistic; the diversion costs 145 minutes and meets the deadline.",
+    "must_not": [
+      "proceed",
+      "hold"
+    ],
+    "_teaches": "Tier 2 needs one human key. The assessor sees the urgency as a traffic light and the deadline as a threshold, never the hospital's name and never the EUR 140,000.",
+    "expect_refusal": null
+  }
+}

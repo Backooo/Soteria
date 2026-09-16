@@ -1,7 +1,7 @@
 {
   "party_id": "customer_c3_chemiewerk",
   "party_type": "customer",
-  "display_name": "Chemiewerk Elbe-Sued (erfunden)",
+  "display_name": "Chemiewerk Elbe-Sued (fictional)",
   "records": {
     "customer": {
       "customer_trade": "chemical_plant",
@@ -26,13 +26,13 @@
       "contact_person": [
         {
           "name": "Marion Kell",
-          "function": "Werkssicherheit",
+          "function": "Plant security",
           "phone": "+49 351 000-31",
           "hours": "24/7"
         },
         {
           "name": "Ulf Petersen",
-          "function": "Gefahrgutbeauftragter",
+          "function": "Dangerous goods safety adviser",
           "phone": "+49 351 000-32",
           "hours": "24/7"
         }

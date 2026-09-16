@@ -1,4 +1,4 @@
-"""Die Matrix haelt -- auch ueber Rollenketten hinweg."""
+"""The matrix holds -- even across chains of roles."""
 
 import pytest
 
@@ -20,7 +20,7 @@ from soteria.matrix import (
 def test_every_field_declares_a_visibility_for_every_role():
     for name, fld in FIELDS.items():
         for role in ROLES:
-            assert role in fld.visibility, f"{name} sagt nichts ueber {role}"
+            assert role in fld.visibility, f"{name} says nothing about {role}"
 
 
 def test_supplier_never_sees_the_customers_stock():
@@ -66,22 +66,22 @@ def test_temperature_curve_becomes_a_traffic_light_for_the_assessor():
     assert project("temperature_curve", hot, "assessor", DEFAULT_THRESHOLDS) == "rot"
     assert project("temperature_curve", warm, "assessor", DEFAULT_THRESHOLDS) == "gelb"
     assert project("temperature_curve", cold, "assessor", DEFAULT_THRESHOLDS) == "gruen"
-    # Der Zulieferer darf die Zahlen sehen -- aber als Zeile, weil ein Rohobjekt
-    # den Draht nicht ueberqueren kann. Siehe curve_line in matrix.py.
+    # The supplier may see the numbers -- but as a line, because a raw object
+    # cannot cross the wire. See curve_line in matrix.py.
     for_supplier = project("temperature_curve", hot, "supplier", DEFAULT_THRESHOLDS)
     assert isinstance(for_supplier, str)
     assert "12.0" in for_supplier and "45" in for_supplier
 
 
 def test_cargo_class_reaches_the_assessor_only_coarsely():
-    """Das Vokabular kommt vom Datenstrang: pharmaceutical, perishable, hazmat, general_goods."""
+    """The vocabulary comes from the data track: pharmaceutical, perishable, hazmat, general_goods."""
     assert project("cargo_class", "pharmaceutical", "assessor", DEFAULT_THRESHOLDS) == "regulated"
     assert project("cargo_class", "hazmat", "assessor", DEFAULT_THRESHOLDS) == "hazardous"
-    # Die Grobklasse heisst absichtlich NICHT wie der Feinwert -- sonst waere
-    # nicht pruefbar, ob vergroebert wurde. Siehe test_wire_proof.py.
+    # The coarse class is deliberately NOT named like the fine value -- otherwise
+    # it could not be checked whether coarsening happened. See test_wire_proof.py.
     assert project("cargo_class", "perishable", "assessor", DEFAULT_THRESHOLDS) == "cooled"
     assert project("cargo_class", "general_goods", "assessor", DEFAULT_THRESHOLDS) == "general"
-    # Der Zulieferer behaelt die Ware selbst, nicht die Regulierungslage.
+    # The supplier keeps the goods themselves, not the regulatory status.
     assert project("cargo_class", "pharmaceutical", "supplier", DEFAULT_THRESHOLDS) == "pharmaceutical"
     assert visibility("cargo_class", "legal") == "none"
 
@@ -93,20 +93,20 @@ def test_replacement_availability_is_a_traffic_light_for_two_roles():
     assert project("replacement_available", near, "assessor", DEFAULT_THRESHOLDS) == "gruen"
     assert project("replacement_available", far, "assessor", DEFAULT_THRESHOLDS) == "gelb"
     assert project("replacement_available", none_, "assessor", DEFAULT_THRESHOLDS) == "rot"
-    # Der Zulieferer kennt sein Angebot -- als Zeile, weil ein Objekt den Draht
-    # nicht ueberqueren kann.
-    assert project("replacement_available", near, "supplier", DEFAULT_THRESHOLDS) == "Ersatz in 30 min"
-    assert project("replacement_available", none_, "supplier", DEFAULT_THRESHOLDS) == "kein Ersatz"
+    # The supplier knows its offer -- as a line, because an object cannot cross
+    # the wire.
+    assert project("replacement_available", near, "supplier", DEFAULT_THRESHOLDS) == "replacement in 30 min"
+    assert project("replacement_available", none_, "supplier", DEFAULT_THRESHOLDS) == "no replacement"
 
 
 def test_contact_person_never_reaches_the_assessor():
     assert visibility("contact_person", "assessor") == "none"
-    assert project("contact_person", "Frau Weber, +49...", "intake", DEFAULT_THRESHOLDS)
+    assert project("contact_person", "Ms Weber, +49...", "intake", DEFAULT_THRESHOLDS)
 
 
 def test_market_sensitive_arrives_as_a_boolean_flag_not_a_value():
     assert project("market_sensitive", True, "assessor", DEFAULT_THRESHOLDS) is True
-    assert project("market_sensitive", "ja, Boerse", "assessor", DEFAULT_THRESHOLDS) is True
+    assert project("market_sensitive", "yes, stock exchange", "assessor", DEFAULT_THRESHOLDS) is True
     assert visibility("market_sensitive", "supplier") == "none"
 
 
@@ -126,14 +126,14 @@ def test_an_unknown_role_is_a_typed_refusal():
 
 
 def test_no_role_chain_widens_a_visibility():
-    """Der Kern: was eine Rolle weitergeben koennte, ist nie mehr als sie sah."""
+    """The core: what a role could pass on is never more than what it saw."""
     rank = {"none": 0, "flag": 1, "schwelle": 1, "ampel": 2, "coarse": 2, "raw": 3}
     for name, fld in FIELDS.items():
         raw_holders = {r for r in ROLES if fld.visibility[r] == "raw"}
         for role in ROLES:
             if role in raw_holders:
                 continue
-            assert rank[fld.visibility[role]] < 3, f"{name}/{role} haelt raw ohne Eigentuemer zu sein"
+            assert rank[fld.visibility[role]] < 3, f"{name}/{role} holds raw without being the owner"
 
 
 def test_fields_for_lists_only_what_a_role_can_ever_receive():
@@ -144,35 +144,35 @@ def test_fields_for_lists_only_what_a_role_can_ever_receive():
 
 
 def test_every_field_is_owned_by_a_declared_record_type_on_a_real_party():
-    """Der Eigentuemer ist ein Datensatztyp, und jeder liegt auf einem Parteityp."""
+    """The owner is a record type, and each one lives on a party type."""
     party_types = {"carrier", "customer", "supplier", "shared"}
     for name, owner in owners().items():
-        assert owner in RECORD_TYPES, f"{name}: Eigentuemer {owner} ist kein Datensatztyp"
-        assert holders()[name] in party_types, f"{name}: liegt auf {holders()[name]!r}"
+        assert owner in RECORD_TYPES, f"{name}: owner {owner} is not a record type"
+        assert holders()[name] in party_types, f"{name}: lives on {holders()[name]!r}"
 
 
 def test_the_assessor_holds_no_raw_field_of_another_party():
-    """Die eigentliche Aussage. Praezise: der Bewerter sieht Rohwerte nur aus
-    der eigenen Organisation (dem Betreiber), nie aus Kunden-, Zulieferer- oder
-    Vertragsdaten."""
+    """The actual claim. Precisely: the assessor sees raw values only from its
+    own organisation (the operator), never from customer, supplier or contract
+    data."""
     for name, fld in FIELDS.items():
         if fld.visibility["assessor"] != "raw":
             continue
         assert fld.held_by == "carrier", (
-            f"{name} gehoert {fld.held_by!r} und erreicht den Bewerter als raw"
+            f"{name} belongs to {fld.held_by!r} and reaches the assessor as raw"
         )
 
 
 def test_a_node_only_holds_the_fields_of_its_own_party_type():
-    """Der Knoten des Kunden haelt keine Vertragsstrafe... ausser seiner eigenen.
+    """The customer's node holds no contract penalty... except its own.
 
-    `contract` ist `shared`: beide Vertragsparteien laden ihn. Das ist Feldschutz
-    plus Zeilenschutz -- Kunde 2 laedt Vertrag 1 nie, weil sein Knoten ihn nicht
-    kennt.
+    `contract` is `shared`: both contracting parties load it. That is field-level
+    plus row-level protection -- customer 2 never loads contract 1, because its
+    node does not know it.
     """
     customer_side = set(fields_held_by("customer"))
     assert "customer_stock" in customer_side
-    assert "contract_penalty" in customer_side  # shared, aber nur die eigene Zeile
+    assert "contract_penalty" in customer_side  # shared, but only its own row
     assert "route_weakness" not in customer_side
     assert "market_sensitive" not in customer_side
     supplier_side = set(fields_held_by("supplier"))

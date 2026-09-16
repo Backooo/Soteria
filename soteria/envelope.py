@@ -1,11 +1,11 @@
-"""Getippte Umschlaege. Kein Freitext ueberquert je eine Rollengrenze.
+"""Typed envelopes. No free text ever crosses a role boundary.
 
-Jede Grenzueberschreitung in Soteria ist eine Instanz aus diesem Modul. Die
-Pruefung sitzt in `__post_init__`, damit ein ungueltiger Umschlag nicht
-existieren kann -- nicht als Bitte an das Modell, sondern in Python.
+Every boundary crossing in Soteria is an instance from this module. The check
+sits in `__post_init__`, so an invalid envelope cannot exist -- not as a request
+to the model, but in Python.
 
-Jede Ablehnung ist ein Code aus `REFUSAL`. Ein Satz als Ablehnungsgrund waere
-nicht zaehlbar, und die Zahl der Ablehnungen ist eine unserer vier Messgroessen.
+Every refusal is a code from `REFUSAL`. A sentence as the reason for a refusal
+would not be countable, and the number of refusals is one of our four metrics.
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Mapping
 
-# --- Wertelisten --------------------------------------------------------
+# --- vocabularies -------------------------------------------------------
 
 ROLES: tuple[str, ...] = ("intake", "assessor", "legal", "supplier", "customer")
 
@@ -56,7 +56,8 @@ REFUSAL: tuple[str, ...] = (
 
 FLAG: tuple[str, ...] = ("market_sensitive", "hazmat", "perishable", "person_data")
 
-# Wie ein Feld eine Rolle erreicht. `none` heisst: gar nicht.
+# How a field reaches a role. `none` means: not at all.
+# `ampel` = traffic light (gruen/gelb/rot = green/yellow/red), `schwelle` = threshold.
 VISIBILITY: tuple[str, ...] = ("raw", "coarse", "ampel", "schwelle", "flag", "none")
 
 AMPEL: tuple[str, ...] = ("gruen", "gelb", "rot")
@@ -64,7 +65,7 @@ SCHWELLE: tuple[str, ...] = ("above", "below")
 
 
 class EnvelopeError(ValueError):
-    """Eine getippte Ablehnung. `code` ist immer aus `REFUSAL`."""
+    """A typed refusal. `code` is always from `REFUSAL`."""
 
     def __init__(self, code: str, detail: str = "") -> None:
         if code not in REFUSAL:
@@ -74,14 +75,14 @@ class EnvelopeError(ValueError):
         super().__init__(f"{code}: {detail}" if detail else code)
 
 
-# --- kanonische Form und Quittungsmaterial ------------------------------
+# --- canonical form and receipt material --------------------------------
 
 
 def canonical(payload: Any) -> str:
-    """Eine Darstellung, die nicht von der Schluesselreihenfolge abhaengt.
+    """A representation that does not depend on key order.
 
-    Grundlage fuer jeden Digest: eine Freigabe gilt fuer genau diese Parameter,
-    und `{"a":1,"b":2}` muss dieselbe Freigabe treffen wie `{"b":2,"a":1}`.
+    The basis of every digest: a grant is valid for exactly these parameters,
+    and `{"a":1,"b":2}` must match the same grant as `{"b":2,"a":1}`.
     """
     return json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str)
 
@@ -106,12 +107,12 @@ def _require_measures(measures: tuple[str, ...]) -> None:
     _require(len(set(measures)) == len(measures), "bad_value", "a measure is listed twice")
 
 
-# --- die Umschlaege -----------------------------------------------------
+# --- the envelopes ------------------------------------------------------
 
 
 @dataclass(frozen=True)
 class Report:
-    """Die Meldung. Erzeugt von einem Menschen oder einem Sensor."""
+    """The report. Produced by a human or a sensor."""
 
     incident_id: str
     location: str
@@ -140,7 +141,7 @@ class Report:
 
 @dataclass(frozen=True)
 class Ask:
-    """Eine Nachfrage nach genau einem Feld, mit getipptem Grund."""
+    """An ask for exactly one field, with a typed reason."""
 
     from_role: str
     to_role: str
@@ -169,12 +170,12 @@ class Ask:
 
 @dataclass(frozen=True)
 class FactSheet:
-    """Die Antwort einer Rolle: nur Felder, die die Matrix ihr zugesteht.
+    """A role's answer: only fields the matrix grants it.
 
-    `fields` enthaelt bereits *projizierte* Werte -- eine Ampel, eine Schwelle
-    oder einen Rohwert, je nachdem, was `matrix.visibility()` fuer den Empfaenger
-    erlaubt. Der Rohwert verlaesst die besitzende Rolle nie, wenn die Matrix das
-    nicht ausdruecklich vorsieht.
+    `fields` already holds *projected* values -- a traffic light, a threshold
+    or a raw value, depending on what `matrix.visibility()` allows for the
+    recipient. The raw value never leaves the owning role unless the matrix
+    explicitly provides for it.
     """
 
     role: str
@@ -203,7 +204,7 @@ class FactSheet:
 
 @dataclass(frozen=True)
 class Advice:
-    """Die Empfehlung einer Rolle. Eine Empfehlung ist keine Entscheidung."""
+    """A role's advice. Advice is not a decision."""
 
     role: str
     measures: tuple[str, ...]
@@ -230,7 +231,7 @@ class Advice:
 
 @dataclass(frozen=True)
 class Coverage:
-    """Wie vollstaendig die Entscheidung war. Gehoert in jede Entscheidung."""
+    """How complete the decision was. Belongs in every decision."""
 
     answered: int
     asked: int
@@ -256,11 +257,11 @@ class Coverage:
 
 @dataclass(frozen=True)
 class Decision:
-    """Die Entscheidung des Bewerters, mit Stufe, Freigaben und Quittung.
+    """The assessor's decision, with tier, grants and receipt.
 
-    Mehrere Maßnahmen, weil vier der sechs Szenarien eine Antwort aus zwei
-    Maßnahmen haben. Die Stufe ist das Maximum der beteiligten Stufen -- eine
-    Entscheidung ist so schwer umkehrbar wie ihr schwerster Teil.
+    Several measures, because four of the six scenarios have an answer made of
+    two measures. The tier is the maximum of the tiers involved -- a decision
+    is as hard to reverse as its hardest part.
     """
 
     measures: tuple[str, ...]
@@ -291,7 +292,7 @@ class Decision:
 
 @dataclass(frozen=True)
 class Review:
-    """Die Nachbewertung durch einen Menschen, Tage spaeter."""
+    """The review by a human, days later."""
 
     incident_id: str
     human_verdict: str

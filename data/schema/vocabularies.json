@@ -1,38 +1,38 @@
 {
   "vocabularies_version": 1,
-  "_comment": "Geschlossene Wertelisten. Neuer Wert = hier eintragen. Der Validator prueft alle Datendateien dagegen, und soteria/vocab.py laedt sie. Alle Daten sind erfunden.",
+  "_comment": "Closed value lists. New value = add it here. The validator checks every data file against them, and soteria/matrix.py loads them. All data is invented.",
   "cargo_class": {
     "general_goods": {
-      "label_de": "Stueckgut",
+      "label": "General cargo",
       "coarse": "general",
       "cooled": false
     },
     "perishable": {
-      "label_de": "Frischware",
+      "label": "Fresh goods",
       "coarse": "cooled",
       "cooled": true
     },
     "pharmaceutical": {
-      "label_de": "Pharma",
+      "label": "Pharmaceuticals",
       "coarse": "regulated",
       "cooled": true
     },
     "hazmat": {
-      "label_de": "Gefahrgut",
+      "label": "Dangerous goods",
       "coarse": "hazardous",
       "cooled": false
     },
     "livestock": {
-      "label_de": "Lebendvieh",
+      "label": "Livestock",
       "coarse": "cooled",
       "cooled": false
     },
     "high_value": {
-      "label_de": "Hochwert",
+      "label": "High-value goods",
       "coarse": "regulated",
       "cooled": false
     },
-    "_comment": "Die Grobklasse darf NIE so heissen wie ein Feinwert -- sonst laesst sich nicht pruefen, ob vergroebert wurde. Darum 'cooled' und nicht 'perishable'."
+    "_comment": "A coarse class must NEVER be named like a fine value -- otherwise it cannot be checked whether coarsening happened. Hence 'cooled' and not 'perishable'."
   },
   "wagon_type": [
     "standard",
@@ -67,29 +67,29 @@
     "high"
   ],
   "reporter_role": {
-    "_comment": "Menschen, die melden. KEINE Agentenrollen. Ein Melder ist nie ein KI-Agent -- er ist die Person, die den Vorfall an die Aufnahme gibt.",
+    "_comment": "Humans who report. NOT agent roles. A reporter is never an AI agent -- it is the person who passes the incident to the intake.",
     "driver": {
-      "label_de": "Triebfahrzeugfuehrer",
+      "label": "Train driver",
       "reports_to": "intake",
       "on_site": true
     },
     "dispatcher": {
-      "label_de": "Disponent Leitstelle",
+      "label": "Control centre dispatcher",
       "reports_to": "intake",
       "on_site": false
     },
     "yard_staff": {
-      "label_de": "Rangierpersonal",
+      "label": "Yard staff",
       "reports_to": "intake",
       "on_site": true
     },
     "sensor": {
-      "label_de": "Telematik im Wagen",
+      "label": "On-wagon telematics",
       "reports_to": "intake",
       "on_site": true
     },
     "police": {
-      "label_de": "Polizei",
+      "label": "Police",
       "reports_to": "intake",
       "on_site": true
     }
@@ -101,34 +101,34 @@
     "life_safety"
   ],
   "trade": {
-    "_comment": "Gewerbe des Kunden. Bestimmt mit, wie teuer ein Ausfall ist -- aber der Bewerter sieht nur die Grobklasse.",
+    "_comment": "The customer's trade. Helps determine how expensive a disruption is -- but the assessor only sees the coarse class.",
     "hospital": {
-      "label_de": "Krankenhaus",
+      "label": "Hospital",
       "coarse": "care",
       "regulated": true
     },
     "pharmacy_chain": {
-      "label_de": "Apothekenkette",
+      "label": "Pharmacy chain",
       "coarse": "care",
       "regulated": true
     },
     "food_retail": {
-      "label_de": "Lebensmittelhandel",
+      "label": "Food retail",
       "coarse": "retail",
       "regulated": false
     },
     "wholesale_market": {
-      "label_de": "Grossmarkt",
+      "label": "Wholesale market",
       "coarse": "retail",
       "regulated": false
     },
     "manufacturing": {
-      "label_de": "Fertigung",
+      "label": "Manufacturing",
       "coarse": "industry",
       "regulated": false
     },
     "chemical_plant": {
-      "label_de": "Chemiewerk",
+      "label": "Chemical plant",
       "coarse": "industry",
       "regulated": true
     }

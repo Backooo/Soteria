@@ -1,25 +1,25 @@
-"""Die Need-to-know-Matrix: wer welches Feld in welcher Aufloesung sieht.
+"""The need-to-know matrix: who sees which field at which resolution.
 
-Das ist das Produkt. Und es ist **Daten**, nicht Code: die Tabelle steht in
-`data/schema/field_catalogue.json`, dieses Modul laedt und validiert sie beim
-Import. Ein neues Feld ist ein JSON-Eintrag; eine geaenderte Sichtbarkeit ist
-eine geaenderte Zeile, die ein Mensch lesen und bestreiten kann, ohne Python zu
-lesen. Nur eine neue *Art* von Projektion braucht Code -- eine Funktion hier und
-ihren Namen in `known_projectors`.
+This is the product. And it is **data**, not code: the table lives in
+`data/schema/field_catalogue.json`; this module loads and validates it on
+import. A new field is a JSON entry; a changed visibility is a changed line that
+a human can read and dispute without reading Python. Only a new *kind* of
+projection needs code -- a function here and its name in `known_projectors`.
 
-Drei Begriffe:
+Three terms:
 
-- **Eigentuemer** (`owner`) ist ein Datensatztyp, nicht zwingend eine Rolle:
-  `route_weakness` gehoert `network`, `market_sensitive` gehoert `carrier`. Jeder
-  Datensatztyp wird von einem Parteityp gehalten (`record_types[...].held_by`),
-  und ein Knoten laedt genau die Datensaetze seines Parteityps.
-- **Sichtbarkeit** ist `raw`, `coarse`, `ampel`, `schwelle`, `flag`, `count` oder
-  `none`. `none` heisst gar nicht und erzeugt `EnvelopeError("not_in_matrix")`.
-- **Projektor** ist die Funktion, die den Rohwert auf die erlaubte Aufloesung
-  bringt. Der Bewerter erfaehrt **dass** der Bestand knapp ist, nie **wie** knapp.
+- **Owner** (`owner`) is a record type, not necessarily a role:
+  `route_weakness` belongs to `network`, `market_sensitive` belongs to `carrier`.
+  Every record type is held by a party type (`record_types[...].held_by`), and a
+  node loads exactly the records of its party type.
+- **Visibility** is `raw`, `coarse`, `ampel` (traffic light), `schwelle`
+  (threshold), `flag`, `count` or `none`. `none` means not at all and raises
+  `EnvelopeError("not_in_matrix")`.
+- **Projector** is the function that brings the raw value down to the permitted
+  resolution. The assessor learns **that** stock is low, never **how** low.
 
-Ein Fehler im Katalog faellt beim Import auf, nicht im Lauf. Das ist Absicht:
-eine kaputte Matrix darf nie ein Modell erreichen.
+An error in the catalogue shows up on import, not at runtime. That is
+deliberate: a broken matrix must never reach a model.
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ VOCABULARY_PATH = SCHEMA_DIR / "vocabularies.json"
 
 
 class CatalogueError(ValueError):
-    """Der Feldkatalog ist in sich widersprüchlich. Faellt beim Import auf."""
+    """The field catalogue contradicts itself. Caught on import."""
 
 
 def _read(path: Path) -> dict[str, Any]:
@@ -54,7 +54,7 @@ def _read(path: Path) -> dict[str, Any]:
 
 
 def _public(mapping: Mapping[str, Any]) -> dict[str, Any]:
-    """Kommentarschluessel (`_comment`, `_note`) sind Dokumentation, keine Daten."""
+    """Comment keys (`_comment`, `_note`) are documentation, not data."""
     return {k: v for k, v in mapping.items() if not k.startswith("_")}
 
 
@@ -66,7 +66,7 @@ RECORD_TYPES: dict[str, Any] = _public(_CATALOGUE.get("record_types") or {})
 
 
 def vocabulary(name: str) -> tuple[str, ...]:
-    """Die erlaubten Werte eines Vokabulars, egal ob Liste oder Objekt."""
+    """The allowed values of a vocabulary, whether list or object."""
     raw = VOCABULARIES.get(name)
     if isinstance(raw, list):
         return tuple(raw)
@@ -76,10 +76,10 @@ def vocabulary(name: str) -> tuple[str, ...]:
 
 
 def coarse_of(vocab_name: str, value: Any) -> str:
-    """Die Grobklasse eines Vokabelwerts, aus `vocabularies.json`.
+    """The coarse class of a vocabulary value, from `vocabularies.json`.
 
-    Die Abbildung steht bei den Werten, nicht hier -- eine neue Ladungsklasse
-    bringt ihre Grobklasse selbst mit.
+    The mapping lives with the values, not here -- a new cargo class brings its
+    own coarse class along.
     """
     entry = (VOCABULARIES.get(vocab_name) or {}).get(str(value))
     if isinstance(entry, dict) and "coarse" in entry:
@@ -87,8 +87,8 @@ def coarse_of(vocab_name: str, value: Any) -> str:
     return "general"
 
 
-# --- Projektoren --------------------------------------------------------
-# Signatur: (Rohwert, Schwellen dieses Feldes) -> erlaubte Aufloesung.
+# --- projectors ---------------------------------------------------------
+# Signature: (raw value, thresholds of this field) -> permitted resolution.
 
 
 def _number(raw: Any, what: str) -> float:
@@ -117,7 +117,7 @@ def _coarse_trade(raw: Any, th: Mapping[str, Any]) -> str:
 
 
 def _coarse_locality(raw: Any, th: Mapping[str, Any]) -> str:
-    """Ortschaft grob: bewohnt oder nicht. Mehr braucht ein Vertragsagent nicht."""
+    """Locality, coarse: inhabited or not. A contract agent needs nothing more."""
     return "inhabited" if str(raw) in {"village", "town_edge", "dense_urban"} else "uninhabited"
 
 
@@ -149,7 +149,7 @@ def _ampel_replacement(raw: Any, th: Mapping[str, Any]) -> str:
 
 
 def _ampel_route(raw: Any, th: Mapping[str, Any]) -> str:
-    """Zwei Rohformen: eine Schwere 0..3 oder ein alt_route_status."""
+    """Two raw forms: a severity 0..3 or an alt_route_status."""
     if isinstance(raw, str):
         return {"none": "rot", "long_detour": "gelb",
                 "available": "gruen", "available_short": "gruen"}.get(raw, "gelb")
@@ -165,28 +165,28 @@ def _ampel_urgency(raw: Any, th: Mapping[str, Any]) -> str:
 
 
 def _ampel_road(raw: Any, th: Mapping[str, Any]) -> str:
-    """Kann ein Lkw hier umladen? Ohne Strasse ist Umladen keine Option."""
+    """Can a truck transship here? Without a road, transshipment is not an option."""
     return {"none": "rot", "track_only": "rot", "single_lane": "gelb",
             "paved_two_lane": "gruen", "motorway_near": "gruen"}.get(str(raw), "gelb")
 
 
 def _schwelle_money(raw: Any, th: Mapping[str, Any]) -> str:
-    """`above` heisst: ueber der Schmerzgrenze. Die Zahl selbst bleibt beim Eigentuemer."""
+    """`above` means: over the pain threshold. The number itself stays with the owner."""
     return "above" if _number(raw, "money") > float(th["limit"]) else "below"
 
 
 def _schwelle_hours(raw: Any, th: Mapping[str, Any]) -> str:
-    """`below` heisst: weniger Restzeit als die Grenze, die Frist wird knapp."""
+    """`below` means: less time left than the limit, the deadline is getting tight."""
     return "below" if _number(raw, "hours") < float(th["limit"]) else "above"
 
 
 def _contact_line(raw: Any, th: Mapping[str, Any]) -> str:
-    """Zustaendige Personen als eine Zeile.
+    """Responsible people as one line.
 
-    Ein Rohobjekt kann den Draht nicht ueberqueren (`ConfigRecord` traegt nur
-    Skalare), eine Leitstelle braucht aber den Namen und die Nummer. Also ist
-    die erlaubte Darstellung eines Ansprechpartners eine Zeile -- fuer die
-    Rollen, denen die Matrix ihn zugesteht, und fuer keine andere.
+    A raw object cannot cross the wire (`ConfigRecord` only carries scalars),
+    but a control centre needs the name and the number. So the permitted
+    representation of a contact person is one line -- for the roles the matrix
+    grants it to, and for no other.
     """
     people = raw if isinstance(raw, (list, tuple)) else [raw]
     out = []
@@ -200,31 +200,31 @@ def _contact_line(raw: Any, th: Mapping[str, Any]) -> str:
         if person.get("phone"):
             parts.append(str(person["phone"]))
         if person.get("hours"):
-            parts.append(f"erreichbar {person['hours']}")
+            parts.append(f"reachable {person['hours']}")
         out.append(", ".join(p for p in parts if p))
     return " | ".join(o for o in out if o)
 
 
 def _curve_line(raw: Any, th: Mapping[str, Any]) -> str:
-    """Die Kuehlkurve als eine Zeile, aus demselben Grund wie `_contact_line`."""
+    """The cooling curve as one line, for the same reason as `_contact_line`."""
     curve = _mapping(raw, "temperature_curve")
     return (
-        f"{curve.get('current_c')} C (Soll {curve.get('setpoint_c')}, "
-        f"Grenze {curve.get('limit_c')}, {curve.get('minutes_out', 0)} min ausserhalb)"
+        f"{curve.get('current_c')} C (setpoint {curve.get('setpoint_c')}, "
+        f"limit {curve.get('limit_c')}, {curve.get('minutes_out', 0)} min outside)"
     )
 
 
 def _offer_line(raw: Any, th: Mapping[str, Any]) -> str:
-    """Ein Ersatzangebot als eine Zeile, aus demselben Grund wie `_contact_line`."""
+    """A replacement offer as one line, for the same reason as `_contact_line`."""
     offer = _mapping(raw, "replacement_available")
     if not bool(offer.get("available")):
-        return "kein Ersatz"
-    where = f" ab {offer['terminal']}" if offer.get("terminal") else ""
-    return f"Ersatz in {offer.get('eta_min', '?')} min{where}"
+        return "no replacement"
+    where = f" from {offer['terminal']}" if offer.get("terminal") else ""
+    return f"replacement in {offer.get('eta_min', '?')} min{where}"
 
 
 def _flag(raw: Any, th: Mapping[str, Any]) -> bool:
-    """Ein Flag ist immer ein bool. Ein Text wuerde Inhalt durchlassen."""
+    """A flag is always a bool. Text would let content through."""
     return bool(raw)
 
 
@@ -255,7 +255,7 @@ PROJECTORS: dict[str, Callable[[Any, Mapping[str, Any]], Any]] = {
 
 @dataclass(frozen=True)
 class Field:
-    """Ein Feld des Katalogs, beim Import validiert."""
+    """A field of the catalogue, validated on import."""
 
     name: str
     owner: str
@@ -270,22 +270,21 @@ class Field:
 
     @property
     def held_by(self) -> str:
-        """Der Parteityp, auf dessen Knoten der Rohwert physisch liegt."""
+        """The party type on whose node the raw value physically lives."""
         return str((RECORD_TYPES.get(self.owner) or {}).get("held_by", "unknown"))
 
     @property
     def speaks_as(self) -> str:
-        """Die Agentenrolle, die fuer diesen Datensatz antwortet."""
+        """The agent role that answers for this record."""
         return str((RECORD_TYPES.get(self.owner) or {}).get("speaks_as", ""))
 
     def project_at(
         self, level: str, raw: Any, thresholds: Mapping[str, Any] | None = None
     ) -> Any:
-        """Auf eine bestimmte Aufloesung projizieren, unabhaengig von einer Rolle.
+        """Project to a specific resolution, independent of any role.
 
-        Gebraucht, um bei einem mehrwertigen Feld die schlimmste Bezugsgroesse zu
-        waehlen: welche Konsignation die kritischste ist, darf nicht davon
-        abhaengen, wer fragt.
+        Needed to pick the worst reference unit of a multi-valued field: which
+        consignment is the most critical must not depend on who is asking.
         """
         if level not in self.projectors:
             raise EnvelopeError("bad_value", f"{self.name} has no {level!r} projector")
@@ -294,7 +293,7 @@ class Field:
 
     @property
     def ranking_level(self) -> str | None:
-        """Die Aufloesung, nach der sich Bezugsgroessen vergleichen lassen."""
+        """The resolution by which reference units can be compared."""
         for level in ("ampel", "schwelle", "flag"):
             if level in self.projectors:
                 return level
@@ -366,14 +365,14 @@ def _build_fields() -> dict[str, Field]:
 
 FIELDS: dict[str, Field] = _build_fields()
 
-# Schwellen je Feld, wie sie im Katalog stehen. Ein Szenario darf einzelne
-# Felder ueberschreiben: {"customer_stock": {"red": 0.5}}.
+# Thresholds per field, as they stand in the catalogue. A scenario may
+# override individual fields: {"customer_stock": {"red": 0.5}}.
 DEFAULT_THRESHOLDS: dict[str, dict[str, Any]] = {
     name: dict(f.thresholds) for name, f in FIELDS.items()
 }
 
 
-# --- Zugriff ------------------------------------------------------------
+# --- access -------------------------------------------------------------
 
 
 def _field_or_refuse(name: str) -> Field:
@@ -393,36 +392,36 @@ def visibility(field_name: str, role: str) -> str:
 def project(
     field_name: str, raw: Any, role: str, thresholds: Mapping[str, Any] | None = None
 ) -> Any:
-    """Den Rohwert in genau die Aufloesung bringen, die `role` haben darf."""
+    """Bring the raw value to exactly the resolution `role` is allowed to have."""
     return _field_or_refuse(field_name).project(raw, role, thresholds)
 
 
 def fields_for(role: str) -> tuple[str, ...]:
-    """Alle Felder, die `role` ueberhaupt erreichen koennen."""
+    """All fields that can reach `role` at all."""
     if role not in ROLES:
         raise EnvelopeError("unknown_role", f"{role!r} is not one of {ROLES}")
     return tuple(n for n, f in FIELDS.items() if f.visibility[role] != "none")
 
 
 def owners() -> dict[str, str]:
-    """Feld -> Datensatztyp, der den Rohwert haelt."""
+    """field -> record type that holds the raw value."""
     return {name: f.owner for name, f in FIELDS.items()}
 
 
 def holders() -> dict[str, str]:
-    """Feld -> Parteityp, auf dessen Knoten der Rohwert physisch liegt."""
+    """field -> party type on whose node the raw value physically lives."""
     return {name: f.held_by for name, f in FIELDS.items()}
 
 
 @lru_cache(maxsize=None)
 def fields_held_by(party_type: str) -> tuple[str, ...]:
-    """Die Felder, deren Rohwert auf einem Knoten dieses Parteityps liegt."""
+    """The fields whose raw value lives on a node of this party type."""
     return tuple(n for n, f in FIELDS.items() if f.held_by in {party_type, "shared"})
 
 
 def matrix_table() -> str:
-    """Die Tabelle als Markdown -- fuer README, Demo und Ereignisvertrag."""
-    head = "| Feld | Eigentuemer | haelt | " + " | ".join(ROLES) + " |"
+    """The table as Markdown -- for the README, the demo and the event contract."""
+    head = "| Field | Owner | held by | " + " | ".join(ROLES) + " |"
     rule = "|---" * (len(ROLES) + 3) + "|"
     lines = [head, rule]
     for name, fld in FIELDS.items():

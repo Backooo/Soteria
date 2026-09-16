@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
-# Die Foederation lokal: ein SuperLink, ein SuperNode je Partei des Falls.
+# The federation, locally: one SuperLink, one SuperNode per party of the case.
 #
-#   ./scripts/federation.sh up s3      # startet SuperLink und die Knoten von s3
-#   ./scripts/federation.sh run s3     # faehrt den Vorfall gegen die Knoten
-#   ./scripts/federation.sh down       # raeumt auf
+#   ./scripts/federation.sh up s3      # starts the SuperLink and the nodes of s3
+#   ./scripts/federation.sh run s3     # runs the incident against the nodes
+#   ./scripts/federation.sh down       # cleans up
 #
-# Die Parteien kommen aus data/<case>/<case>_case.json -> federations. Ein
-# weiterer Kunde dort ist hier ein weiterer Knoten; das Skript kennt keine Namen.
+# The parties come from data/<case>/<case>_case.json -> federations. One more
+# customer there is one more node here; the script knows no names.
 #
-# Ports, und warum -- am Log von flwr 1.37 abgelesen, nicht erinnert:
-#   9092  Fleet API          -- hierhin verbinden sich die SuperNodes
-#   8000  Control + Runtime  -- hierhin spricht die flwr CLI. In flwr 1.35 war
-#                               das 9093; ab 1.36/1.37 bedient der SuperLink die
-#                               Control API per HTTP auf 8000. Die alte Notiz
-#                               "9093, nicht 8000" ist fuer diese Version FALSCH.
-#   9094+ Runtime-HTTP-API, ein Port je SuperNode
+# Ports, and why -- read off the flwr 1.37 log, not from memory:
+#   9092  Fleet API          -- the SuperNodes connect here
+#   8000  Control + Runtime  -- the flwr CLI talks here. In flwr 1.35 this was
+#                               9093; from 1.36/1.37 the SuperLink serves the
+#                               Control API over HTTP on 8000. The old note
+#                               "9093, not 8000" is WRONG for this version.
+#   9094+ Runtime HTTP API, one port per SuperNode
 set -euo pipefail
 
 CMD="${1:-up}"
@@ -29,7 +29,7 @@ down() {
     [ -e "$f" ] || continue
     pid="$(cat "$f")"
     if kill -0 "$pid" 2>/dev/null; then
-      echo "==> stoppe $(basename "$f" .pid) ($pid)"
+      echo "==> stopping $(basename "$f" .pid) ($pid)"
       kill "$pid" 2>/dev/null || true
     fi
     rm -f "$f"
@@ -56,24 +56,24 @@ for f in d['federations']:
 case "$CMD" in
   down)
     down
-    echo "==> abgeraeumt"
+    echo "==> cleaned up"
     ;;
 
   up)
     down
-    [ -f "data/$CASE/${CASE}_case.json" ] || { echo "kein Fall $CASE" >&2; exit 2; }
+    [ -f "data/$CASE/${CASE}_case.json" ] || { echo "no case $CASE" >&2; exit 2; }
     rm -f "$RUN/state.db"
 
     echo "==> SuperLink (Fleet 9092, Control 8000)"
     uv run flower-superlink --insecure --database "$RUN/state.db" \
       >"$RUN/superlink.log" 2>&1 &
     echo $! > "$RUN/superlink.pid"
-    wait_port 9092 || { echo "SuperLink kam nicht hoch, siehe $RUN/superlink.log" >&2; exit 1; }
-    wait_port 8000 || { echo "Control API kam nicht hoch, siehe $RUN/superlink.log" >&2; exit 1; }
+    wait_port 9092 || { echo "SuperLink did not come up, see $RUN/superlink.log" >&2; exit 1; }
+    wait_port 8000 || { echo "Control API did not come up, see $RUN/superlink.log" >&2; exit 1; }
 
     PORT=9094
     for PARTY in $(parties); do
-      echo "==> SuperNode party=$PARTY case=$CASE (Runtime-API $PORT)"
+      echo "==> SuperNode party=$PARTY case=$CASE (runtime API $PORT)"
       uv run flower-supernode --insecure \
         --superlink 127.0.0.1:9092 \
         --port "$PORT" \
@@ -84,8 +84,8 @@ case "$CMD" in
     done
     sleep 4
     echo
-    echo "==> $(parties | wc -l | tr -d ' ') Knoten fuer $CASE gestartet. Logs: $RUN/"
-    echo "==> weiter mit: ./scripts/federation.sh run $CASE"
+    echo "==> $(parties | wc -l | tr -d ' ') nodes started for $CASE. Logs: $RUN/"
+    echo "==> next: ./scripts/federation.sh run $CASE"
     ;;
 
   run)

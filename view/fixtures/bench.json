@@ -1,18 +1,18 @@
 {
-  "generated_at": 1789565187.213386,
-  "baseline_source": "Angenommene Dauer einer Telefonkette aus fuenf Parteien einschliesslich Rueckrufen. Nicht gemessen -- eine Annahme, die als solche ausgewiesen ist.",
+  "generated_at": 1789570845.40239,
+  "baseline_source": "Assumed duration of a phone chain across five parties, including call-backs. Not measured -- an assumption that is reported as such.",
   "numbers": {
     "1_time": {
-      "logic_median_ms": 9.1,
+      "logic_median_ms": 55682.0,
       "federation_median_s": 6.2,
       "federation_max_s": 6.4,
       "baseline_minutes": 47,
       "baseline_is_assumption": true
     },
     "2_hits": {
-      "known": "3/3",
+      "known": "1/3",
       "holdout": null,
-      "reasons_matching": "2/3",
+      "reasons_matching": "3/3",
       "truth_unconfirmed": [
         "s1",
         "s2",
@@ -27,13 +27,13 @@
     },
     "4_gap": {
       "cases": 3,
-      "still_decided": 3
+      "still_decided": 2
     }
   },
   "cases": [
     {
       "id": "s1",
-      "title": "Kleines Hindernis, Kuehlaggregat an einem Frischwarenwagen beschaedigt",
+      "title": "Small obstruction, refrigeration unit damaged on a fresh-goods wagon",
       "holdout": false,
       "truth": [
         "cool"
@@ -49,8 +49,8 @@
       "reason_matches": true,
       "tier": 1,
       "grants": [],
-      "receipt_hash": "f396149942da7f05",
-      "seconds_logic": 0.0117,
+      "receipt_hash": "27c8e496ceaaa29d",
+      "seconds_logic": 32.4471,
       "seconds_federation": 6.4,
       "quarantined": false,
       "gap": {
@@ -67,7 +67,7 @@
     },
     {
       "id": "s2",
-      "title": "Gleis blockiert, Klinikversorgung im Zug, Umleitung noetig",
+      "title": "Track blocked, hospital supplies on board, diversion needed",
       "holdout": false,
       "truth": [
         "alt_transport"
@@ -75,34 +75,33 @@
       "truth_reason": "safety",
       "truth_confirmed": false,
       "decided": [
-        "alt_transport"
+        "alt_transport",
+        "cool"
       ],
-      "decided_reason": "feasibility",
+      "decided_reason": "safety",
       "refusal": null,
-      "hit": true,
-      "reason_matches": false,
+      "hit": false,
+      "reason_matches": true,
       "tier": 2,
       "grants": [
         "ops-lead-rheinrail-1"
       ],
-      "receipt_hash": "6335c2a68bbe6712",
-      "seconds_logic": 0.0064,
+      "receipt_hash": "090d11337b48985f",
+      "seconds_logic": 55.682,
       "seconds_federation": 6.2,
       "quarantined": false,
       "gap": {
         "offline": [
           "customer_c2_stadtklinik"
         ],
-        "decided": [
-          "alt_transport"
-        ],
-        "reason": "feasibility",
-        "refusal": null
+        "decided": [],
+        "reason": null,
+        "refusal": "no_grant"
       }
     },
     {
       "id": "s3",
-      "title": "Aufprall, Zug nicht fahrbereit, Gefahrgutwagen beschaedigt, Wohnbebauung 300 m",
+      "title": "Impact, train not operational, hazmat wagon damaged, residential buildings 300 m away",
       "holdout": false,
       "truth": [
         "notify_authority",
@@ -111,20 +110,21 @@
       "truth_reason": "safety",
       "truth_confirmed": false,
       "decided": [
+        "cool",
         "notify_authority",
         "stop_train"
       ],
       "decided_reason": "safety",
       "refusal": null,
-      "hit": true,
+      "hit": false,
       "reason_matches": true,
       "tier": 3,
       "grants": [
         "ops-lead-rheinrail-1",
         "safety-officer-rheinrail-2"
       ],
-      "receipt_hash": "6fce468926dfda37",
-      "seconds_logic": 0.0091,
+      "receipt_hash": "5128617416ed1a8a",
+      "seconds_logic": 74.068,
       "seconds_federation": 3.2,
       "quarantined": true,
       "gap": {
@@ -132,6 +132,7 @@
           "customer_c3_chemiewerk"
         ],
         "decided": [
+          "cool",
           "notify_authority",
           "stop_train"
         ],
@@ -142,44 +143,44 @@
   ],
   "honesty": [
     {
-      "claim": "Kein Rohwert erreicht eine Rolle, die ihn nicht haben darf",
-      "real": "234 Grenzuebertritte versucht, 96 abgelehnt, 0 Verstoesse -- mit Nennwert gemessen",
-      "simulated": "nichts. Der Grenzbeweis ruft die Knoten-Handler direkt auf; derselbe Code laeuft in der Foederation"
+      "claim": "No raw value reaches a role that may not have it",
+      "real": "234 boundary crossings attempted, 96 refused, 0 violations -- measured with a denominator",
+      "simulated": "nothing. The boundary proof calls the node handlers directly; the same code runs in the federation"
     },
     {
-      "claim": "Drei Parteien, drei Knoten",
-      "real": "drei SuperNodes mit eigener node-config, echte Flower-Nachrichten, alle drei Faelle getroffen",
-      "simulated": "die drei Knoten laufen auf einem Rechner"
+      "claim": "Three parties, three nodes",
+      "real": "three SuperNodes with their own node-config, real Flower messages, all three cases hit",
+      "simulated": "the three nodes run on one machine"
     },
     {
-      "claim": "Eine Foederation je Partei",
-      "real": "eine Foederation mit drei Parteiknoten",
-      "simulated": "drei SuperLinks erreicht ein ServerApp in flwr nicht gemeinsam -- das ist die Ausbaustufe, nicht der Stand"
+      "claim": "One federation per party",
+      "real": "one federation with three party nodes",
+      "simulated": "a ServerApp in flwr cannot reach three SuperLinks together -- that is the next stage, not the current state"
     },
     {
-      "claim": "Entscheidung in Minuten statt Telefonkette",
-      "real": "Logik 9.1 ms, Foederation 6.2 s im Median",
-      "simulated": "die Basislinie von 47 min ist eine ANNAHME"
+      "claim": "Decision in minutes instead of a phone chain",
+      "real": "logic 55682.0 ms, federation 6.2 s median",
+      "simulated": "the baseline of 47 min is an ASSUMPTION"
     },
     {
-      "claim": "Trefferquote",
-      "real": "3/3 auf den bekannten Faellen",
-      "simulated": "die Regeln wurden gegen genau diese Faelle geschrieben -- eine Konsistenzpruefung, keine Verallgemeinerung. Die Wahrheit ist zudem unbestaetigt (VORSCHLAG). Holdout-Faelle fehlen."
+      "claim": "Hit rate",
+      "real": "1/3 on the known cases",
+      "simulated": "the rules were written against exactly these cases -- a consistency check, not a generalisation. The ground truth is also unconfirmed (PROPOSAL). Holdout cases are missing."
     },
     {
-      "claim": "Agenten",
-      "real": "ein Bewerter als ServerApp, Parteiknoten als ClientApps",
-      "simulated": "der Bewerter ist eine Regelmaschine, kein Sprachmodell. Die Parteiknoten brauchen keins: eine Projektion ist eine Funktion"
+      "claim": "Agents",
+      "real": "one assessor as a ServerApp, party nodes as ClientApps",
+      "simulated": "the assessor is a rule engine, not a language model. The party nodes need none: a projection is a function"
     },
     {
-      "claim": "Daten",
-      "real": "Schema, Validierung, Vokabulare",
-      "simulated": "alle Daten erfunden -- keine echten Bahndaten, Personen oder Firmen"
+      "claim": "Data",
+      "real": "schema, validation, vocabularies",
+      "simulated": "all data is invented -- no real railway data, people or companies"
     },
     {
-      "claim": "Quittungen",
-      "real": "Kette ueber den ganzen Vorfall, verify() rechnet sie nach",
-      "simulated": "16 Hex-Zeichen aus SHA-256 -- eine Pruefsumme, keine Kryptografie fuer den Ernstfall"
+      "claim": "Receipts",
+      "real": "chain across the whole incident, verify() recomputes it",
+      "simulated": "16 hex characters of SHA-256 -- a checksum, not cryptography for real emergencies"
     }
   ]
 }

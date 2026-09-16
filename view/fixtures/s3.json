@@ -1,12 +1,12 @@
 {
   "case": {
     "id": "s3",
-    "title": "Aufprall, Zug nicht fahrbereit, Gefahrgutwagen beschaedigt, Wohnbebauung 300 m",
+    "title": "Impact, train not operational, hazmat wagon damaged, residential buildings 300 m away",
     "report": {
       "incident_id": "INC-1003",
       "train_id": "TR-1003",
       "location": "Rail segment R-04, km 56.2",
-      "ts": "2026-09-16T13:05:00Z",
+      "ts": "2026-09-16T13:05:40Z",
       "symptom": "Train collided with a large obstruction and came to a complete stop",
       "incident_type": "damage_and_obstruction",
       "severity": "high",
@@ -52,19 +52,19 @@
       ],
       "tier": 3,
       "reason_code": "safety",
-      "why": "Gefahrgutwagen W05 im Bereich des Laderaums beschaedigt, Zug nicht fahrbereit, Wohnbebauung 300 m entfernt, keine Alternativroute, keine Strassenzufahrt. Nichtwissen ueber ein Gefahrgutleck neben Wohnhaeusern ist selbst der Grund anzuhalten und zu melden.",
+      "why": "Hazmat wagon W05 damaged around the cargo compartment, train not operational, residential buildings 300 m away, no alternative route, no road access. Not knowing about a hazmat leak next to homes is itself the reason to stop and report.",
       "must_not": [
         "proceed",
         "alt_transport"
       ],
       "also_true": {
-        "_comment": "Pro Wagen faellt die Lage unterschiedlich aus, aber die Zugentscheidung dominiert: Stufe 3 ist die hoechste beteiligte Stufe, und sie gilt fuer den ganzen Zug. Dieser Block ist Dokumentation fuer die Ansicht, keine eigene Entscheidung und keine eigene Freigabe.",
+        "_comment": "The situation differs per wagon, but the train decision dominates: tier 3 is the highest tier involved, and it applies to the whole train. This block is documentation for the view, not a separate decision and not a separate grant.",
         "W02": {
           "measures": [
             "cool"
           ],
           "tier": 1,
-          "why": "Pharma-Vorprodukt seit 55 Minuten ausserhalb des Fensters, Zug steht"
+          "why": "Pharma precursor outside its window for 55 minutes, train stopped"
         }
       },
       "expect_refusal": null
@@ -74,7 +74,8 @@
     "decision": {
       "measures": [
         "stop_train",
-        "notify_authority"
+        "notify_authority",
+        "cool"
       ],
       "params": {
         "case_id": "s3",
@@ -91,14 +92,14 @@
         "roles_missing": []
       },
       "reason_code": "safety",
-      "receipt_hash": "6fce468926dfda37"
+      "receipt_hash": "5128617416ed1a8a"
     },
     "refusal": null
   },
   "events": [
     {
       "seq": 1,
-      "t": 0.0,
+      "t": 0.002,
       "type": "soteria.incident.open",
       "case_id": "s3",
       "incident_id": "INC-1003",
@@ -128,7 +129,7 @@
     },
     {
       "seq": 2,
-      "t": 0.0,
+      "t": 0.002,
       "type": "soteria.role.ready",
       "party_id": "carrier_rheinrail",
       "party_type": "carrier",
@@ -140,7 +141,7 @@
     },
     {
       "seq": 3,
-      "t": 0.0,
+      "t": 0.002,
       "type": "soteria.role.ready",
       "party_id": "supplier_nordfrost",
       "party_type": "supplier",
@@ -151,7 +152,7 @@
     },
     {
       "seq": 4,
-      "t": 0.0,
+      "t": 0.002,
       "type": "soteria.role.ready",
       "party_id": "customer_c3_chemiewerk",
       "party_type": "customer",
@@ -162,16 +163,16 @@
     },
     {
       "seq": 5,
-      "t": 0.0,
+      "t": 0.002,
       "type": "soteria.receipt",
       "seq_in_chain": 1,
       "kind": "incident",
-      "hash": "bbdfdfd7df50e1ec",
+      "hash": "199182512adce5ab",
       "prev": "0000000000000000"
     },
     {
       "seq": 6,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "temperature_curve",
@@ -180,7 +181,7 @@
     },
     {
       "seq": 7,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.fact",
       "role": "intake",
       "field": "temperature_curve",
@@ -191,16 +192,16 @@
     },
     {
       "seq": 8,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.receipt",
       "seq_in_chain": 2,
       "kind": "fact",
-      "hash": "081af1095e9558d1",
-      "prev": "bbdfdfd7df50e1ec"
+      "hash": "b534764010e7c9b1",
+      "prev": "199182512adce5ab"
     },
     {
       "seq": 9,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "market_sensitive",
@@ -209,7 +210,7 @@
     },
     {
       "seq": 10,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.fact",
       "role": "legal",
       "field": "market_sensitive",
@@ -222,22 +223,22 @@
     },
     {
       "seq": 11,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.receipt",
       "seq_in_chain": 3,
       "kind": "fact",
-      "hash": "5348762aa96fca70",
-      "prev": "081af1095e9558d1"
+      "hash": "47b73132ac2b67a2",
+      "prev": "b534764010e7c9b1"
     },
     {
       "seq": 12,
-      "t": 0.005,
+      "t": 0.018,
       "type": "collab.taint",
       "source": "legal"
     },
     {
       "seq": 13,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.quarantine",
       "trigger_role": "legal",
       "field": "market_sensitive",
@@ -251,7 +252,7 @@
     },
     {
       "seq": 14,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "cargo_class",
@@ -260,7 +261,7 @@
     },
     {
       "seq": 15,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.fact",
       "role": "intake",
       "field": "cargo_class",
@@ -271,16 +272,16 @@
     },
     {
       "seq": 16,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.receipt",
       "seq_in_chain": 4,
       "kind": "fact",
-      "hash": "723ce0a29d0dd5ec",
-      "prev": "5348762aa96fca70"
+      "hash": "b93834deffdd5cd7",
+      "prev": "47b73132ac2b67a2"
     },
     {
       "seq": 17,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "route_weakness",
@@ -289,7 +290,7 @@
     },
     {
       "seq": 18,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.fact",
       "role": "intake",
       "field": "route_weakness",
@@ -300,16 +301,16 @@
     },
     {
       "seq": 19,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.receipt",
       "seq_in_chain": 5,
       "kind": "fact",
-      "hash": "9f126cdfab0ec85c",
-      "prev": "723ce0a29d0dd5ec"
+      "hash": "7d5d37b3939486d9",
+      "prev": "b93834deffdd5cd7"
     },
     {
       "seq": 20,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "alt_route_status",
@@ -318,7 +319,7 @@
     },
     {
       "seq": 21,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.fact",
       "role": "intake",
       "field": "alt_route_status",
@@ -329,16 +330,16 @@
     },
     {
       "seq": 22,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.receipt",
       "seq_in_chain": 6,
       "kind": "fact",
-      "hash": "5c6c127ef6212be7",
-      "prev": "9f126cdfab0ec85c"
+      "hash": "41e1a36bb2db0ba4",
+      "prev": "7d5d37b3939486d9"
     },
     {
       "seq": 23,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "road_access",
@@ -347,7 +348,7 @@
     },
     {
       "seq": 24,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.fact",
       "role": "intake",
       "field": "road_access",
@@ -358,16 +359,16 @@
     },
     {
       "seq": 25,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.receipt",
       "seq_in_chain": 7,
       "kind": "fact",
-      "hash": "ea72f1c9ce029181",
-      "prev": "5c6c127ef6212be7"
+      "hash": "fe0debe973f6c435",
+      "prev": "41e1a36bb2db0ba4"
     },
     {
       "seq": 26,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "locality_class",
@@ -376,7 +377,7 @@
     },
     {
       "seq": 27,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.fact",
       "role": "intake",
       "field": "locality_class",
@@ -387,16 +388,16 @@
     },
     {
       "seq": 28,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.receipt",
       "seq_in_chain": 8,
       "kind": "fact",
-      "hash": "b2f63087278a59e3",
-      "prev": "ea72f1c9ce029181"
+      "hash": "9258ef2c9e805627",
+      "prev": "fe0debe973f6c435"
     },
     {
       "seq": 29,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "replacement_available",
@@ -405,7 +406,7 @@
     },
     {
       "seq": 30,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.fact",
       "role": "supplier",
       "field": "replacement_available",
@@ -416,16 +417,16 @@
     },
     {
       "seq": 31,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.receipt",
       "seq_in_chain": 9,
       "kind": "fact",
-      "hash": "b8fb217fc3fdd17a",
-      "prev": "b2f63087278a59e3"
+      "hash": "e56cff4247cd3dc3",
+      "prev": "9258ef2c9e805627"
     },
     {
       "seq": 32,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "cooling_required",
@@ -434,7 +435,7 @@
     },
     {
       "seq": 33,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.fact",
       "role": "supplier",
       "field": "cooling_required",
@@ -445,16 +446,16 @@
     },
     {
       "seq": 34,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.receipt",
       "seq_in_chain": 10,
       "kind": "fact",
-      "hash": "b3eee7f1ea9ca750",
-      "prev": "b8fb217fc3fdd17a"
+      "hash": "66dae8c6498283b8",
+      "prev": "e56cff4247cd3dc3"
     },
     {
       "seq": 35,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "customer_stock",
@@ -463,7 +464,7 @@
     },
     {
       "seq": 36,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.fact",
       "role": "customer",
       "field": "customer_stock",
@@ -474,16 +475,16 @@
     },
     {
       "seq": 37,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.receipt",
       "seq_in_chain": 11,
       "kind": "fact",
-      "hash": "50ad7df02a43e5ab",
-      "prev": "b3eee7f1ea9ca750"
+      "hash": "79185fae348ed319",
+      "prev": "66dae8c6498283b8"
     },
     {
       "seq": 38,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "customer_urgency",
@@ -492,7 +493,7 @@
     },
     {
       "seq": 39,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.fact",
       "role": "customer",
       "field": "customer_urgency",
@@ -503,16 +504,16 @@
     },
     {
       "seq": 40,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.receipt",
       "seq_in_chain": 12,
       "kind": "fact",
-      "hash": "bd84b55d1fcc2ffd",
-      "prev": "50ad7df02a43e5ab"
+      "hash": "c13247bab9e3c0c0",
+      "prev": "79185fae348ed319"
     },
     {
       "seq": 41,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "contract_penalty",
@@ -521,7 +522,7 @@
     },
     {
       "seq": 42,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.fact",
       "role": "legal",
       "field": "contract_penalty",
@@ -532,16 +533,16 @@
     },
     {
       "seq": 43,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.receipt",
       "seq_in_chain": 13,
       "kind": "fact",
-      "hash": "c6cde228a0e1a7a2",
-      "prev": "bd84b55d1fcc2ffd"
+      "hash": "b71d33dbe3366b3c",
+      "prev": "c13247bab9e3c0c0"
     },
     {
       "seq": 44,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "contract_deadline_h",
@@ -550,7 +551,7 @@
     },
     {
       "seq": 45,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.fact",
       "role": "legal",
       "field": "contract_deadline_h",
@@ -561,16 +562,16 @@
     },
     {
       "seq": 46,
-      "t": 0.005,
+      "t": 0.018,
       "type": "soteria.receipt",
       "seq_in_chain": 14,
       "kind": "fact",
-      "hash": "e21e54ea2b9bc3d9",
-      "prev": "c6cde228a0e1a7a2"
+      "hash": "19d26c939108a585",
+      "prev": "b71d33dbe3366b3c"
     },
     {
       "seq": 47,
-      "t": 0.005,
+      "t": 0.019,
       "type": "soteria.coverage",
       "answered": 13,
       "asked": 13,
@@ -583,55 +584,103 @@
     },
     {
       "seq": 48,
-      "t": 0.005,
+      "t": 0.019,
+      "type": "soteria.model.request",
+      "model": "flower-endeavor-v1.0",
+      "federation": "supergrid",
+      "signals": [
+        "alt_route_status",
+        "cargo_class",
+        "contract_deadline_h",
+        "contract_penalty",
+        "cooling_required",
+        "customer_stock",
+        "customer_urgency",
+        "locality_class",
+        "market_sensitive",
+        "replacement_available",
+        "road_access",
+        "route_weakness",
+        "temperature_curve"
+      ]
+    },
+    {
+      "seq": 49,
+      "t": 71.36,
+      "type": "soteria.model.decision",
+      "model": "flower-endeavor-v1.0",
+      "decided_by": "llm",
+      "measures": [
+        "stop_train",
+        "notify_authority",
+        "cool"
+      ],
+      "reason_code": "safety",
+      "rationale": "High-severity immobilized train with hazmat and a blocked track requires stopping and notifying the authority. Cooling is required to control the red temperature condition while the train is immobilized.",
+      "policy_measures": [
+        "stop_train",
+        "notify_authority"
+      ],
+      "agrees_with_policy": false,
+      "floor_added": [],
+      "error": "",
+      "latency_seconds": 71.34
+    },
+    {
+      "seq": 50,
+      "t": 71.36,
       "type": "soteria.grant.required",
       "measures": [
         "stop_train",
-        "notify_authority"
+        "notify_authority",
+        "cool"
       ],
       "tier": 3,
       "keys_needed": 2
     },
     {
-      "seq": 49,
-      "t": 0.005,
+      "seq": 51,
+      "t": 71.361,
       "type": "soteria.grant.given",
       "measures": [
         "stop_train",
-        "notify_authority"
+        "notify_authority",
+        "cool"
       ],
       "human_id": "ops-lead-rheinrail-1",
       "keys_have": 2,
       "keys_needed": 2
     },
     {
-      "seq": 50,
-      "t": 0.005,
+      "seq": 52,
+      "t": 71.361,
       "type": "soteria.grant.given",
       "measures": [
         "stop_train",
-        "notify_authority"
+        "notify_authority",
+        "cool"
       ],
       "human_id": "safety-officer-rheinrail-2",
       "keys_have": 2,
       "keys_needed": 2
     },
     {
-      "seq": 51,
-      "t": 0.005,
+      "seq": 53,
+      "t": 71.362,
       "type": "soteria.receipt",
       "seq_in_chain": 15,
       "kind": "decision",
-      "hash": "6fce468926dfda37",
-      "prev": "e21e54ea2b9bc3d9"
+      "hash": "5128617416ed1a8a",
+      "prev": "19d26c939108a585"
     },
     {
-      "seq": 52,
-      "t": 0.005,
+      "seq": 54,
+      "t": 71.362,
       "type": "soteria.decision",
       "measures": [
         "stop_train",
-        "notify_authority"
+        "notify_authority",
+        "cool"
       ],
       "params": {
         "case_id": "s3",
@@ -648,7 +697,7 @@
         "roles_missing": []
       },
       "reason_code": "safety",
-      "receipt_hash": "6fce468926dfda37",
+      "receipt_hash": "5128617416ed1a8a",
       "parties_missing": [],
       "scopes": {
         "temperature_curve": "W02",
@@ -657,20 +706,23 @@
         "cooling_required": "regulated",
         "customer_stock": "regulated",
         "customer_urgency": "regulated"
-      }
+      },
+      "decided_by": "llm",
+      "model": "flower-endeavor-v1.0",
+      "rationale": "High-severity immobilized train with hazmat and a blocked track requires stopping and notifying the authority. Cooling is required to control the red temperature condition while the train is immobilized."
     },
     {
-      "seq": 53,
-      "t": 0.005,
+      "seq": 55,
+      "t": 71.363,
       "type": "soteria.done",
-      "elapsed_seconds": 0.01,
+      "elapsed_seconds": 71.36,
       "refusals": 0,
       "refusal_codes": {},
       "asks": 13,
       "answers": 13,
       "quarantined": true,
       "receipt_chain_verified": true,
-      "receipt_head": "6fce468926dfda37"
+      "receipt_head": "5128617416ed1a8a"
     }
   ]
 }

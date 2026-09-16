@@ -1,8 +1,8 @@
 {
   "case_id": "s1",
   "catalogue_version": 1,
-  "title": "Kleines Hindernis, Kuehlaggregat an einem Frischwarenwagen beschaedigt",
-  "_comment": "Die Falldatei bindet alles zusammen und bestimmt, welche Foederationen mitspielen. Ein weiterer Kunde ist ein weiterer Eintrag in 'federations' -- nichts im Code aendert sich.",
+  "title": "Small obstruction, refrigeration unit damaged on a fresh-goods wagon",
+  "_comment": "The case file ties everything together and decides which federations take part. One more customer is one more entry in 'federations' -- nothing in the code changes.",
 
   "sources": {
     "incident": "data/s1/s1_incident.json",
@@ -28,7 +28,7 @@
   },
 
   "measurements": {
-    "_comment": "Telemetrie der betroffenen Wagen. Gehoert dem Datensatztyp 'incident'. Kann spaeter in s1_incident.json wandern, wenn der Datenstrang Telematik ergaenzt.",
+    "_comment": "Telemetry of the affected wagons. Belongs to record type 'incident'. Can move into s1_incident.json later, once the data track adds telematics.",
     "temperature_curve": {
       "W02": {"setpoint_c": 4.0, "current_c": 6.5, "limit_c": 8.0, "minutes_out": 20}
     }
@@ -40,13 +40,13 @@
   "keys": [],
 
   "truth": {
-    "_status": "VORSCHLAG des Engine-Strangs -- bitte vom Datenspezialisten bestaetigen oder korrigieren",
+    "_status": "PROPOSAL from the engine track -- data specialist, please confirm or correct",
     "measures": ["cool"],
     "tier": 1,
     "reason_code": "safety",
-    "why": "Aggregat unrund, Ware aber noch im Fenster (gelb). Kunde hat 4,5 Tage Bestand (gruen) und Routine-Dringlichkeit, Vertragsstrafe unter der Schwelle. Kuehlen reicht; Umladen waere teuer und unnoetig.",
+    "why": "Unit running rough, but the goods are still within their window (yellow). Customer has 4.5 days of stock (green) and routine urgency, contract penalty below the threshold. Cooling is enough; transshipment would be expensive and unnecessary.",
     "must_not": ["reload", "alt_transport", "stop_train"],
-    "_teaches": "Die Ampel auf dem Bestand verhindert eine teure Maßnahme. Der Bewerter erfaehrt nie, dass es 4,5 Tage sind.",
+    "_teaches": "The traffic light on stock prevents an expensive measure. The assessor never learns that it is 4.5 days.",
     "expect_refusal": null
   }
 }

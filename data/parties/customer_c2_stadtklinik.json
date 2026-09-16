@@ -1,7 +1,7 @@
 {
   "party_id": "customer_c2_stadtklinik",
   "party_type": "customer",
-  "display_name": "Stadtklinik Nordwest (erfunden)",
+  "display_name": "Stadtklinik Nordwest (fictional)",
   "records": {
     "customer": {
       "customer_trade": "hospital",
@@ -22,13 +22,13 @@
       "contact_person": [
         {
           "name": "Dr. Hanna Loos",
-          "function": "Apothekenleitung",
+          "function": "Head of pharmacy",
           "phone": "+49 40 000-21",
           "hours": "24/7"
         },
         {
           "name": "Peer Salzmann",
-          "function": "Technischer Dienst",
+          "function": "Technical services",
           "phone": "+49 40 000-22",
           "hours": "24/7"
         }

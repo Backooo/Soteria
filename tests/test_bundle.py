@@ -1,8 +1,8 @@
-"""Die gebuendelte Nachfrage: eine Nachricht je Knoten statt eine je Feld.
+"""The bundled ask: one message per node instead of one per field.
 
-Gebuendelt wird der Transport, nicht die Pruefung. Diese Tests halten fest, dass
-jedes Feld weiter einzeln durch Matrix und Skalar-Riegel geht und dass die
-Ansichten denselben Ereignisstrom bekommen wie vorher.
+The transport is bundled, not the check. These tests pin down that every field
+still goes through the matrix and the scalar bolt individually, and that the
+views get the same event stream as before.
 """
 
 import pytest
@@ -30,7 +30,7 @@ def test_a_bundle_survives_the_round_trip_in_order():
 
 def test_a_bundle_rejects_an_untyped_reason():
     with pytest.raises(EnvelopeError) as exc:
-        bundle_ask_record("assessor", [("customer_stock", "neugier")], "s1")
+        bundle_ask_record("assessor", [("customer_stock", "curiosity")], "s1")
     assert exc.value.code == "bad_value"
 
 
@@ -57,14 +57,14 @@ def test_the_reply_keeps_one_record_per_field_in_order():
 
 
 def test_the_reply_keeps_order_beyond_ten_records():
-    """Die Schluessel sind nullgepolstert -- sonst sortiert 'answer.10' vor 'answer.2'."""
+    """The keys are zero-padded -- otherwise 'answer.10' sorts before 'answer.2'."""
     records = [fact_record("intake", f"f{i}", "flag", True) for i in range(13)]
     assert [r["field"] for r in read_bundle_reply(bundle_reply(records))] == [f"f{i}" for i in range(13)]
 
 
 @pytest.mark.parametrize("case_id", ["s1", "s2", "s3"])
 def test_a_bundled_answer_equals_the_single_field_answers(case_id):
-    """Buendeln darf am Ergebnis nichts aendern, Feld fuer Feld."""
+    """Bundling must not change the result, field by field."""
     case = load_case(case_id)
     plan = list(ASK_PLAN)
     for party_id in case.party_ids:
@@ -74,7 +74,7 @@ def test_a_bundled_answer_equals_the_single_field_answers(case_id):
 
 
 def test_one_refused_field_does_not_sink_the_rest_of_the_bundle():
-    """Ein Feld darf abgelehnt werden, ohne die anderen zu kippen."""
+    """One field may be refused without toppling the others."""
     case = load_case("s3")
     customer = next(f["party_id"] for f in case.federations if f["party_type"] == "customer")
     replies = answer_bundle(case, customer, "assessor",
@@ -91,7 +91,7 @@ def test_every_bundled_value_is_still_a_scalar():
 
 
 def test_the_event_stream_keeps_ask_before_fact_per_field():
-    """Der Ereignisvertrag der Ansichten: je Feld erst die Frage, dann die Antworten."""
+    """The views' event contract: per field, first the ask, then the answers."""
     import sys
     from pathlib import Path
 
@@ -104,7 +104,7 @@ def test_the_event_stream_keeps_ask_before_fact_per_field():
         if event["type"] == "soteria.ask":
             last_ask = event["field"]
         elif event["type"] == "soteria.fact":
-            assert event["field"] == last_ask, f"Antwort auf {event['field']} ohne vorherige Frage"
+            assert event["field"] == last_ask, f"answer to {event['field']} without a preceding ask"
     fields = [e["field"] for e in events if e["type"] == "soteria.ask"]
     assert fields.index("market_sensitive") < fields.index("customer_stock")
     assert any(e["type"] == "soteria.quarantine" for e in events)

@@ -1,8 +1,13 @@
-"""Der Bewerter als ServerApp: fragt die Parteiknoten ueber Grid, entscheidet.
+"""The assessor as a ServerApp: asks the party nodes over Grid, then decides.
 
-Der einzige Agent mit Entscheidungsgewalt -- und der mit den wenigsten
-Rohdaten. Jede Antwort, die hier ankommt, ist eine Ampel, eine Schwelle, ein
-Flag oder eine Grobklasse; Rohwerte bekommt er nur aus der eigenen Organisation.
+The only agent with decision authority -- and the one with the least raw data.
+Every answer that arrives here is a traffic light, a threshold, a flag or a
+coarse class; raw values only come from its own organisation.
+
+The decision itself is made by the LLM `flower-endeavor-v1.0`, running as the
+Flower AgentApp in `agent/` on SuperGrid (see `soteria/llm.py`). The rule policy
+in `policy.py` stays as the safety floor and as the fallback when the model is
+unreachable; every decision event says which of the two decided.
 
     ./scripts/federation.sh up s1
     uv run flwr run . carrier-fed --stream --run-config 'case="s1"'
@@ -21,6 +26,7 @@ from .charter import Budget
 from .envelope import Coverage, Decision, EnvelopeError
 from .grants import GrantBook, KEYS_REQUIRED, tier_of
 from .ledger import Ledger
+from .llm import LLMConfig, propose
 from .matrix import visibility
 from .policy import ASK_PLAN, decide
 from .receipts import ReceiptChain
@@ -28,30 +34,31 @@ from .wire import ASK_FIELDS, bundle_ask_record, read_bundle_reply
 
 app = ServerApp()
 
-# Obergrenze fuer das Warten auf die Knoten, halbiert gegen die 240 s des
-# Budgets. Die gebuendelte Runde wartet das Doppelte, weil sie alles traegt.
+# Upper bound for waiting on the nodes, halved against the budget's 240 s. The
+# bundled round waits twice as long because it carries everything.
 ROUND_TIMEOUT = 30.0
 
 
 class Assessor:
-    """Ein Vorfall: fragen, sammeln, entscheiden, quittieren.
+    """One incident: ask, gather, decide, record receipts.
 
-    Der Transport ist austauschbar: `send` bekommt (Feld, Grund) und gibt die
-    Antworten zurueck. In der Foederation ist das `Grid.send_and_receive`, in
-    `scripts/record_run.py` ein direkter Aufruf der Knoten-Handler. Die Logik
-    ist in beiden Faellen dieselbe -- das ist der Grund fuer diese Naht.
+    The transport is interchangeable: `send` takes (field, reason) pairs and
+    returns the answers. In the federation that is `Grid.send_and_receive`; in
+    `scripts/record_run.py` it is a direct call to the node handlers. The logic
+    is the same in both cases -- that is the reason for this seam.
     """
 
-    def __init__(self, case: Case, ledger: Ledger) -> None:
+    def __init__(self, case: Case, ledger: Ledger, llm: LLMConfig | None = None) -> None:
         self._case = case
         self._ledger = ledger
+        self._llm = llm if llm is not None else LLMConfig.from_env()
         self._chain = ReceiptChain()
         self._sheets: dict[str, Any] = {}
         self._scopes: dict[str, str] = {}
         self._answered_by: set[str] = set()
         self._asked = 0
 
-    # -- Quittungen ------------------------------------------------------
+    # -- receipts --------------------------------------------------------
 
     def _receipt(self, kind: str, payload: Mapping[str, Any]) -> None:
         receipt = self._chain.append(kind, payload)
@@ -61,7 +68,7 @@ class Assessor:
              "hash": receipt.hash, "prev": receipt.prev},
         )
 
-    # -- Ablauf ----------------------------------------------------------
+    # -- flow ------------------------------------------------------------
 
     def open(self) -> dict[str, Any]:
         report = self._case.report
@@ -96,19 +103,19 @@ class Assessor:
         return report
 
     def plan(self) -> list[tuple[str, str]]:
-        """Der Frageplan ohne die Felder, die der Bewerter gar nicht sehen darf.
+        """The ask plan without the fields the assessor may not see at all.
 
-        Ein Frageplan, der die Matrix ignoriert, waere ein Fehler -- also fragt
-        der Bewerter nur, was er in irgendeiner Aufloesung bekommen kann.
+        An ask plan that ignored the matrix would be a bug -- so the assessor
+        only asks for what it can receive in some resolution.
         """
         return [(f, r) for f, r in ASK_PLAN if visibility(f, "assessor") != "none"]
 
     def gather(self, send: Callable[[list[tuple[str, str]]], dict[str, list[dict[str, Any]]]]) -> None:
-        """Den ganzen Frageplan in EINER Runde an alle Knoten.
+        """The whole ask plan in ONE round to all nodes.
 
-        Die Ereignisse bleiben je Feld in Planreihenfolge -- Frage, dann
-        Antworten --, damit der Ereignisvertrag der Ansichten unveraendert gilt
-        und `market_sensitive` weiterhin vor allem anderen verarbeitet wird.
+        Events stay per field in plan order -- ask, then answers -- so the views'
+        event contract still holds and `market_sensitive` is still processed
+        before everything else.
         """
         plan = self.plan()
         self._ledger.require_time("asking the plan", floor=2.0)
@@ -126,8 +133,8 @@ class Assessor:
     def _absorb(self, field: str, payload: Mapping[str, Any]) -> None:
         code = str(payload.get("code") or "")
         if code:
-            # `unknown_field` heisst nur "nicht mein Feld" und ist keine
-            # Blockade. Alles andere ist eine und gehoert auf den Schirm.
+            # `unknown_field` only means "not my field" and is not a block.
+            # Anything else is one and belongs on screen.
             if code != "unknown_field":
                 self._ledger.note_refusal(
                     str(payload.get("role") or "node"), f"ask {field}", code
@@ -138,10 +145,10 @@ class Assessor:
 
         value = payload.get("value")
         if field in self._sheets:
-            # Mehrere Knoten fuehren dasselbe Feld -- den Vertrag halten Kunde,
-            # Zulieferer und der Vertragsagent. Stimmen sie ueberein, zaehlt es
-            # einmal. Stimmen sie nicht ueberein, ist das ein Befund und keine
-            # Nebensache: dann widersprechen sich zwei Parteien.
+            # Several nodes hold the same field -- the contract is held by the
+            # customer, the supplier and the legal agent. If they agree, it
+            # counts once. If they disagree, that is a finding, not a detail:
+            # two parties contradict each other.
             if self._sheets[field] == value:
                 return
             self._ledger.emit(
@@ -165,9 +172,9 @@ class Assessor:
         self._receipt("fact", {"role": payload.get("role"), "field": field,
                                "visibility": payload.get("visibility"), "value": value})
 
-        # Die Quarantaene muss greifen, sobald das Flag gelesen ist -- nicht
-        # erst bei der Entscheidung. Deshalb steht market_sensitive weit vorn
-        # im Frageplan.
+        # The quarantine must take effect as soon as the flag is read -- not
+        # only at decision time. That is why market_sensitive sits early in the
+        # ask plan.
         if field == "market_sensitive" and bool(value):
             self._ledger.mark_market_sensitive(str(payload.get("role") or "carrier"), field)
 
@@ -180,26 +187,40 @@ class Assessor:
             "severity": report["severity"],
         }
         expected = {p for p in case.party_ids}
-        # Wer geschwiegen hat: angekuendigt oder im Lauf ausgeblieben. Die
-        # Rollennamen der Antworten auf Parteien zurueckzurechnen ist unnoetig --
-        # eine Partei, die nichts beigetragen hat, fehlt.
+        # Who stayed silent: announced offline or absent during the run. Mapping
+        # answer roles back to parties is unnecessary -- a party that
+        # contributed nothing is missing.
         contributed = {
             p for p in expected
             if set(case.roles_of(p)) & self._answered_by
         }
         missing = tuple(sorted((expected - contributed) | set(case.offline_parties)))
 
-        measures, reason_code = decide(self._sheets, case.flags, missing, situation)
-        tier = tier_of(measures)
         coverage = Coverage(
             answered=len(self._sheets), asked=self._asked,
-            roles_missing=(),  # Parteien, nicht Rollen -- siehe parties_missing
+            roles_missing=(),  # parties, not roles -- see parties_missing
         )
         self._ledger.emit(
             "soteria.coverage",
             {"answered": len(self._sheets), "asked": self._asked,
              "parties_expected": sorted(expected), "parties_missing": list(missing)},
         )
+
+        # The LLM decides from the same projections; the rule policy is the
+        # safety floor and the fallback. Neither ever sees a raw party value.
+        policy = decide(self._sheets, case.flags, missing, situation)
+        self._ledger.emit("soteria.model.request", {
+            "model": self._llm.model if self._llm.enabled else "",
+            "federation": self._llm.federation,
+            "signals": sorted(self._sheets),
+        })
+        proposal = propose(
+            self._llm, self._sheets, case.flags, missing, situation, policy,
+            time_left=self._ledger.remaining_seconds(),
+        )
+        self._ledger.emit("soteria.model.decision", proposal.as_event())
+        measures, reason_code = proposal.measures, proposal.reason_code
+        tier = tier_of(measures)
 
         params = {"case_id": case.case_id, "train_id": report["train_id"]}
         keys_needed = KEYS_REQUIRED[tier]
@@ -229,6 +250,7 @@ class Assessor:
             "measures": list(measures), "params": params, "tier": tier,
             "grants": list(granted), "coverage": coverage.as_dict(),
             "reason_code": reason_code, "parties_missing": list(missing),
+            "decided_by": proposal.decided_by, "model": proposal.model,
         }
         receipt = self._chain.append("decision", payload)
         self._ledger.emit(
@@ -242,7 +264,10 @@ class Assessor:
         )
         self._ledger.emit("soteria.decision", {**decision.as_dict(),
                                               "parties_missing": list(missing),
-                                              "scopes": dict(self._scopes)})
+                                              "scopes": dict(self._scopes),
+                                              "decided_by": proposal.decided_by,
+                                              "model": proposal.model,
+                                              "rationale": proposal.rationale})
         return decision
 
     def done(self, started: float) -> None:
@@ -273,11 +298,10 @@ Sender = Callable[[list[tuple[str, str]]], dict[str, list[dict[str, Any]]]]
 
 
 def _grid_sender(grid: Grid, case: Case, ledger: Ledger) -> Sender:
-    """Der ganze Frageplan als EINE Flower-Nachricht je Knoten.
+    """The whole ask plan as ONE Flower message per node.
 
-    Gemessen: dreizehn Runden kosteten 69-127 s, weil jede Nachricht auf dem
-    Knoten einen ClientApp-Prozess startet. Eine Runde je Knoten traegt jetzt
-    alles.
+    Measured: thirteen rounds cost 69-127 s, because every message starts a
+    ClientApp process on the node. One round per node now carries everything.
     """
     node_ids = list(grid.get_node_ids())
     if not node_ids:
@@ -297,8 +321,8 @@ def _grid_sender(grid: Grid, case: Case, ledger: Ledger) -> Sender:
         timeout = min(ROUND_TIMEOUT * 2, max(5.0, ledger.remaining_seconds()))
         replies = list(grid.send_and_receive(messages, timeout=timeout))
         if len(replies) < len(node_ids):
-            # Ein Knoten hat nicht rechtzeitig geantwortet. Das ist eine Luecke,
-            # keine Blockade -- conclude() nennt sie in der Abdeckung.
+            # A node did not answer in time. That is a gap, not a block --
+            # conclude() names it in the coverage.
             ledger.emit("soteria.warning", {
                 "detail": f"{len(node_ids) - len(replies)} of {len(node_ids)} nodes "
                           f"did not answer within {timeout:.0f}s"})
@@ -314,9 +338,9 @@ def _grid_sender(grid: Grid, case: Case, ledger: Ledger) -> Sender:
     return send
 
 
-def run_incident(case: Case, ledger: Ledger, send: Sender) -> Decision:
+def run_incident(case: Case, ledger: Ledger, send: Sender, llm: LLMConfig | None = None) -> Decision:
     started = time.monotonic()
-    assessor = Assessor(case, ledger)
+    assessor = Assessor(case, ledger, llm)
     assessor.open()
     assessor.gather(send)
     try:
@@ -327,7 +351,7 @@ def run_incident(case: Case, ledger: Ledger, send: Sender) -> Decision:
 
 @app.main()
 def main(grid: Grid, context: Context) -> None:
-    """Fahre einen Vorfall gegen die verbundenen Parteiknoten."""
+    """Run one incident against the connected party nodes."""
     case_id = context.run_config.get("case")
     if not isinstance(case_id, str) or not case_id.strip():
         raise ValueError("run-config 'case' must name a directory in data/, e.g. case=\"s1\"")
@@ -341,29 +365,30 @@ def main(grid: Grid, context: Context) -> None:
         max_connector_calls=0,
     )
     ledger = Ledger(budget, None)
+    llm = LLMConfig.from_run_config(context.run_config)
 
     print(f"\n=== Soteria: {case.title} ===")
     try:
-        decision = run_incident(case, ledger, _grid_sender(grid, case, ledger))
+        decision = run_incident(case, ledger, _grid_sender(grid, case, ledger), llm)
     except EnvelopeError as exc:
-        print(f"\nKEINE ENTSCHEIDUNG: {exc.code}")
+        print(f"\nNO DECISION: {exc.code}")
         print(f"  {exc.detail}")
         expected = (case.truth or {}).get("expect_refusal")
-        print(f"Hinterlegte Erwartung: {expected!r} -> "
-              f"{'TREFFER' if expected == exc.code else 'ABWEICHUNG'}")
+        print(f"Expected: {expected!r} -> "
+              f"{'HIT' if expected == exc.code else 'MISMATCH'}")
         print(f"\n{ledger.headline()}")
         return
 
-    print(f"\nMaßnahmen: {', '.join(decision.measures)} "
-          f"(Stufe {decision.tier}, {decision.reason_code})")
-    print(f"Freigaben: {', '.join(decision.grants) or 'keine noetig'}")
-    print(f"Quittung:  {decision.receipt_hash}")
+    print(f"\nMeasures:  {', '.join(decision.measures)} "
+          f"(tier {decision.tier}, {decision.reason_code})")
+    print(f"Approvals: {', '.join(decision.grants) or 'none required'}")
+    print(f"Receipt:   {decision.receipt_hash}")
     if ledger.quarantined:
-        print(f"QUARANTAENE: {', '.join(ledger.blocked_channels)} gesperrt")
-    print(f"Ablehnungen: {ledger.refusal_codes or 'keine'}")
+        print(f"QUARANTINE: {', '.join(ledger.blocked_channels)} blocked")
+    print(f"Refusals:  {ledger.refusal_codes or 'none'}")
     truth = case.truth or {}
     if truth.get("measures"):
         hit = set(decision.measures) == set(truth["measures"])
-        print(f"Wahrheit:  {', '.join(truth['measures'])} -> "
-              f"{'TREFFER' if hit else 'ABWEICHUNG'}")
+        print(f"Truth:     {', '.join(truth['measures'])} -> "
+              f"{'HIT' if hit else 'MISMATCH'}")
     print(f"\n{ledger.headline()}")

@@ -249,23 +249,23 @@ class Ledger:
         """Record a non-fatal problem, e.g. connectors being unavailable."""
         self._emit("collab.warning", {"agent": agent, "detail": detail[:280]})
 
-    # -- Soteria: getippte Ablehnungen und Quarantaene -------------------
+    # -- Soteria: typed refusals and quarantine --------------------------
 
-    # Alles, was Bytes vom Rechner traegt, plus die Presse als Maßnahme. Der
-    # geerbte Charter kennt nur Connectors; `press` ist eine Entscheidung, aber
-    # sie verlaesst das Haus genauso.
+    # Everything that carries bytes off the box, plus the press as a measure.
+    # The inherited charter only knows connectors; `press` is a decision, but it
+    # leaves the building just the same.
     OUTBOUND_CHANNELS = frozenset(OUTBOUND_CONNECTORS) | {"press"}
 
     def emit(self, kind: str, payload: dict[str, Any]) -> None:
-        """Oeffentliche Fassung von `_emit`, fuer die Soteria-Ereignisse."""
+        """Public version of `_emit`, for the Soteria events."""
         self._emit(kind, payload)
 
     def note_refusal(self, actor: str, action: str, code: str, detail: str = "") -> None:
-        """Eine getippte Ablehnung. Datenquelle fuer Ansicht und Zahlen.
+        """A typed refusal. Data source for the view and the numbers.
 
-        `detail` geht absichtlich **nicht** in das Ereignis, nur seine Laenge.
-        Der Oversight-Kanal darf kein zweiter Leckweg werden -- derselbe Fehler,
-        den `Hop.as_dict()` schon einmal gemacht hat.
+        `detail` deliberately does **not** go into the event, only its length.
+        The oversight channel must not become a second leak path -- the same
+        mistake `Hop.as_dict()` once made.
         """
         if code not in REFUSAL:
             raise ValueError(f"{code!r} is not a typed refusal")
@@ -294,16 +294,16 @@ class Ledger:
         return tuple(sorted(self.OUTBOUND_CHANNELS)) if self.quarantined else ()
 
     def mark_market_sensitive(self, role_name: str, field: str) -> None:
-        """Eine kursrelevante Tatsache ist gelesen. Gilt fuer den Rest des Laufs.
+        """A market-sensitive fact has been read. Applies for the rest of the run.
 
-        Einmal angekuendigt, nicht je Versuch -- die Ansicht braucht ein Banner,
-        keine Lawine. Die Versuche selbst zaehlt `check_outbound`.
+        Announced once, not per attempt -- the view needs a banner, not an
+        avalanche. The attempts themselves are counted by `check_outbound`.
         """
         if self._quarantine_trigger is not None:
             return
         self._quarantine_trigger = (role_name, field)
-        # Auch die geerbte Taint-Regel scharf machen, damit eine Uebergabe an
-        # eine Rolle mit Ausgangswerkzeug ebenfalls faellt.
+        # Also arm the inherited taint rule, so a handoff to a role holding an
+        # outbound tool is refused as well.
         self.mark_tainted(role_name)
         self._emit(
             "soteria.quarantine",
@@ -312,10 +312,10 @@ class Ledger:
         )
 
     def check_outbound(self, actor: str, channel: str) -> None:
-        """Verweigere jeden ausgehenden Kanal, solange Quarantaene gilt.
+        """Refuse every outbound channel while the quarantine is in force.
 
-        Bewusst grob: die Pruefung sieht keinen String an, also gibt es nichts,
-        was sich umformulieren liesse.
+        Deliberately coarse: the check never looks at a string, so there is
+        nothing that could be rephrased around it.
         """
         if not self.quarantined or channel not in self.OUTBOUND_CHANNELS:
             return

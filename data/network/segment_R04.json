@@ -9,11 +9,11 @@
       "road_access": "track_only",
       "locality_class": "town_edge",
       "_context": {
-        "nearest_place": "Klein-Ruhlau, Wohnbebauung (erfunden)",
+        "nearest_place": "Klein-Ruhlau, residential area (fictional)",
         "distance_to_place_km": 0.3,
-        "nearest_terminal": "Terminal Sued",
+        "nearest_terminal": "Terminal South",
         "distance_to_terminal_km": 41.0,
-        "roads": ["nur Bahnbetriebsweg, keine oeffentliche Zufahrt"],
+        "roads": ["railway service track only, no public access"],
         "alt_routes": []
       }
     }

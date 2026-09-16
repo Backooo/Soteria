@@ -1,24 +1,23 @@
-"""Die vier Zahlen. Aus Laeufen, nicht aus dem Bauchgefuehl.
+"""The four numbers. From runs, not from gut feeling.
 
     uv run python scripts/bench.py
 
-Faehrt jeden Fall durch dieselbe `Assessor`-Klasse wie die Foederation, prueft
-den Grenzbeweis und schreibt `view/fixtures/bench.json` fuer die Fallübersicht.
+Runs every case through the same `Assessor` class as the federation, checks the
+boundary proof and writes `view/fixtures/bench.json` for the case overview.
 
-**Was jede Zahl behauptet -- und was nicht.**
+**What each number claims -- and what it does not.**
 
-1. Zeit bis zur Entscheidung. Gemessen wird die Logik ohne Transport; die echte
-   Foederation braucht 3-7 s (docs/RISKS.md). Beides wird ausgewiesen. Die
-   Basislinie der Telefonkette ist eine ANNAHME, keine Messung.
-2. Trefferquote. Getrennt nach bekannten Faellen und Holdout. `policy.py` wurde
-   gegen die bekannten Faelle geschrieben, deren Quote ist eine
-   Konsistenzpruefung. Solange die Wahrheit als VORSCHLAG markiert ist, ist sie
-   zusaetzlich unbestaetigt -- und das steht neben der Zahl.
-3. Dichtheit. Aus scripts/wire_proof.py, mit Nennwert: versuchte Uebertritte,
-   abgelehnte, erlaubte Rohoffenlegungen, Verstoesse.
-4. Verhalten mit Luecke. Jeder Fall wird ein zweites Mal gefahren, mit dem
-   Kunden offline. Kein Fall hat das von Haus aus -- also wird es erzeugt, und
-   so steht es da.
+1. Time to decision. The logic is measured without transport; the real
+   federation takes 3-7 s (docs/RISKS.md). Both are reported. The phone-chain
+   baseline is an ASSUMPTION, not a measurement.
+2. Hit rate. Split into known cases and holdout. `policy.py` was written
+   against the known cases, so their rate is a consistency check. As long as
+   the ground truth is marked PROPOSAL, it is also unconfirmed -- and that is
+   stated next to the number.
+3. Tightness. From scripts/wire_proof.py, with a denominator: attempted
+   crossings, refused ones, authorised raw disclosures, violations.
+4. Behaviour with a gap. Every case is run a second time with the customer
+   offline. No case has that built in -- so it is generated, and it says so.
 """
 
 from __future__ import annotations
@@ -47,15 +46,15 @@ from soteria.policy import ASK_PLAN  # noqa: E402
 
 OUT = HERE.parent / "view" / "fixtures" / "bench.json"
 
-# ANNAHME, keine Messung. Wir haben keine Telefonkette gestoppt.
+# ASSUMPTION, not a measurement. We did not time a phone chain.
 BASELINE_MINUTES = 47
 BASELINE_SOURCE = (
-    "Angenommene Dauer einer Telefonkette aus fuenf Parteien einschliesslich "
-    "Rueckrufen. Nicht gemessen -- eine Annahme, die als solche ausgewiesen ist."
+    "Assumed duration of a phone chain across five parties, including call-backs. "
+    "Not measured -- an assumption that is reported as such."
 )
 
-# Aus docs/RISKS.md, gemessen auf der echten Foederation mit gebuendelter
-# Nachfrage (eine Nachricht je Knoten). Vorher, mit 13 Runden: 69,1 / 126,9 / 68,0 s.
+# From docs/RISKS.md, measured on the real federation with the bundled ask
+# (one message per node). Before, with 13 rounds: 69.1 / 126.9 / 68.0 s.
 FEDERATION_SECONDS = {"s1": 6.4, "s2": 6.2, "s3": 3.2}
 
 
@@ -93,7 +92,7 @@ def main() -> int:
         truth = dict(case.truth)
         decision, refusal, seconds, events = _run(case)
 
-        # Zahl 4: dieselbe Lage, der Kunde antwortet nicht.
+        # Number 4: same situation, the customer does not answer.
         customers = tuple(
             str(f["party_id"]) for f in case.federations if f.get("party_type") == "customer"
         )
@@ -166,40 +165,40 @@ def main() -> int:
     }
 
     honesty = [
-        {"claim": "Kein Rohwert erreicht eine Rolle, die ihn nicht haben darf",
-         "real": f"{boundary['attempts']} Grenzuebertritte versucht, {boundary['refused']} "
-                 f"abgelehnt, {boundary['violations']} Verstoesse -- mit Nennwert gemessen",
-         "simulated": "nichts. Der Grenzbeweis ruft die Knoten-Handler direkt auf; derselbe "
-                      "Code laeuft in der Foederation"},
-        {"claim": "Drei Parteien, drei Knoten",
-         "real": "drei SuperNodes mit eigener node-config, echte Flower-Nachrichten, alle "
-                 "drei Faelle getroffen",
-         "simulated": "die drei Knoten laufen auf einem Rechner"},
-        {"claim": "Eine Foederation je Partei",
-         "real": "eine Foederation mit drei Parteiknoten",
-         "simulated": "drei SuperLinks erreicht ein ServerApp in flwr nicht gemeinsam -- das "
-                      "ist die Ausbaustufe, nicht der Stand"},
-        {"claim": "Entscheidung in Minuten statt Telefonkette",
-         "real": f"Logik {numbers['1_time']['logic_median_ms']} ms, Foederation "
-                 f"{numbers['1_time']['federation_median_s']} s im Median",
-         "simulated": f"die Basislinie von {BASELINE_MINUTES} min ist eine ANNAHME"},
-        {"claim": "Trefferquote",
-         "real": f"{numbers['2_hits']['known']} auf den bekannten Faellen",
-         "simulated": "die Regeln wurden gegen genau diese Faelle geschrieben -- eine "
-                      "Konsistenzpruefung, keine Verallgemeinerung. "
-                      + ("Die Wahrheit ist zudem unbestaetigt (VORSCHLAG). " if unconfirmed else "")
-                      + ("Holdout-Faelle fehlen." if not holdout else "")},
-        {"claim": "Agenten",
-         "real": "ein Bewerter als ServerApp, Parteiknoten als ClientApps",
-         "simulated": "der Bewerter ist eine Regelmaschine, kein Sprachmodell. Die Parteiknoten "
-                      "brauchen keins: eine Projektion ist eine Funktion"},
-        {"claim": "Daten",
-         "real": "Schema, Validierung, Vokabulare",
-         "simulated": "alle Daten erfunden -- keine echten Bahndaten, Personen oder Firmen"},
-        {"claim": "Quittungen",
-         "real": "Kette ueber den ganzen Vorfall, verify() rechnet sie nach",
-         "simulated": "16 Hex-Zeichen aus SHA-256 -- eine Pruefsumme, keine Kryptografie "
-                      "fuer den Ernstfall"},
+        {"claim": "No raw value reaches a role that may not have it",
+         "real": f"{boundary['attempts']} boundary crossings attempted, {boundary['refused']} "
+                 f"refused, {boundary['violations']} violations -- measured with a denominator",
+         "simulated": "nothing. The boundary proof calls the node handlers directly; the same "
+                      "code runs in the federation"},
+        {"claim": "Three parties, three nodes",
+         "real": "three SuperNodes with their own node-config, real Flower messages, all "
+                 "three cases hit",
+         "simulated": "the three nodes run on one machine"},
+        {"claim": "One federation per party",
+         "real": "one federation with three party nodes",
+         "simulated": "a ServerApp in flwr cannot reach three SuperLinks together -- that "
+                      "is the next stage, not the current state"},
+        {"claim": "Decision in minutes instead of a phone chain",
+         "real": f"logic {numbers['1_time']['logic_median_ms']} ms, federation "
+                 f"{numbers['1_time']['federation_median_s']} s median",
+         "simulated": f"the baseline of {BASELINE_MINUTES} min is an ASSUMPTION"},
+        {"claim": "Hit rate",
+         "real": f"{numbers['2_hits']['known']} on the known cases",
+         "simulated": "the rules were written against exactly these cases -- a "
+                      "consistency check, not a generalisation. "
+                      + ("The ground truth is also unconfirmed (PROPOSAL). " if unconfirmed else "")
+                      + ("Holdout cases are missing." if not holdout else "")},
+        {"claim": "Agents",
+         "real": "one assessor as a ServerApp, party nodes as ClientApps",
+         "simulated": "the assessor is a rule engine, not a language model. The party nodes "
+                      "need none: a projection is a function"},
+        {"claim": "Data",
+         "real": "schema, validation, vocabularies",
+         "simulated": "all data is invented -- no real railway data, people or companies"},
+        {"claim": "Receipts",
+         "real": "chain across the whole incident, verify() recomputes it",
+         "simulated": "16 hex characters of SHA-256 -- a checksum, not cryptography "
+                      "for real emergencies"},
     ]
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -212,24 +211,24 @@ def main() -> int:
     }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     t, h, b, g = (numbers["1_time"], numbers["2_hits"], numbers["3_boundary"], numbers["4_gap"])
-    print("Soteria -- die vier Zahlen\n" + "=" * 72)
-    print(f"1 Zeit      Logik {t['logic_median_ms']} ms  |  Foederation {t['federation_median_s']} s "
-          f"Median, {t['federation_max_s']} s max  |  Basislinie {t['baseline_minutes']} min (ANNAHME)")
-    print(f"2 Treffer   bekannt {h['known']}  |  Holdout {h['holdout'] or 'keine Faelle'}  |  "
-          f"Begruendung passt {h['reasons_matching']}")
+    print("Soteria -- the four numbers\n" + "=" * 72)
+    print(f"1 Time      logic {t['logic_median_ms']} ms  |  federation {t['federation_median_s']} s "
+          f"median, {t['federation_max_s']} s max  |  baseline {t['baseline_minutes']} min (ASSUMPTION)")
+    print(f"2 Hits      known {h['known']}  |  holdout {h['holdout'] or 'no cases'}  |  "
+          f"reason matches {h['reasons_matching']}")
     if h["truth_unconfirmed"]:
-        print(f"            ACHTUNG: Wahrheit unbestaetigt fuer {', '.join(h['truth_unconfirmed'])}")
-    print(f"3 Dichtheit {b['attempts']} Uebertritte  |  {b['refused']} abgelehnt  |  "
-          f"{b['authorised_raw']} erlaubt  |  {b['violations']} Verstoesse")
-    print(f"4 Luecke    {g['still_decided']}/{g['cases']} Faelle entschieden, obwohl der Kunde schweigt")
+        print(f"            WARNING: ground truth unconfirmed for {', '.join(h['truth_unconfirmed'])}")
+    print(f"3 Tightness {b['attempts']} crossings  |  {b['refused']} refused  |  "
+          f"{b['authorised_raw']} authorised  |  {b['violations']} violations")
+    print(f"4 Gap       {g['still_decided']}/{g['cases']} cases decided although the customer is silent")
     print("=" * 72)
     for c in cases:
-        gap = ", ".join(c["gap"]["decided"]) or f"KEINE ({c['gap']['refusal']})"
-        print(f"  {'TREFFER ' if c['hit'] else 'ABWEICH.'} {c['id']:<4} "
-              f"{', '.join(c['decided']) or c['refusal']:<30} Grund {c['decided_reason']:<12}"
-              f"{'' if c['reason_matches'] else '(soll ' + str(c['truth_reason']) + ')'}")
-        print(f"           ohne Kunde: {gap} ({c['gap']['reason']})")
-    print(f"\ngeschrieben: {OUT.relative_to(HERE.parent)}")
+        gap = ", ".join(c["gap"]["decided"]) or f"NONE ({c['gap']['refusal']})"
+        print(f"  {'HIT     ' if c['hit'] else 'MISMATCH'} {c['id']:<4} "
+              f"{', '.join(c['decided']) or c['refusal']:<30} reason {c['decided_reason']:<12}"
+              f"{'' if c['reason_matches'] else '(expected ' + str(c['truth_reason']) + ')'}")
+        print(f"           without customer: {gap} ({c['gap']['reason']})")
+    print(f"\nwritten: {OUT.relative_to(HERE.parent)}")
     return 0
 
 

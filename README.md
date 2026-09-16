@@ -6,85 +6,85 @@ framework: [flwr]
 
 # Soteria
 
-Ein Güterzug prallt gegen ein Hindernis. Ein Gefahrgutwagen ist beschädigt, 300
-Meter entfernt stehen Wohnhäuser, im Zug liegen Vorprodukte, auf die ein Werk
-wartet. Heute entscheidet darüber eine Telefonkette aus Betreiber, Zulieferer,
-Kunde und Vertragsabteilung — und am Ende steht in einer Gruppe alles, was jede
-einzelne Partei nie hätte erfahren dürfen: die Bestände des Kunden, die
-Vertragsstrafen, die Schwachstellen der Strecke. Bei einem Vorfall dieser Größe
-ist das kursrelevant.
+A freight train hits an obstruction. A hazmat wagon is damaged, residential
+buildings stand 300 metres away, and the train carries precursors a plant is
+waiting for. Today this gets decided by a phone chain of operator, supplier,
+customer and contracts department — and in the end a group chat contains
+everything no single party should ever have learned: the customer's stock
+levels, the contract penalties, the weak spots of the line. For an incident of
+this size, that is market-sensitive information.
 
-**Soteria entscheidet in Minuten, ohne dass eine Partei mehr erfährt, als sie
-erfahren darf.** Jede Partei betreibt ihren eigenen Flower-Knoten und behält
-ihre Daten. Der Bewerter fragt sie Feld für Feld und bekommt Ampeln und
-Schwellen statt Zahlen. Maßnahmen sind nach Umkehrbarkeit gestuft, ein Zug wird
-nur angehalten, wenn zwei verschiedene Menschen es freigeben, und jede Antwort
-geht in eine verkettete Quittung.
+**Soteria decides in minutes, without any party learning more than it is
+allowed to.** Every party runs its own Flower node and keeps its own data. The
+assessor asks them field by field and gets traffic lights and thresholds
+instead of numbers. Measures are tiered by reversibility, a train is only
+stopped when two different humans approve it, and every answer goes into a
+chained receipt.
 
-## Die Aussage, und wie man sie nachprüft
+## The claim, and how to check it
 
-> **Kein Rohwert erreicht eine Rolle, die ihn nicht haben darf.**
+> **No raw value reaches a role that may not have it.**
 
 ```shell
 uv run python scripts/wire_proof.py
 ```
 
-Das Skript lässt jede Rolle jeden fremden Knoten nach jedem Feld fragen — auch
-nach dem, was sie nie fragen sollte — und sucht in den Antworten nach den
-Rohwerten. Über drei Fälle:
+The script has every role ask every other node for every field — including the
+ones it should never ask for — and searches the answers for the raw values.
+Across three cases:
 
-| Grenzübertritte | abgelehnt | erlaubte Rohoffenlegung | Verstöße |
+| boundary crossings | refused | authorised raw disclosure | violations |
 |---:|---:|---:|---:|
 | 234 | 96 | 81 | **0** |
 
-Die mittlere Spalte ist der Nennwert. Ein Test, der nur „0 Lecks" meldet, sagt
-nichts; dieser weist aus, wie viel Offenlegung die Matrix *erlaubt*, und prüft
-nur dort, wo sie es nicht tut. Die erste Fassung hatte diesen Nennwert nicht —
-und meldete erlaubte Offenlegung als Leck. Mit Nennwert fand sie dann zwei echte
-Fehler, die behoben sind (siehe Git-Historie).
+The middle column is the denominator. A test that only reports "0 leaks" says
+nothing; this one reports how much disclosure the matrix *allows* and only
+checks where it does not. The first version had no denominator — and reported
+authorised disclosure as a leak. With the denominator it then found two real
+bugs, which are fixed (see the git history).
 
-Drei Riegel wirken unabhängig voneinander:
+Three bolts work independently of each other:
 
-1. **Der Knoten hat es nicht.** Jeder Knoten lädt nur die Daten seiner Partei.
-   Der Vertrag eines anderen Kunden existiert dort nicht im Speicher.
-2. **Die Matrix projiziert.** Der Bewerter erfährt, *dass* der Bestand knapp
-   ist, nie *wie* knapp.
-3. **Der Transport trägt nur Skalare.** Flowers `ConfigRecord` nimmt kein
-   Objekt auf. Ein Rohdatensatz lässt sich nicht verschicken, selbst wenn die
-   Matrix falsch gepflegt wäre.
+1. **The node does not have it.** Every node loads only its own party's data.
+   Another customer's contract does not exist in memory there.
+2. **The matrix projects.** The assessor learns *that* stock is low, never
+   *how* low.
+3. **The transport carries only scalars.** Flower's `ConfigRecord` does not
+   hold objects. A raw record cannot be sent, even if the matrix were
+   misconfigured.
 
-## Die Need-to-know-Matrix ist Daten
+## The need-to-know matrix is data
 
-[`data/schema/field_catalogue.json`](data/schema/field_catalogue.json) legt fest,
-wer welches Feld in welcher Auflösung sieht. `soteria/matrix.py` lädt und
-validiert die Datei beim Import; ein kaputter Katalog erreicht nie einen Lauf.
-Ein neues Feld ist ein JSON-Eintrag, keine Codeänderung. Tabelle:
-[`docs/MATRIX.md`](docs/MATRIX.md). Anleitung:
+[`data/schema/field_catalogue.json`](data/schema/field_catalogue.json) defines
+who sees which field at which resolution. `soteria/matrix.py` loads and
+validates the file on import; a broken catalogue never reaches a run. A new
+field is a JSON entry, not a code change. Table:
+[`docs/MATRIX.md`](docs/MATRIX.md). How-to:
 [`data/schema/README.md`](data/schema/README.md).
 
-Die **Matrix schützt Felder, die Föderation schützt Zeilen**: Verträge sehen
-beide Vertragsparteien, aber Kunde 2 lädt Vertrag 1 nie.
+The **matrix protects fields, the federation protects rows**: both contracting
+parties see a contract, but customer 2 never loads contract 1.
 
-## Architektur
+## Architecture
 
 ```
                     SuperLink
                         │
-   ServerApp  assessor  │  query.ask_fields, der ganze Frageplan in einer Nachricht je Knoten
-   (Bewerter)           │
+   ServerApp  assessor  │  query.ask_fields, the whole ask plan in one message per node
+                        │
         ┌───────────────┼────────────────┐
         ▼               ▼                ▼
    SuperNode        SuperNode        SuperNode
    carrier          supplier         customer
-   Aufnahme +       Ersatz,          Bestand, Dringlich-
-   Vertragsagent,   Kühlbedarf       keit, Ansprechpartner
-   Strecke, Umgebung
+   intake +         replacement,     stock, urgency,
+   contract agent,  cooling needs    contact persons
+   line, surroundings
 ```
 
-Die Parteien kommen aus der Falldatei, nicht aus dem Code: ein weiterer Kunde ist
-ein weiterer Eintrag.
+The parties come from the case file, not from the code: one more customer is
+one more entry.
 
-## Die vier Zahlen
+## The four numbers
 
 ```shell
 uv run python scripts/bench.py
@@ -92,27 +92,27 @@ uv run python scripts/bench.py
 
 | | |
 |---|---|
-| **Zeit** | Logik ~5 ms · echte Föderation 3–6 s je Vorfall (7–12 s inklusive App-Installation) · Basislinie Telefonkette 47 min — **eine Annahme, keine Messung** |
-| **Treffer** | 3/3 auf den bekannten Fällen · Begründung passt 2/3 · **keine Holdout-Fälle, Wahrheit unbestätigt** |
-| **Dichtheit** | 234 Übertritte, 96 abgelehnt, 81 erlaubt, 0 Verstöße |
-| **Lücke** | 3/3 Fälle entschieden, obwohl der Kunde schweigt |
+| **Time** | logic ~5 ms · real federation 3–6 s per incident (7–12 s including app install) · phone-chain baseline 47 min — **an assumption, not a measurement** |
+| **Hits** | 3/3 on the known cases · reason matches 2/3 · **no holdout cases, ground truth unconfirmed** |
+| **Tightness** | 234 crossings, 96 refused, 81 authorised, 0 violations |
+| **Gap** | 3/3 cases decided although the customer is silent |
 
-## Loslegen
+## Getting started
 
 ```shell
 uv sync
-uv run pytest -q                            # 163 Tests
-uv run python scripts/validate_data.py      # Datenbaum prüfen
-uv run python scripts/wire_proof.py         # der Grenzbeweis, ohne Netz
-uv run python scripts/bench.py              # die vier Zahlen
-uv run python scripts/record_run.py --all   # Ereignisströme für die Ansichten
+uv run pytest -q                            # the test suite
+uv run python scripts/validate_data.py      # check the data tree
+uv run python scripts/wire_proof.py         # the boundary proof, no network
+uv run python scripts/bench.py              # the four numbers
+uv run python scripts/record_run.py --all   # event streams for the views
 
-./scripts/federation.sh up s3               # SuperLink + drei Parteiknoten
-./scripts/federation.sh run s3              # der Vorfall über echte Nachrichten
+./scripts/federation.sh up s3               # SuperLink + three party nodes
+./scripts/federation.sh run s3              # the incident over real messages
 ./scripts/federation.sh down
 ```
 
-`~/.flwr/config.toml` braucht:
+`~/.flwr/config.toml` needs:
 
 ```toml
 [superlink.carrier-fed]
@@ -120,39 +120,39 @@ address = "127.0.0.1:8000"
 insecure = true
 ```
 
-## Die drei Fälle
+## The three cases
 
-| Fall | Lage | Entscheidung | Stufe |
+| Case | Situation | Decision | Tier |
 |---|---|---|---|
-| s1 | Kleines Hindernis, Kühlaggregat an einem Frischwarenwagen | `cool` | 1 — autonom |
-| s2 | Gleis blockiert, Klinikversorgung im Zug | `alt_transport` | 2 — ein Schlüssel |
-| s3 | Aufprall, Gefahrgutwagen beschädigt, Wohnbebauung 300 m | `stop_train`, `notify_authority` | 3 — zwei Schlüssel, Quarantäne |
+| s1 | Small obstruction, refrigeration unit on a fresh-goods wagon | `cool` | 1 — autonomous |
+| s2 | Track blocked, hospital supplies on board | `alt_transport` | 2 — one key |
+| s3 | Impact, hazmat wagon damaged, residential buildings 300 m away | `stop_train`, `notify_authority` | 3 — two keys, quarantine |
 
-## Echt gegen simuliert
+## Real versus simulated
 
-| Behauptung | Echt | Nicht echt |
+| Claim | Real | Not real |
 |---|---|---|
-| Kein Rohwert erreicht eine Rolle, die ihn nicht haben darf | 234 Übertritte gemessen, mit Nennwert | — |
-| Drei Parteien, drei Knoten | drei SuperNodes, echte Flower-Nachrichten, alle drei Fälle getroffen | alle drei laufen auf **einem** Rechner |
-| Eine Föderation je Partei | eine Föderation mit drei Parteiknoten | drei SuperLinks erreicht ein ServerApp nicht gemeinsam — **Ausbaustufe** |
-| Agententeam | ein Bewerter als ServerApp, Parteien als ClientApps | der Bewerter ist eine **Regelmaschine**, kein Sprachmodell |
-| Trefferquote 3/3 | gemessen | Regeln gegen genau diese Fälle geschrieben; Wahrheit vom Engine-Strang **vorgeschlagen, nicht bestätigt**; **kein Holdout** |
-| Minuten statt Telefonkette | Logik und Föderation gemessen | Basislinie 47 min ist eine **Annahme** |
-| Daten | Schema, Validierung | **alles erfunden** — keine echten Bahndaten, Personen, Firmen |
-| Quittungen | Kette über den ganzen Vorfall, nachprüfbar | 16 Hex-Zeichen, eine Prüfsumme, keine Kryptografie für den Ernstfall |
+| No raw value reaches a role that may not have it | 234 crossings measured, with a denominator | — |
+| Three parties, three nodes | three SuperNodes, real Flower messages, all three cases hit | all three run on **one** machine |
+| One federation per party | one federation with three party nodes | a ServerApp cannot reach three SuperLinks together — **next stage** |
+| Agent team | one assessor as a ServerApp, parties as ClientApps | the assessor is a **rule engine**, not a language model |
+| Hit rate 3/3 | measured | rules written against exactly these cases; ground truth **proposed by the engine track, not confirmed**; **no holdout** |
+| Minutes instead of a phone chain | logic and federation measured | the 47 min baseline is an **assumption** |
+| Data | schema, validation | **all invented** — no real railway data, people or companies |
+| Receipts | chain across the whole incident, verifiable | 16 hex characters, a checksum, not cryptography for real emergencies |
 
-Was nicht geprüft ist: [`docs/RISKS.md`](docs/RISKS.md).
+What has not been checked: [`docs/RISKS.md`](docs/RISKS.md).
 
-## Dokumente
+## Documents
 
 | | |
 |---|---|
-| Need-to-know-Matrix | [`docs/MATRIX.md`](docs/MATRIX.md) |
-| Datenschema ändern | [`data/schema/README.md`](data/schema/README.md) |
-| Ereignisvertrag für die Ansichten | [`docs/EVENTS.md`](docs/EVENTS.md) |
-| Gemessenes, Plattformbefunde, Offenes | [`docs/RISKS.md`](docs/RISKS.md) |
-| Bauplan | [`docs/superpowers/plans/2026-09-16-soteria.md`](docs/superpowers/plans/2026-09-16-soteria.md) |
+| Need-to-know matrix | [`docs/MATRIX.md`](docs/MATRIX.md) |
+| Changing the data schema | [`data/schema/README.md`](data/schema/README.md) |
+| Event contract for the views | [`docs/EVENTS.md`](docs/EVENTS.md) |
+| Measurements, platform findings, open issues | [`docs/RISKS.md`](docs/RISKS.md) |
+| Build plan (historical, German) | [`docs/superpowers/plans/2026-09-16-soteria.md`](docs/superpowers/plans/2026-09-16-soteria.md) |
 
-## Lizenz
+## License
 
-Apache 2.0, siehe [LICENSE](LICENSE).
+Apache 2.0, see [LICENSE](LICENSE).

@@ -1,14 +1,14 @@
-"""Der Draht zwischen dem Bewerter und den Parteiknoten.
+"""The wire between the assessor and the party nodes.
 
-Eine Flower-Nachricht traegt einen `RecordDict`. Ein `ConfigRecord` darin nimmt
-nur Skalare und Skalarlisten auf (`flwr/common/typing.py:24-26`). Das ist hier
-kein Hindernis, sondern der **zweite Riegel**: eine Projektion ist immer ein
-Skalar (`"rot"`, `"above"`, eine Zahl, ein bool), ein Rohobjekt ist keiner. Eine
-`temperature_curve` laesst sich also gar nicht verschicken.
+A Flower message carries a `RecordDict`. A `ConfigRecord` inside it only holds
+scalars and lists of scalars (`flwr/common/typing.py:24-26`). Here that is not an
+obstacle but the **second bolt**: a projection is always a scalar (`"rot"`,
+`"above"`, a number, a bool), a raw object never is. A `temperature_curve`
+therefore cannot be sent at all.
 
-`fact_record()` erzwingt das, statt es zu hoffen, und wirft `bad_value`, wenn
-jemand es versucht. Matrix und Transport pruefen damit unabhaengig voneinander
-dasselbe -- ein Fehler in der einen Schicht reisst die andere nicht mit.
+`fact_record()` enforces this instead of hoping for it, and raises `bad_value`
+if anyone tries. Matrix and transport thus check the same thing independently
+of each other -- a bug in one layer does not take the other down with it.
 """
 
 from __future__ import annotations
@@ -25,7 +25,7 @@ SCALARS = (str, int, float, bool)
 
 
 def ask_record(asker: str, field: str, reason_code: str, case_id: str) -> ConfigRecord:
-    """Die Nachfrage als Record. Vier Skalare, kein Freitextfeld."""
+    """The ask as a record. Four scalars, no free-text field."""
     if asker not in ROLES:
         raise EnvelopeError("unknown_role", f"{asker!r} is not one of {ROLES}")
     if reason_code not in REASON:
@@ -36,7 +36,7 @@ def ask_record(asker: str, field: str, reason_code: str, case_id: str) -> Config
 
 
 def read_ask(record: ConfigRecord) -> tuple[str, str, str, str]:
-    """(asker, field, reason_code, case_id) aus einem Nachfrage-Record."""
+    """(asker, field, reason_code, case_id) from an ask record."""
     try:
         return (
             str(record["asker"]),
@@ -56,14 +56,14 @@ def fact_record(
     flags: tuple[str, ...] = (),
     scope: str = "",
 ) -> ConfigRecord:
-    """Die projizierte Antwort als Record.
+    """The projected answer as a record.
 
-    `scope` nennt die Bezugsgroesse, wenn das Feld eine hat -- die Wagennummer
-    oder die Ladungsklasse. Eine Wagennummer ist kein Geheimnis; sie macht die
-    Antwort in der Ansicht erst lesbar.
+    `scope` names the reference unit if the field has one -- the wagon number
+    or the cargo class. A wagon number is not a secret; it is what makes the
+    answer readable in the view.
 
-    Wirft `bad_value`, wenn `value` kein Skalar ist. Das ist der Riegel: ein
-    Rohobjekt kann den Knoten der Partei nicht verlassen.
+    Raises `bad_value` if `value` is not a scalar. That is the bolt: a raw
+    object cannot leave the party's node.
     """
     if not isinstance(value, SCALARS):
         raise EnvelopeError(
@@ -88,7 +88,7 @@ def fact_record(
 
 
 def refusal_record(actor: str, field: str, code: str) -> ConfigRecord:
-    """Eine getippte Ablehnung als Record. Traegt niemals einen Wert."""
+    """A typed refusal as a record. Never carries a value."""
     if code not in REFUSAL:
         raise EnvelopeError("bad_value", f"{code!r} is not a typed refusal")
     return ConfigRecord(
@@ -127,13 +127,13 @@ def unwrap(records: RecordDict) -> ConfigRecord:
         raise EnvelopeError("bad_value", f"message carries no {RECORD_KEY!r} record") from None
 
 
-# --- gebuendelte Nachfrage: eine Nachricht je Knoten statt eine je Feld -----
+# --- bundled ask: one message per node instead of one per field ------------
 #
-# Gemessen auf der echten Foederation: 13 Runden kosteten 69-127 s, weil jede
-# Nachricht einen ClientApp-Prozess startet. Eine Nachricht je Knoten traegt
-# jetzt den ganzen Frageplan; die Antwort ist ein RecordDict mit EINEM
-# ConfigRecord je Feld. Der Skalar-Riegel gilt damit weiter fuer jedes Feld
-# einzeln -- gebuendelt wird der Transport, nicht die Pruefung.
+# Measured on the real federation: 13 rounds cost 69-127 s, because every
+# message starts a ClientApp process. One message per node now carries the
+# whole ask plan; the reply is a RecordDict with ONE ConfigRecord per field.
+# The scalar bolt therefore still applies to every field individually -- the
+# transport is bundled, not the check.
 
 ASK_FIELDS = "query.ask_fields"
 _BUNDLE_KEY = "soteria.ask"
@@ -142,7 +142,7 @@ _BUNDLE_KEY = "soteria.ask"
 def bundle_ask_record(
     asker: str, plan: list[tuple[str, str]], case_id: str
 ) -> RecordDict:
-    """Der ganze Frageplan als eine Nachfrage. Zwei String-Listen, kein Freitext."""
+    """The whole ask plan as one ask. Two string lists, no free text."""
     if asker not in ROLES:
         raise EnvelopeError("unknown_role", f"{asker!r} is not one of {ROLES}")
     bad = [reason for _, reason in plan if reason not in REASON]
@@ -161,7 +161,7 @@ def bundle_ask_record(
 
 
 def read_bundle_ask(records: RecordDict) -> tuple[str, str, list[tuple[str, str]]]:
-    """(asker, case_id, [(field, reason), ...]) aus einer gebuendelten Nachfrage."""
+    """(asker, case_id, [(field, reason), ...]) from a bundled ask."""
     try:
         record = records[_BUNDLE_KEY]
         fields = [str(f) for f in record["fields"]]
@@ -179,7 +179,7 @@ def _answer_key(index: int) -> str:
 
 
 def bundle_reply(records: list[ConfigRecord]) -> RecordDict:
-    """Die Antworten eines Knotens, in Frageplan-Reihenfolge."""
+    """A node's answers, in ask-plan order."""
     return RecordDict({_answer_key(i): r for i, r in enumerate(records)})
 
 

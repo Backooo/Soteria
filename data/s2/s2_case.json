@@ -1,7 +1,7 @@
 {
   "case_id": "s2",
   "catalogue_version": 1,
-  "title": "Gleis blockiert, Klinikversorgung im Zug, Umleitung noetig",
+  "title": "Track blocked, hospital supplies on board, diversion needed",
   "sources": {
     "incident": "data/s2/s2_incident.json",
     "train": "data/s2/s2_train.json",
@@ -79,22 +79,22 @@
         "case_id": "s2",
         "train_id": "TR-1002"
       },
-      "_note": "Die Parameter einer Freigabe muessen GENAU die der Entscheidung sein: case_id und train_id. Ein weiteres Feld ergibt grant_mismatch."
+      "_note": "The parameters of a grant must be EXACTLY those of the decision: case_id and train_id. Any extra field yields grant_mismatch."
     }
   ],
   "truth": {
-    "_status": "VORSCHLAG des Engine-Strangs -- bitte bestaetigen oder korrigieren",
+    "_status": "PROPOSAL from the engine track -- please confirm or correct",
     "measures": [
       "alt_transport"
     ],
     "tier": 2,
     "reason_code": "safety",
-    "why": "Gleis blockiert und Zug nur eingeschraenkt fahrbereit. Im Zug liegt Klinikversorgung mit einem halben Tag Bestand und Frist in sechs Stunden. Strasse ist einspurig mit 12-t-Grenze, Umladen also unrealistisch; die Umleitung kostet 145 Minuten und haelt die Frist.",
+    "why": "Track blocked and train only partly operational. The train carries hospital supplies with half a day of stock and a deadline in six hours. The road is single lane with a 12 t limit, so transshipment is unrealistic; the diversion costs 145 minutes and meets the deadline.",
     "must_not": [
       "proceed",
       "hold"
     ],
-    "_teaches": "Stufe 2 braucht einen menschlichen Schluessel. Der Bewerter sieht die Dringlichkeit als Ampel und die Frist als Schwelle, nie den Namen der Klinik und nie die 140.000 Euro.",
+    "_teaches": "Tier 2 needs one human key. The assessor sees the urgency as a traffic light and the deadline as a threshold, never the hospital's name and never the EUR 140,000.",
     "expect_refusal": null
   }
 }

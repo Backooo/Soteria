@@ -1,26 +1,25 @@
-"""Der ClientApp, der auf der Maschine einer Partei laeuft.
+"""The ClientApp that runs on a party's machine.
 
-Start auf dem Rechner der Partei:
+Start on the party's computer:
 
     flower-supernode --insecure --superlink 127.0.0.1:9092 \
         --node-config 'party="customer_c1_frischemarkt" case="s1"'
 
-Der Knoten laedt **nur** die Datensaetze seiner Partei und beantwortet
-`query.ask_field`. Jede Antwort ist ein projizierter Skalar oder eine getippte
-Ablehnung.
+The node loads **only** its party's records and answers `query.ask_field`.
+Every answer is a projected scalar or a typed refusal.
 
-Ein Modell laeuft hier nicht: eine Projektion ist eine Funktion, keine Inferenz.
-Die Partei muss der Foederation also kein Modell leihen -- was ein guter Teil des
-Grundes ist, warum sie ueberhaupt mitmacht.
+No model runs here: a projection is a function, not inference. So the party
+does not have to lend the federation a model -- which is a good part of the
+reason it takes part at all.
 
-Drei Riegel, unabhaengig voneinander:
+Three bolts, independent of each other:
 
-1. **Der Knoten hat es nicht.** `raw_records_for_party` oeffnet nur die eigenen
-   Dateien. Der Vertrag eines anderen Kunden existiert hier nicht im Speicher.
-2. **Die Matrix projiziert.** `Field.project` wirft `not_in_matrix`, wenn der
-   Fragende das Feld nicht sehen darf.
-3. **Der Transport traegt nur Skalare.** `fact_record` weist ein Rohobjekt
-   zurueck, selbst wenn die Matrix es faelschlich erlaubte.
+1. **The node does not have it.** `raw_records_for_party` opens only its own
+   files. Another customer's contract does not exist in memory here.
+2. **The matrix projects.** `Field.project` raises `not_in_matrix` if the asker
+   is not allowed to see the field.
+3. **The transport carries only scalars.** `fact_record` rejects a raw object,
+   even if the matrix wrongly allowed it.
 """
 
 from __future__ import annotations
@@ -47,13 +46,12 @@ app = ClientApp()
 
 
 def _project_scope(scope: str, asker: str, thresholds: Mapping[str, Any]) -> str:
-    """Den Bezug einer Antwort auf die erlaubte Aufloesung bringen.
+    """Bring an answer's reference unit down to the permitted resolution.
 
-    Eine Wagennummer (`W02`) ist kein Geheimnis -- sie steht in der gemeinsamen
-    Meldung. Eine Ladungsklasse ist eines: sie faellt unter `cargo_class` und
-    darf den Frager nur in der Aufloesung erreichen, die die Matrix ihm dort
-    zugesteht. Ohne diese Zeile waere `scope` ein Seitenkanal um die Matrix
-    herum.
+    A wagon number (`W02`) is not a secret -- it is in the shared report. A
+    cargo class is one: it falls under `cargo_class` and may only reach the
+    asker at the resolution the matrix grants there. Without this line, `scope`
+    would be a side channel around the matrix.
     """
     if not scope:
         return ""
@@ -62,20 +60,19 @@ def _project_scope(scope: str, asker: str, thresholds: Mapping[str, Any]) -> str
     try:
         return str(FIELDS["cargo_class"].project(scope, asker, thresholds))
     except EnvelopeError:
-        # Der Frager darf die Ladungsklasse gar nicht kennen. Dann auch nicht
-        # als Bezug -- der Wert selbst bleibt gueltig.
+        # The asker may not know the cargo class at all. Then not as a
+        # reference unit either -- the value itself stays valid.
         return ""
 
 
 def answer_ask(
     case: Case, party_id: str, asker: str, field: str, reason_code: str
 ) -> dict[str, Any]:
-    """Die Antwort dieses Knotens, als flaches dict -- genau das, was auf den Draht geht.
+    """This node's answer as a flat dict -- exactly what goes on the wire.
 
-    Getrennt von der Flower-Nachricht, damit sie ohne SuperLink testbar ist.
-    Gibt bei jedem Problem eine getippte Ablehnung zurueck und wirft nicht: ein
-    Knoten, der abbricht, sieht fuer den Bewerter wie Schweigen aus, und
-    Schweigen ist kein Grund.
+    Separate from the Flower message so it can be tested without a SuperLink.
+    Returns a typed refusal on any problem and does not raise: a node that
+    crashes looks like silence to the assessor, and silence is not a reason.
     """
     def refuse(code: str) -> dict[str, Any]:
         return {"role": party_id, "field": field, "visibility": "none",
@@ -94,20 +91,20 @@ def answer_ask(
 
     block = records.get(spec.owner) or {}
     if field not in block:
-        # Dieser Knoten fuehrt das Feld nicht. Keine Weiterleitung, keine Suche.
+        # This node does not hold the field. No forwarding, no searching.
         return refuse("unknown_field")
 
     raw = block[field]
     scope = ""
     try:
         if isinstance(raw, Mapping):
-            # Mehrwertig: je Wagen, Konsignation oder Ladungsklasse.
+            # Multi-valued: per wagon, consignment or cargo class.
             candidates = {str(k): v for k, v in raw.items() if not str(k).startswith("_")}
             if not candidates:
                 return refuse("unknown_field")
-            # Erst den Bezug waehlen, nach einer KANONISCHEN Schwere -- welche
-            # Konsignation die kritischste ist, darf nicht davon abhaengen, wer
-            # fragt. Dann den Wert fuer den Frager projizieren.
+            # First pick the reference unit by a CANONICAL severity -- which
+            # consignment is the most critical must not depend on who asks.
+            # Then project the value for the asker.
             level = spec.ranking_level
             if level:
                 severity = {
@@ -118,10 +115,11 @@ def answer_ask(
             else:
                 scope = next(iter(candidates))
             value = spec.project(candidates[scope], asker, case.thresholds)
-            # Der Bezug muss durch dieselbe Matrix wie der Wert. Sonst waere
-            # `scope` ein unauditierter Seitenkanal: "customer_stock = gelb
-            # @pharmaceutical" verraet die Ladungsklasse, die der Bewerter nur
-            # grob sehen darf. Gefunden von scripts/wire_proof.py.
+            # The reference unit must pass through the same matrix as the value.
+            # Otherwise `scope` would be an unaudited side channel:
+            # "customer_stock = gelb @pharmaceutical" reveals the cargo class,
+            # which the assessor may only see coarsely. Found by
+            # scripts/wire_proof.py.
             scope = _project_scope(scope, asker, case.thresholds)
         else:
             value = spec.project(raw, asker, case.thresholds)
@@ -141,7 +139,7 @@ def answer_ask(
 
 @app.query("ask_field")
 def ask_field(message: Message, context: Context) -> Message:
-    """Beantworte genau eine Nachfrage nach genau einem Feld."""
+    """Answer exactly one ask for exactly one field."""
     party_id = str(context.node_config.get("party", "")).strip()
     try:
         asker, field, reason_code, case_id = read_ask(unwrap(message.content))
@@ -152,15 +150,15 @@ def ask_field(message: Message, context: Context) -> Message:
 
     configured = str(context.node_config.get("case", "")).strip()
     if configured and configured != case_id:
-        # Dieser Knoten ist fuer einen anderen Fall aufgesetzt. Nicht antworten,
-        # nicht nachladen -- sonst waere die Knotenkonfiguration wirkungslos.
+        # This node is set up for a different case. Do not answer, do not
+        # reload -- otherwise the node configuration would have no effect.
         return Message(
             content=wrap(refusal_record(party_id or "unknown", field, "quota")), reply_to=message
         )
 
     try:
         case = load_case(case_id)
-        case.party_type(party_id)  # wirft, wenn dieser Knoten nicht Partei ist
+        case.party_type(party_id)  # raises if this node is not a party
     except EnvelopeError as exc:
         return Message(
             content=wrap(refusal_record(party_id or "unknown", field, exc.code)), reply_to=message
@@ -181,10 +179,11 @@ def ask_field(message: Message, context: Context) -> Message:
 def answer_bundle(
     case: Case, party_id: str, asker: str, plan: list[tuple[str, str]]
 ) -> list[dict[str, Any]]:
-    """Den ganzen Frageplan beantworten, Feld fuer Feld mit `answer_ask`.
+    """Answer the whole ask plan, field by field with `answer_ask`.
 
-    Gebuendelt wird nur der Transport. Jedes Feld geht einzeln durch Matrix und
-    Skalar-Riegel -- ein Feld kann abgelehnt werden, ohne die anderen zu kippen.
+    Only the transport is bundled. Every field goes through the matrix and the
+    scalar bolt individually -- one field can be refused without toppling the
+    others.
     """
     return [answer_ask(case, party_id, asker, field, reason) for field, reason in plan]
 
@@ -200,10 +199,10 @@ def _record_of(reply: dict[str, Any], party_id: str, field: str):
 
 @app.query("ask_fields")
 def ask_fields(message: Message, context: Context) -> Message:
-    """Beantworte den ganzen Frageplan in einer Nachricht.
+    """Answer the whole ask plan in one message.
 
-    Eine Nachricht statt dreizehn: jede Nachricht startet auf dem Knoten einen
-    ClientApp-Prozess, und dreizehn davon kosteten 69-127 s.
+    One message instead of thirteen: every message starts a ClientApp process
+    on the node, and thirteen of them cost 69-127 s.
     """
     party_id = str(context.node_config.get("party", "")).strip()
     try:

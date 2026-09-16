@@ -1,4 +1,4 @@
-"""Die Umschlaege sind der Vertrag zwischen allen vier Straengen."""
+"""The envelopes are the contract between all four tracks."""
 
 import pytest
 
@@ -28,11 +28,11 @@ def test_refusal_codes_are_closed():
 
 def test_envelope_error_rejects_untyped_code():
     with pytest.raises(ValueError, match="not a typed refusal"):
-        EnvelopeError("weil es mir nicht passt")
+        EnvelopeError("because I do not like it")
 
 
 def test_envelope_error_carries_its_code():
-    err = EnvelopeError("not_in_matrix", "customer_stock ist fuer supplier nicht sichtbar")
+    err = EnvelopeError("not_in_matrix", "customer_stock is not visible to supplier")
     assert err.code == "not_in_matrix"
     assert "customer_stock" in str(err)
 

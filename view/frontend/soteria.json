@@ -1,0 +1,149 @@
+{
+  "INC-1001": {
+    "caseId": "s1",
+    "trainId": "TR-1001",
+    "timestamp": "2026-09-16T13:05:00Z",
+    "recommendation": "Kühlen — Stufe 1, autonom",
+    "soteriaTier": 1,
+    "marketSensitive": false,
+    "blockedChannels": [],
+    "receiptHead": "a69c934369fbe1b5",
+    "consensus": [
+      {
+        "role": "intake",
+        "label": "Intake (Schaden)",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "temperature_curve (W02): Ampel GELB"
+      },
+      {
+        "role": "assessor",
+        "label": "Assessor (Bewerter)",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "Kühlen — Stufe 1, autonom · 13/13 beantwortet · Quittungskette geprüft"
+      },
+      {
+        "role": "legal",
+        "label": "Legal (Vertrag)",
+        "status": "verified",
+        "needToKnowVisibility": "schwelle",
+        "lastFact": "contract_penalty: Schwelle unterschritten"
+      },
+      {
+        "role": "supplier",
+        "label": "Supplier (Zulieferer)",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "replacement_available (cooled): Ampel GRUEN"
+      },
+      {
+        "role": "customer",
+        "label": "Customer (Kunde)",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "customer_stock (cooled): Ampel GRUEN"
+      }
+    ]
+  },
+  "INC-1002": {
+    "caseId": "s2",
+    "trainId": "TR-1002",
+    "timestamp": "2026-09-16T13:05:20Z",
+    "recommendation": "Alternativ transportieren — Stufe 2, 1 Schlüssel (ops-lead-rheinrail-1)",
+    "soteriaTier": 2,
+    "marketSensitive": false,
+    "blockedChannels": [],
+    "receiptHead": "9061713848018167",
+    "consensus": [
+      {
+        "role": "intake",
+        "label": "Intake (Schaden)",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "temperature_curve (W02): Ampel GELB"
+      },
+      {
+        "role": "assessor",
+        "label": "Assessor (Bewerter)",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "Alternativ transportieren — Stufe 2, 1 Schlüssel (ops-lead-rheinrail-1) · 13/13 beantwortet · Quittungskette geprüft"
+      },
+      {
+        "role": "legal",
+        "label": "Legal (Vertrag)",
+        "status": "verified",
+        "needToKnowVisibility": "schwelle",
+        "lastFact": "contract_penalty: Schwelle überschritten"
+      },
+      {
+        "role": "supplier",
+        "label": "Supplier (Zulieferer)",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "replacement_available (cooled): Ampel GRUEN"
+      },
+      {
+        "role": "customer",
+        "label": "Customer (Kunde)",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "customer_stock (regulated): Ampel ROT"
+      }
+    ]
+  },
+  "INC-1003": {
+    "caseId": "s3",
+    "trainId": "TR-1003",
+    "timestamp": "2026-09-16T13:05:40Z",
+    "recommendation": "Zug stoppen, Behörde melden — Stufe 3, 2 Schlüssel (ops-lead-rheinrail-1, safety-officer-rheinrail-2)",
+    "soteriaTier": 3,
+    "marketSensitive": true,
+    "blockedChannels": [
+      "browser_use",
+      "press",
+      "start_automation",
+      "web_fetch",
+      "web_search"
+    ],
+    "receiptHead": "54a20e29f97616aa",
+    "consensus": [
+      {
+        "role": "intake",
+        "label": "Intake (Schaden)",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "temperature_curve (W02): Ampel ROT"
+      },
+      {
+        "role": "assessor",
+        "label": "Assessor (Bewerter)",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "Zug stoppen, Behörde melden — Stufe 3, 2 Schlüssel (ops-lead-rheinrail-1, safety-officer-rheinrail-2) · 13/13 beantwortet · Quittungskette geprüft"
+      },
+      {
+        "role": "legal",
+        "label": "Legal (Vertrag)",
+        "status": "quarantined",
+        "needToKnowVisibility": "schwelle",
+        "lastFact": "contract_penalty: Schwelle unterschritten"
+      },
+      {
+        "role": "supplier",
+        "label": "Supplier (Zulieferer)",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "replacement_available (hazardous): Ampel ROT"
+      },
+      {
+        "role": "customer",
+        "label": "Customer (Kunde)",
+        "status": "verified",
+        "needToKnowVisibility": "ampel",
+        "lastFact": "customer_stock (regulated): Ampel GELB"
+      }
+    ]
+  }
+}

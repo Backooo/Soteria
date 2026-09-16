@@ -1,13 +1,12 @@
-"""Verkettete Quittungen. Jede haelt den Kopf der vorherigen.
+"""Chained receipts. Each one holds the head of the previous one.
 
-Eine einzelne Quittung sagt "das ist passiert". Eine Kette sagt zusaetzlich "und
-nichts davor wurde nachtraeglich geaendert", denn jeder Eintrag geht in den Hash
-des naechsten ein. `verify()` rechnet sie nach; ein geaendertes Feld irgendwo in
-der Mitte faellt auf.
+A single receipt says "this happened". A chain also says "and nothing before it
+was changed afterwards", because every entry goes into the hash of the next.
+`verify()` recomputes them; a changed field anywhere in the middle shows up.
 
-Der Hash ist auf 16 Hex-Zeichen gekuerzt. Das ist keine Kryptografie fuer den
-Ernstfall, sondern eine Pruefsumme, die auf eine Folie passt -- und das steht so
-in der Ehrlichkeitstabelle.
+The hash is truncated to 16 hex characters. That is not cryptography for real
+emergencies but a checksum that fits on a slide -- and the honesty table says
+exactly that.
 """
 
 from __future__ import annotations

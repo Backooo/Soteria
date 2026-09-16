@@ -1,15 +1,15 @@
 {
-  "_comment": "Siehe s1_reporter.json. Melder ist ein Mensch.",
+  "_comment": "See s1_reporter.json. The reporter is a human.",
   "party_type": "carrier",
   "records": {
     "reporter": {
       "reporter_role": "driver",
-      "name": "Sonja Reineke (erfunden)",
+      "name": "Sonja Reineke (fictional)",
       "staff_id": "TF-2290",
       "phone": "+49 170 000-02",
       "on_site": true,
       "reported_at": "2026-09-16T11:40:00Z",
-      "statement_de": "Grosses Hindernis im Gleis, Schnellbremsung eingeleitet. Gleis blockiert, Zug nur eingeschraenkt fahrbereit. Kupplungsbereich W02 beschaedigt."
+      "statement": "Large obstruction on the track, emergency braking applied. Track blocked, train only partly operational. Coupling area of W02 damaged."
     }
   }
 }

@@ -1,81 +1,80 @@
-# Risiken und Befunde, am Tag gemessen
+# Risks and findings, measured on the day
 
-Was hier steht, ist gemessen oder am Quellcode nachgelesen — nicht erinnert.
+What is written here was measured or read in the source code — not remembered.
 
-## Die Föderation läuft — gemessen
+## The federation runs — measured
 
-Drei SuperNodes, ein SuperLink, echte Flower-Nachrichten, lokal auf einem Rechner.
-Zweimal gemessen, weil die erste Messung ein Bühnenrisiko aufgedeckt hat:
+Three SuperNodes, one SuperLink, real Flower messages, locally on one machine.
+Measured twice, because the first measurement exposed a risk for the live demo:
 
-| Fall | Entscheidung | Stufe | Schlüssel | Wahrheit | 13 Runden | **gebündelt** |
+| Case | Decision | Tier | Keys | Ground truth | 13 rounds | **bundled** |
 |---|---|---|---|---|---:|---:|
-| s1 | `cool` | 1 | keine | TREFFER | 69,1 s | **6,4 s** |
-| s2 | `alt_transport` | 2 | ops-lead-rheinrail-1 | TREFFER | 126,9 s | **6,2 s** |
-| s3 | `stop_train`, `notify_authority` | 3 | ops-lead + safety-officer | TREFFER | 68,0 s | **3,2 s** |
+| s1 | `cool` | 1 | none | HIT | 69.1 s | **6.4 s** |
+| s2 | `alt_transport` | 2 | ops-lead-rheinrail-1 | HIT | 126.9 s | **6.2 s** |
+| s3 | `stop_train`, `notify_authority` | 3 | ops-lead + safety-officer | HIT | 68.0 s | **3.2 s** |
 
-In s3 greift die Quarantäne (`browser_use`, `press`, `start_automation`,
-`web_fetch`, `web_search` gesperrt). Die Wanduhr von `flwr run` bis zum Ergebnis,
-einschließlich der App-Installation auf dem SuperLink, lag bei 7–12 s.
+In s3 the quarantine kicks in (`browser_use`, `press`, `start_automation`,
+`web_fetch`, `web_search` shut). Wall-clock time from `flwr run` to the result,
+including the app installation on the SuperLink, was 7–12 s.
 
-**Was die Beschleunigung war.** Jede Flower-Nachricht startet auf dem Knoten einen
-ClientApp-Prozess. 13 Nachfragerunden × 3 Knoten waren 39 Prozessstarts. Jetzt
-trägt eine Nachricht je Knoten den ganzen Frageplan (`query.ask_fields`), die
-Antwort ist ein `RecordDict` mit einem `ConfigRecord` je Feld. Gebündelt ist der
-Transport, nicht die Prüfung — jedes Feld geht weiter einzeln durch Matrix und
-Skalar-Riegel, und `tests/test_bundle.py` weist für s1–s3 nach, dass die
-gebündelte Antwort Feld für Feld gleich der Einzelantwort ist.
+**What the speed-up was.** Every Flower message starts a ClientApp process on
+the node. 13 ask rounds × 3 nodes were 39 process starts. Now one message per
+node carries the whole ask plan (`query.ask_fields`), and the reply is a
+`RecordDict` with one `ConfigRecord` per field. The transport is bundled, not
+the check — every field still goes through the matrix and the scalar bolt
+individually, and `tests/test_bundle.py` demonstrates for s1–s3 that the bundled
+answer equals the single-field answer, field by field.
 
-**Befund zur Begründung:** s2 trifft die Maßnahmen, begründet sie aber mit
-`feasibility`; die hinterlegte Wahrheit sagt `safety`. Die Trefferquote zählt
-Maßnahmen, nicht Gründe — das ist offen auszuweisen, nicht zu verschweigen.
+**Finding on the reasoning:** s2 gets the measures right but justifies them with
+`feasibility`; the stored ground truth says `safety`. The hit rate counts
+measures, not reasons — this has to be reported openly, not hidden.
 
-## Plattformbefunde, am Quellcode belegt
+## Platform findings, backed by the source code
 
-1. **Ein FAB mit `agentapp` führt die ServerApp nie aus.**
+1. **A FAB with an `agentapp` never runs the ServerApp.**
    `superlink/servicer/control/control_handlers.py:2159`:
    `TaskType.AGENT_APP if "agentapp" in components else TaskType.SERVER_APP`.
-   Die Validierung (`common/config.py:355-388`) erlaubt alle drei Komponenten
-   gleichzeitig; die Ausführung wählt genau eine. Soteria ist deshalb ein
-   ServerApp/ClientApp-Bundle. **Eine AgentApp wäre ein zweites Bundle.**
+   Validation (`common/config.py:355-388`) allows all three components at once;
+   execution picks exactly one. That is why Soteria is a ServerApp/ClientApp
+   bundle. **An AgentApp would be a second bundle.**
 
-2. **Modell und Föderation treffen sich nicht.** `AgentSession` hat kein `Grid`
-   (`agentapp/base.py`), und `FLWR_RUNTIME_BASE_URL`/`_API_KEY` werden nur für
-   AgentApps gesetzt (`supercore/task_process/agent/run_agentapp.py`). Die
-   Parteiknoten haben also kein Modell — und brauchen keins, eine Projektion ist
-   eine Funktion.
+2. **Model and federation do not meet.** `AgentSession` has no `Grid`
+   (`agentapp/base.py`), and `FLWR_RUNTIME_BASE_URL`/`_API_KEY` are only set
+   for AgentApps (`supercore/task_process/agent/run_agentapp.py`). So the party
+   nodes have no model — and need none, a projection is a function.
 
-3. **Der Control-Port hat sich geändert.** `uv sync` hat **flwr 1.37.0** gezogen.
-   Der SuperLink bedient die Control API dort per HTTP auf **8000**, nicht wie in
-   1.35 auf 9093. Die Notiz aus dem Handoff „9093, nicht 8000" ist für diese Version
-   **falsch**. `~/.flwr/config.toml` → `[superlink.carrier-fed] address = "127.0.0.1:8000"`.
+3. **The control port has changed.** `uv sync` pulled **flwr 1.37.0**. There the
+   SuperLink serves the Control API over HTTP on **8000**, not on 9093 as in
+   1.35. The handoff note "9093, not 8000" is **wrong** for this version.
+   `~/.flwr/config.toml` → `[superlink.carrier-fed] address = "127.0.0.1:8000"`.
 
-4. **`Grid.create_message` ist in 1.37 veraltet** — ersetzt durch den
-   `Message`-Konstruktor.
+4. **`Grid.create_message` is deprecated in 1.37** — replaced by the `Message`
+   constructor.
 
 ## Build
 
-- `flwr build` validiert den Komponentenpfad (fehlendes Modul = Abbruch).
-- `fab-include`-Muster müssen **mindestens eine Datei** treffen, sonst Abbruch.
-- Das FAB enthält den Code und alle Daten unter `data/` (41 Dateien).
+- `flwr build` validates the component path (missing module = abort).
+- `fab-include` patterns must match **at least one file**, otherwise abort.
+- The FAB contains the code and all data under `data/` (41 files).
 
-## Offen
+## Open
 
-- **`flwr app publish .` nie ausgeführt.** Braucht `flwr login supergrid`, und das
-  blockiert die Shell mit einer Browser-Anmeldung. Muss vor 16:30 laufen.
-- **SuperGrid:** Soteria braucht eigene SuperNodes mit `node-config`. Ob SuperGrid
-  externe SuperNodes annimmt, ist ungeprüft. Der lokale SuperLink ist der
-  gesicherte Weg (Track 2 erlaubt ihn).
-- **Drei Rechner:** nicht versucht. Der Code liest die Partei aus `--node-config`,
-  also sollte es gehen — „sollte" ist nicht geprüft.
-- **Die `truth`-Blöcke sind `VORSCHLAG`** des Engine-Strangs, vom Datenspezialisten
-  nicht bestätigt. Solange das so ist, ist die Trefferquote eine Zahl über die
-  eigene Vermutung und gehört so gekennzeichnet in die Präsentation.
-- **Keine AgentApp.** Siehe Befund 1. Die Pflichtabgabe nennt „working AgentApp";
-  Track 2 erlaubt eine ServerApp. Mit den Organisatoren klären.
-- **Kein Holdout.** Ohne `h1`–`h4` ist jede Trefferquote nur eine Konsistenzprüfung.
+- **`flwr app publish .` never run.** Needs `flwr login supergrid`, and that
+  blocks the shell with a browser login. Must run before 16:30.
+- **SuperGrid:** Soteria needs its own SuperNodes with `node-config`. Whether
+  SuperGrid accepts external SuperNodes is unchecked. The local SuperLink is the
+  safe path (Track 2 allows it).
+- **Three machines:** not attempted. The code reads the party from
+  `--node-config`, so it should work — "should" is not checked.
+- **The `truth` blocks are a `PROPOSAL`** from the engine track, not confirmed by
+  the data specialist. As long as that holds, the hit rate is a number about our
+  own guess and must be labelled as such in the presentation.
+- **No AgentApp.** See finding 1. The mandatory submission says "working
+  AgentApp"; Track 2 allows a ServerApp. Clarify with the organisers.
+- **No holdout.** Without `h1`–`h4`, every hit rate is only a consistency check.
 
-## Übersprungener geerbter Test
+## Skipped inherited test
 
 `tests/test_harness.py::test_demo_charter_is_valid_and_demonstrates_the_policy`
-prüft das geerbte `librarian`/`researcher`-Roster. Übersprungen, nicht gelöscht,
-damit die Herkunft sichtbar bleibt.
+checks the inherited `librarian`/`researcher` roster. Skipped, not deleted, so
+its origin stays visible.

@@ -1,8 +1,8 @@
-"""Der Feldkatalog ist Daten -- also muss ein Fehler darin beim Import auffallen.
+"""The field catalogue is data -- so an error in it must show up on import.
 
-Eine kaputte Matrix darf nie ein Modell erreichen. Diese Tests laden jeweils
-einen absichtlich beschaedigten Katalog in einem Unterprozess und pruefen, dass
-der Import scheitert, nicht erst der Lauf.
+A broken matrix must never reach a model. Each of these tests loads a
+deliberately damaged catalogue in a subprocess and checks that the import fails,
+not just the run.
 """
 
 import json
@@ -27,7 +27,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_the_catalogue_is_the_single_source_of_the_matrix():
-    """Kein Feld steht in matrix.py, das nicht im Katalog steht."""
+    """No field is in matrix.py that is not in the catalogue."""
     catalogue = json.loads(CATALOGUE_PATH.read_text(encoding="utf-8"))
     declared = {k for k in catalogue["fields"] if not k.startswith("_")}
     assert set(FIELDS) == declared
@@ -40,23 +40,23 @@ def test_every_declared_projector_is_implemented():
 
 
 def test_vocabularies_answer_for_both_shapes():
-    """Ein Vokabular ist eine Liste oder ein Objekt mit Metadaten."""
-    assert "pharmaceutical" in vocabulary("cargo_class")   # Objekt
-    assert "restricted" in vocabulary("train_operational")  # Liste
+    """A vocabulary is a list or an object with metadata."""
+    assert "pharmaceutical" in vocabulary("cargo_class")   # object
+    assert "restricted" in vocabulary("train_operational")  # list
     with pytest.raises(Exception):
         vocabulary("does_not_exist")
 
 
 def test_coarse_mapping_lives_with_the_values_not_in_code():
-    """Eine neue Ladungsklasse bringt ihre Grobklasse selbst mit."""
+    """A new cargo class brings its own coarse class along."""
     assert coarse_of("cargo_class", "pharmaceutical") == "regulated"
     assert coarse_of("cargo_class", "hazmat") == "hazardous"
     assert coarse_of("trade", "hospital") == "care"
-    assert coarse_of("cargo_class", "voellig_neu") == "general"
+    assert coarse_of("cargo_class", "brand_new") == "general"
 
 
 def test_reporter_roles_are_never_agent_roles():
-    """Ein Melder ist ein Mensch. Die Vokabulare duerfen sich nicht ueberschneiden."""
+    """A reporter is a human. The vocabularies must not overlap."""
     from soteria.envelope import ROLES
 
     assert not set(vocabulary("reporter_role")) & set(ROLES)
@@ -71,7 +71,7 @@ def test_every_record_type_names_a_party_and_a_speaking_role():
 
 
 def _import_with_broken_catalogue(tmp_path: Path, mutate) -> subprocess.CompletedProcess:
-    """Kopiere das Projekt-Schema, beschaedige es, importiere soteria.matrix."""
+    """Copy the project schema, damage it, import soteria.matrix."""
     catalogue = json.loads(CATALOGUE_PATH.read_text(encoding="utf-8"))
     mutate(catalogue)
     schema = tmp_path / "data" / "schema"
@@ -95,55 +95,55 @@ def _import_with_broken_catalogue(tmp_path: Path, mutate) -> subprocess.Complete
 @pytest.mark.parametrize(
     "label,mutate,needle",
     [
-        ("Eigentuemer ist kein Datensatztyp",
-         lambda c: c["fields"]["customer_stock"].__setitem__("owner", "nirgendwo"),
+        ("owner is not a record type",
+         lambda c: c["fields"]["customer_stock"].__setitem__("owner", "nowhere"),
          "not a declared record_type"),
-        ("Projektor ist nicht implementiert",
-         lambda c: c["fields"]["customer_stock"]["projectors"].__setitem__("ampel", "ampel_magie"),
+        ("projector is not implemented",
+         lambda c: c["fields"]["customer_stock"]["projectors"].__setitem__("ampel", "ampel_magic"),
          "unknown projectors"),
-        ("Sichtbarkeit ohne Projektor",
+        ("visibility without a projector",
          lambda c: c["fields"]["route_weakness"]["visibility"].__setitem__("legal", "schwelle"),
          "has no projector"),
-        ("unbekannte Sichtbarkeitsstufe",
-         lambda c: c["fields"]["customer_stock"]["visibility"].__setitem__("legal", "vielleicht"),
+        ("unknown visibility level",
+         lambda c: c["fields"]["customer_stock"]["visibility"].__setitem__("legal", "maybe"),
          "unknown visibilities"),
-        ("Rollenliste passt nicht zu envelope.ROLES",
+        ("role list does not match envelope.ROLES",
          lambda c: c.__setitem__("roles", ["intake", "assessor"]),
          "but soteria.envelope.ROLES is"),
-        ("known_projectors nennt etwas Unimplementiertes",
-         lambda c: c["known_projectors"].append("ampel_telepathie"),
+        ("known_projectors names something unimplemented",
+         lambda c: c["known_projectors"].append("ampel_telepathy"),
          "does not implement"),
-        ("Katalog ohne Felder",
+        ("catalogue without fields",
          lambda c: c.__setitem__("fields", {}),
          "declares no fields"),
     ],
 )
 def test_a_broken_catalogue_fails_at_import(tmp_path, label, mutate, needle):
     run = _import_with_broken_catalogue(tmp_path, mutate)
-    assert run.returncode != 0, f"{label}: der Import ging durch"
-    assert needle in run.stderr, f"{label}: erwartete {needle!r}, bekam:\n{run.stderr[-600:]}"
+    assert run.returncode != 0, f"{label}: the import went through"
+    assert needle in run.stderr, f"{label}: expected {needle!r}, got:\n{run.stderr[-600:]}"
 
 
 def test_no_object_valued_field_uses_the_plain_raw_projector():
-    """Ein Rohobjekt kann den Draht nicht ueberqueren (ConfigRecord traegt nur
-    Skalare). Ein Objektfeld mit dem schlichten `raw`-Projektor liefert der Rolle,
-    der die Matrix es zugesteht, daher `bad_value` statt der Antwort.
+    """A raw object cannot cross the wire (ConfigRecord only carries scalars).
+    An object field with the plain `raw` projector therefore delivers
+    `bad_value` instead of the answer to the role the matrix grants it to.
 
-    Die Regel wurde erst fuer zwei Felder einzeln angewandt und dann beim dritten
-    vergessen. Dieser Test macht sie systematisch.
+    The rule was first applied to two fields one by one and then forgotten for
+    the third. This test makes it systematic.
     """
     offenders = [
         name for name, f in FIELDS.items()
         if f.kind == "object" and f.projectors.get("raw") == "raw"
     ]
     assert not offenders, (
-        f"{offenders} sind Objektfelder mit schlichtem raw-Projektor; "
-        "gib ihnen einen skalaren Projektor (siehe contact_line, curve_line, offer_line)"
+        f"{offenders} are object fields with a plain raw projector; "
+        "give them a scalar projector (see contact_line, curve_line, offer_line)"
     )
 
 
 def test_every_projection_to_every_allowed_role_is_a_scalar():
-    """Der Beweis zur Regel: jedes Feld, jede erlaubte Rolle, echte Falldaten."""
+    """The proof of the rule: every field, every allowed role, real case data."""
     from soteria.cases import available_cases, load_case, raw_records_for_party
     from soteria.envelope import ROLES
     from soteria.wire import SCALARS
@@ -164,7 +164,7 @@ def test_every_projection_to_every_allowed_role_is_a_scalar():
                                 continue
                             projected = spec.project(value, role, case.thresholds)
                             assert isinstance(projected, SCALARS), (
-                                f"{case_id}/{field_name} an {role}: {type(projected).__name__}"
+                                f"{case_id}/{field_name} to {role}: {type(projected).__name__}"
                             )
                             checked += 1
     assert checked > 100

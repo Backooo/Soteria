@@ -1,19 +1,19 @@
-"""Selbstbedienung fuer den Datenstrang: prueft den ganzen Datenbaum.
+"""Self-service for the data track: checks the whole data tree.
 
-    uv run python scripts/validate_data.py              # alles
-    uv run python scripts/validate_data.py data/s3      # ein Fall
+    uv run python scripts/validate_data.py              # everything
+    uv run python scripts/validate_data.py data/s3      # one case
 
-Braucht kein Modell, kein Netz, keinen SuperLink. Leere Ausgabe und
-Rueckgabewert 0 heisst: in Ordnung. Jede Meldung nennt Datei, Schluesselpfad und
-was erwartet war. Zeilen mit WARNING blockieren nicht.
+Needs no model, no network, no SuperLink. Empty output and exit code 0 means:
+all good. Every message names the file, the key path and what was expected.
+Lines with WARNING do not block.
 
-Geprueft wird, was ein Mensch nicht zuverlaessig im Kopf haelt:
-  * jeder Wert gegen sein Vokabular,
-  * jedes Feld gegen den Katalog (Eigentuemer, Form, Projektor),
-  * jede Tatsache gegen ihren Eigentuemer -- eine Tatsache unter dem falschen
-    Eigentuemer ist genau das Leck, das die Matrix verhindern soll,
-  * jeder Vertrag gegen seine Parteien,
-  * jede Stufe gegen die Zahl verschiedener Schluessel.
+It checks what a human cannot reliably keep in their head:
+  * every value against its vocabulary,
+  * every field against the catalogue (owner, shape, projector),
+  * every fact against its owner -- a fact under the wrong owner is exactly
+    the leak the matrix is meant to prevent,
+  * every contract against its parties,
+  * every tier against the number of distinct keys.
 """
 
 from __future__ import annotations
@@ -26,8 +26,8 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 
-# Ein Fallverzeichnis heisst s1..sN (bekannt) oder h1..hN (Holdout). `data/schema`
-# fiele sonst in dasselbe Muster.
+# A case directory is named s1..sN (known) or h1..hN (holdout). Otherwise
+# `data/schema` would fall into the same pattern.
 CASE_DIR_RE = re.compile(r"^[sh]\d+$")
 DATA = ROOT / "data"
 SCHEMA = DATA / "schema"
@@ -56,7 +56,7 @@ def _load(path: Path, out: list[str]) -> dict[str, Any] | None:
 
 
 def _vocab_keys(vocab: Any) -> set[str]:
-    """Ein Vokabular ist entweder eine Liste oder ein Objekt mit Metadaten."""
+    """A vocabulary is either a list or an object with metadata."""
     if isinstance(vocab, list):
         return set(vocab)
     if isinstance(vocab, dict):
@@ -102,7 +102,7 @@ def _record_blocks(data: dict[str, Any]) -> dict[str, Any]:
 
 
 def check_party_or_source(path: Path, vocabs: dict, catalogue: dict, out: list[str]) -> None:
-    """Prueft eine Partei-, Vertrags- oder Netzdatei gegen den Katalog."""
+    """Checks a party, contract or network file against the catalogue."""
     data = _load(path, out)
     if data is None:
         return
@@ -135,7 +135,7 @@ def check_party_or_source(path: Path, vocabs: dict, catalogue: dict, out: list[s
                     out.append(f"{path.name}: {key}={value!r} is not in vocabulary {voc!r} "
                                f"({sorted(allowed)})")
 
-        # Konsignationen eines Kunden: je Ladungsklasse Bestand und Dringlichkeit.
+        # A customer's consignments: stock and urgency per cargo class.
         consignments = block.get("consignments")
         if isinstance(consignments, dict):
             cargo = _vocab_keys(vocabs.get("cargo_class"))
@@ -204,7 +204,7 @@ def check_case(case_dir: Path, vocabs: dict, catalogue: dict, party_ids: set[str
             out.append(f"{name}: federations names {fed.get('party_id')!r}, "
                        "which is no file in data/parties/")
 
-    # Die Melderrolle ist ein Mensch, keine Agentenrolle.
+    # The reporter role is a human, not an agent role.
     reporter = _load(ROOT / str(sources.get("reporter", "")), out) if sources.get("reporter") else None
     if reporter:
         rec = (reporter.get("records") or {}).get("reporter") or {}
@@ -216,7 +216,7 @@ def check_case(case_dir: Path, vocabs: dict, catalogue: dict, party_ids: set[str
             out.append(f"{cid}_reporter.json: reporter_role={role!r} is an AGENT role; "
                        "a reporter is a human, never an agent")
 
-    # Wagen: jeder Wagen des Zuges braucht einen Besteller, jeder Besteller eine Foederation.
+    # Wagons: every wagon of the train needs a consignee, every consignee a federation.
     train = _load(ROOT / str(sources.get("train", "")), out) if sources.get("train") else None
     if train:
         wagons = {w.get("wagon_id") for w in (train.get("wagons") or [])}
@@ -231,8 +231,8 @@ def check_case(case_dir: Path, vocabs: dict, catalogue: dict, party_ids: set[str
                 out.append(f"{name}: wagon_consignees gives {wid} to {pid!r}, which is not a "
                            "federation in this case")
 
-    # Jede Ladungsklasse im Zug braucht beim Besteller eine Konsignation, sonst
-    # hat der Bewerter fuer diesen Wagen keinen Bestand und keine Dringlichkeit.
+    # Every cargo class in the train needs a consignment at the consignee,
+    # otherwise the assessor has no stock and no urgency for that wagon.
     if train:
         by_wagon = {w.get("wagon_id"): w.get("cargo_class") for w in (train.get("wagons") or [])}
         consignees = case.get("wagon_consignees") or {}
@@ -254,7 +254,7 @@ def check_case(case_dir: Path, vocabs: dict, catalogue: dict, party_ids: set[str
                            f"has no {klass!r} consignment (it holds {sorted(held[pid])}) -- "
                            "add one or give the wagon to another consignee")
 
-    # Telemetrie nur fuer Wagen, die es gibt.
+    # Telemetry only for wagons that exist.
     if train:
         wagons = {w.get("wagon_id") for w in (train.get("wagons") or [])}
         for field, per_wagon in (case.get("measurements") or {}).items():
@@ -302,10 +302,10 @@ def check_case(case_dir: Path, vocabs: dict, catalogue: dict, party_ids: set[str
                                "an agent cannot sign a grant")
                 if key.get("measure") not in measure_vocab:
                     out.append(f"{name}: keys[{i}].measure={key.get('measure')!r} is not a measure")
-                # Der Parametervertrag: eine Entscheidung traegt genau case_id und
-                # train_id, also muss eine Freigabe genau diese Parameter nennen.
-                # Ein weiteres oder fehlendes Feld ergibt zur Laufzeit
-                # grant_mismatch -- das soll hier auffallen, nicht im Lauf.
+                # The parameter contract: a decision carries exactly case_id and
+                # train_id, so a grant must name exactly these parameters. An
+                # extra or missing field yields grant_mismatch at run time --
+                # that should show up here, not during the run.
                 params = key.get("params")
                 if not isinstance(params, dict):
                     out.append(f"{name}: keys[{i}].params must be an object")
@@ -344,9 +344,9 @@ def check_case(case_dir: Path, vocabs: dict, catalogue: dict, party_ids: set[str
     overlap = set(truth.get("measures") or ()) & set(truth.get("must_not") or ())
     if overlap:
         out.append(f"{name}: truth lists {sorted(overlap)} in both measures and must_not")
-    if str(truth.get("_status", "")).startswith("VORSCHLAG"):
-        out.append(f"{name}: WARNING truth is still marked VORSCHLAG -- "
-                   "der Datenspezialist muss sie bestaetigen")
+    if str(truth.get("_status", "")).startswith("PROPOSAL"):
+        out.append(f"{name}: WARNING truth is still marked PROPOSAL -- "
+                   "the data specialist must confirm it")
 
 
 def main() -> int:
@@ -381,8 +381,8 @@ def main() -> int:
         print(line)
     errors = sum(1 for line in out if "WARNING" not in line)
     warnings = len(out) - errors
-    print(f"\n{len(catalogue.get('fields') or {})} Felder, {len(party_ids)} Parteien, "
-          f"{len(case_dirs)} Faelle geprueft: {errors} Fehler, {warnings} Warnungen")
+    print(f"\n{len(catalogue.get('fields') or {})} fields, {len(party_ids)} parties, "
+          f"{len(case_dirs)} cases checked: {errors} errors, {warnings} warnings")
     return 1 if errors else 0
 
 

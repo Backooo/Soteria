@@ -1,8 +1,8 @@
 {
   "case_id": "s3",
   "catalogue_version": 1,
-  "title": "Aufprall, Zug nicht fahrbereit, Gefahrgutwagen beschaedigt, Wohnbebauung 300 m",
-  "_comment": "Der Vorzeigefall: Stufe 3 mit zwei Schluesseln und Quarantaene. Alle Wagen gehoeren einem Kunden -- ein weiterer Kunde waere ein weiterer Eintrag in 'federations' und eine weitere Vertragsdatei, ohne Codeaenderung. Fuer die Demo bleibt es bei einem.",
+  "title": "Impact, train not operational, hazmat wagon damaged, residential buildings 300 m away",
+  "_comment": "The showcase case: tier 3 with two keys and quarantine. All wagons belong to one customer -- another customer would be one more entry in 'federations' and one more contract file, with no code change. For the demo it stays at one.",
   "sources": {
     "incident": "data/s3/s3_incident.json",
     "train": "data/s3/s3_train.json",
@@ -77,7 +77,7 @@
   },
   "carrier_overrides": {
     "market_sensitive": true,
-    "_why": "Zug nicht fahrbereit, Gefahrgut beschaedigt, Hauptstrecke gesperrt. Ein Vorfall dieser Groesse ist kursrelevant, also ist ab dem Lesen dieses Flags jeder ausgehende Kanal zu."
+    "_why": "Train not operational, hazmat damaged, main line closed. An incident of this size is market sensitive, so from the moment this flag is read every outbound channel is shut."
   },
   "offline_parties": [],
   "thresholds": {},
@@ -116,29 +116,29 @@
     }
   ],
   "truth": {
-    "_status": "VORSCHLAG des Engine-Strangs -- bitte bestaetigen oder korrigieren",
+    "_status": "PROPOSAL from the engine track -- please confirm or correct",
     "measures": [
       "stop_train",
       "notify_authority"
     ],
     "tier": 3,
     "reason_code": "safety",
-    "why": "Gefahrgutwagen W05 im Bereich des Laderaums beschaedigt, Zug nicht fahrbereit, Wohnbebauung 300 m entfernt, keine Alternativroute, keine Strassenzufahrt. Nichtwissen ueber ein Gefahrgutleck neben Wohnhaeusern ist selbst der Grund anzuhalten und zu melden.",
+    "why": "Hazmat wagon W05 damaged around the cargo compartment, train not operational, residential buildings 300 m away, no alternative route, no road access. Not knowing about a hazmat leak next to homes is itself the reason to stop and report.",
     "must_not": [
       "proceed",
       "alt_transport"
     ],
     "also_true": {
-      "_comment": "Pro Wagen faellt die Lage unterschiedlich aus, aber die Zugentscheidung dominiert: Stufe 3 ist die hoechste beteiligte Stufe, und sie gilt fuer den ganzen Zug. Dieser Block ist Dokumentation fuer die Ansicht, keine eigene Entscheidung und keine eigene Freigabe.",
+      "_comment": "The situation differs per wagon, but the train decision dominates: tier 3 is the highest tier involved, and it applies to the whole train. This block is documentation for the view, not a separate decision and not a separate grant.",
       "W02": {
         "measures": [
           "cool"
         ],
         "tier": 1,
-        "why": "Pharma-Vorprodukt seit 55 Minuten ausserhalb des Fensters, Zug steht"
+        "why": "Pharma precursor outside its window for 55 minutes, train stopped"
       }
     },
-    "_teaches": "Stufe 3 braucht zwei VERSCHIEDENE Menschen. market_sensitive ist true, also sperrt die Quarantaene jeden ausgehenden Kanal -- sichtbar im Banner. Und die Vertragsstrafe liegt UNTER der Schwelle: der Bewerter waehlt die schaerfste Maßnahme, obwohl es die billigste Strafe ist.",
+    "_teaches": "Tier 3 needs two DIFFERENT humans. market_sensitive is true, so the quarantine shuts every outbound channel -- visible in the banner. And the contract penalty is BELOW the threshold: the assessor picks the strictest measure even though it is the cheapest penalty.",
     "expect_refusal": null
   }
 }

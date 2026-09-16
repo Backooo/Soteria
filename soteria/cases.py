@@ -1,20 +1,20 @@
-"""Einen Fall laden -- und zwar je Knoten nur, was diesem Knoten gehoert.
+"""Load a case -- and per node only what belongs to that node.
 
-Die Falldatei `data/<case>/<case>_case.json` ist das Koordinationsdokument: sie
-nennt die Quellen, die Foederationen, wer welchen Wagen bestellt hat, die
-Telemetrie, die Schluessel und die hinterlegte richtige Entscheidung.
+The case file `data/<case>/<case>_case.json` is the coordination document: it
+names the sources, the federations, who ordered which wagon, the telemetry, the
+keys and the stored correct decision.
 
-`facts_for_party()` ist die wichtige Funktion. Sie oeffnet **nur** die Dateien,
-die der genannten Partei gehoeren. Auf dem Knoten des Kunden existiert die
-Vertragsstrafe eines anderen Kunden nicht im Speicher -- ein Leck ist dort nicht
-verboten, es ist unmoeglich. Das ist Zeilenschutz durch die Foederation, neben
-dem Feldschutz durch die Matrix.
+`facts_for_party()` is the important function. It opens **only** the files that
+belong to the named party. On the customer's node, another customer's contract
+penalty does not exist in memory -- a leak there is not forbidden, it is
+impossible. That is row-level protection through the federation, alongside
+field-level protection through the matrix.
 
-Mehrwertige Felder: einige Felder haengen an einem Wagen (`per: "wagon"`), einer
-Konsignation oder einer Ladungsklasse. Ein Knoten antwortet dann fuer die
-**schlimmste** Bezugsgroesse und nennt sie als `scope`. Der Bewerter fragt also
-"ist irgendein Wagen aus dem Fenster?" und bekommt "rot, W02" -- was genau die
-Frage ist, die eine Leitstelle stellt.
+Multi-valued fields: some fields hang off a wagon (`per: "wagon"`), a
+consignment or a cargo class. A node then answers for the **worst** reference
+unit and names it as `scope`. So the assessor asks "is any wagon out of its
+window?" and gets "rot (red), W02" -- which is exactly the question a control
+centre asks.
 """
 
 from __future__ import annotations
@@ -30,19 +30,19 @@ from .matrix import FIELDS, RECORD_TYPES
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 
-# Rang einer projizierten Antwort. Hoeher = schlimmer. Wird gebraucht, um bei
-# einem mehrwertigen Feld die schlimmste Bezugsgroesse zu waehlen.
+# Rank of a projected answer. Higher = worse. Needed to pick the worst
+# reference unit of a multi-valued field.
 _RANK: dict[Any, int] = {
     "gruen": 0, "gelb": 1, "rot": 2,
     False: 0, True: 1,
     "below": 0, "above": 1,
-    # Ladungsklassen, grob und fein: Gefahrgut schlaegt Pharma schlaegt
-    # Frischware schlaegt Stueckgut. Damit nennt ein Zug mit beidem den
-    # Gefahrgutwagen als schlimmsten und nicht den erstgenannten.
-    # grob (die Grobklasse heisst nie wie ein Feinwert, sonst waere die
-    # Vergroeberung nicht pruefbar -- daher "cooled", nicht "perishable"):
+    # Cargo classes, coarse and fine: hazmat beats pharma beats fresh goods
+    # beats general cargo. So a train carrying both names the hazmat wagon as
+    # the worst, not whichever was listed first.
+    # coarse (a coarse class is never named like a fine value, otherwise the
+    # coarsening could not be checked -- hence "cooled", not "perishable"):
     "general": 0, "cooled": 1, "regulated": 2, "hazardous": 3,
-    # fein:
+    # fine:
     "general_goods": 0, "perishable": 1, "livestock": 1, "high_value": 1,
     "pharmaceutical": 2, "hazmat": 3,
 }
@@ -67,11 +67,12 @@ def _public(mapping: Mapping[str, Any]) -> dict[str, Any]:
 
 @dataclass(frozen=True)
 class Case:
-    """Ein Vorfall, wie ihn alle Beteiligten sehen duerfen.
+    """An incident as all participants may see it.
 
-    Enthaelt **keine** Rohwerte einer Partei -- nur die Koordination: wer
-    mitspielt, welche Datei wem gehoert, welche Wagen wem, und die Wahrheit fuer
-    die Messung. Die Rohwerte holt `facts_for_party()`, je Knoten getrennt.
+    Contains **no** raw values of any party -- only the coordination: who takes
+    part, which file belongs to whom, which wagons to whom, and the ground truth
+    for measurement. The raw values are fetched by `facts_for_party()`,
+    separately per node.
     """
 
     case_id: str
@@ -85,14 +86,14 @@ class Case:
     truth: Mapping[str, Any]
     offline_parties: tuple[str, ...]
     carrier_overrides: Mapping[str, Any]
-    # Getrennt gehalten, weil `_public` alle `_`-Schluessel verwirft -- und
-    # `truth._status` darf nicht verloren gehen: sonst haelt jede Auswertung
-    # eine unbestaetigte Wahrheit fuer bestaetigt.
+    # Kept separately, because `_public` drops every `_` key -- and
+    # `truth._status` must not get lost: otherwise every evaluation would treat
+    # an unconfirmed ground truth as confirmed.
     truth_status: str = ""
 
     @property
     def truth_confirmed(self) -> bool:
-        return bool(self.truth) and not self.truth_status.upper().startswith("VORSCHLAG")
+        return bool(self.truth) and not self.truth_status.upper().startswith("PROPOSAL")
 
     @property
     def party_ids(self) -> tuple[str, ...]:
@@ -112,10 +113,11 @@ class Case:
 
     @property
     def flags(self) -> tuple[str, ...]:
-        """Lagekennzeichen, aus dem Vorfall und dem Zug abgeleitet.
+        """Situation markers, derived from the incident and the train.
 
-        Bewusst abgeleitet und nicht von Hand gepflegt: `hazmat` ist gesetzt,
-        weil ein Gefahrgutwagen im Zug ist, nicht weil jemand daran gedacht hat.
+        Deliberately derived rather than maintained by hand: `hazmat` is set
+        because there is a hazmat wagon in the train, not because someone
+        remembered it.
         """
         incident = _read(Path(str(self.sources["incident"])))
         train = _read(Path(str(self.sources["train"])))
@@ -127,19 +129,18 @@ class Case:
             out.append("perishable")
         if bool(_public(self.carrier_overrides).get("market_sensitive")):
             out.append("market_sensitive")
-        # Der Melder ist eine Person; seine Daten liegen im Fall.
+        # The reporter is a person; their data is part of the case.
         out.append("person_data")
         del incident
         return tuple(f for f in out if f in FLAG)
 
     @property
     def affected_cargo_classes(self) -> tuple[str, ...]:
-        """Die Ladungsklassen der beschaedigten Wagen.
+        """The cargo classes of the damaged wagons.
 
-        Teil der gemeinsamen Meldung: welche Wagen beschaedigt sind, hat der
-        Fahrer gemeldet, und was sie tragen steht im Frachtbrief. Der Zulieferer
-        braucht es, um "kannst du das ersetzen" ueberhaupt beantworten zu
-        koennen.
+        Part of the shared report: the driver reported which wagons are damaged,
+        and what they carry is on the consignment note. The supplier needs it to
+        be able to answer "can you replace this" at all.
         """
         incident = _read(Path(str(self.sources["incident"])))
         train = _read(Path(str(self.sources["train"])))
@@ -149,7 +150,7 @@ class Case:
 
     @property
     def report(self) -> dict[str, Any]:
-        """Die Meldung, so wie sie alle sehen duerfen. Ohne Personendaten."""
+        """The report as everyone may see it. Without personal data."""
         incident = _read(Path(str(self.sources["incident"])))
         train = _read(Path(str(self.sources["train"])))
         classes = sorted({str(w.get("cargo_class")) for w in (train.get("wagons") or [])})
@@ -169,7 +170,7 @@ class Case:
             "affected_wagons": [
                 str(w.get("wagon_id")) for w in (incident.get("affected_wagons") or [])
             ],
-            # Nur die Grobklassen. Welcher Wagen welche Ware traegt, steht hier nicht.
+            # Only the coarse classes. Which wagon carries which goods is not in here.
             "cargo_classes_coarse": sorted({coarse_of("cargo_class", c) for c in classes}),
         }
 
@@ -210,11 +211,11 @@ def available_cases() -> tuple[str, ...]:
     )
 
 
-# --- Rohwerte, je Knoten getrennt ---------------------------------------
+# --- raw values, separated per node -------------------------------------
 
 
 def _party_file(case: Case, party_id: str) -> dict[str, Any] | None:
-    """Die Parteidatei dieses Knotens -- und nur diese."""
+    """This node's party file -- and only that one."""
     party_type = case.party_type(party_id)
     if party_type == "carrier":
         return _read(Path(str(case.sources["carrier"])))
@@ -228,10 +229,10 @@ def _party_file(case: Case, party_id: str) -> dict[str, Any] | None:
 
 
 def _own_contracts(case: Case, party_id: str) -> list[dict[str, Any]]:
-    """Nur die Vertraege, in denen dieser Knoten Partei ist oder die er fuehrt.
+    """Only the contracts this node is a party to or administers.
 
-    Der Kern des Zeilenschutzes: Kunde 2 findet Vertrag 1 hier nicht, weil seine
-    `party_id` nicht in dessen `parties` steht.
+    The core of row-level protection: customer 2 does not find contract 1 here,
+    because its `party_id` is not in that contract's `parties`.
     """
     out: list[dict[str, Any]] = []
     for rel in case.sources.get("contracts") or []:
@@ -244,7 +245,7 @@ def _own_contracts(case: Case, party_id: str) -> list[dict[str, Any]]:
 
 
 def _rankable(value: Any) -> bool:
-    """Ob eine Antwort einen Schweregrad hat. Ein Rohobjekt ist nicht hashbar."""
+    """Whether an answer has a severity. A raw object is not hashable."""
     try:
         return value in _RANK
     except TypeError:
@@ -252,11 +253,10 @@ def _rankable(value: Any) -> bool:
 
 
 def _worst(candidates: Mapping[str, Any]) -> tuple[str, Any]:
-    """Die schlimmste Bezugsgroesse und ihr Wert.
+    """The worst reference unit and its value.
 
-    Bei rangbaren Antworten (Ampel, Schwelle, bool) die schlimmste; sonst die
-    erste, damit ein nicht rangbares Feld nicht stillschweigend die Bedeutung
-    wechselt.
+    For rankable answers (traffic light, threshold, bool) the worst; otherwise
+    the first, so a non-rankable field does not silently change its meaning.
     """
     if not candidates:
         raise EnvelopeError("unknown_field", "no value for any scope")
@@ -267,10 +267,10 @@ def _worst(candidates: Mapping[str, Any]) -> tuple[str, Any]:
 
 
 def raw_records_for_party(case: Case, party_id: str) -> dict[str, dict[str, Any]]:
-    """Die Rohwerte, die auf dem Knoten dieser Partei liegen.
+    """The raw values that live on this party's node.
 
-    Rueckgabe: Datensatztyp -> {Feldname -> Rohwert oder {scope -> Rohwert}}.
-    Was hier nicht drin ist, kann der Knoten nicht herausgeben.
+    Returns: record type -> {field name -> raw value or {scope -> raw value}}.
+    What is not in here, the node cannot hand out.
     """
     party_type = case.party_type(party_id)
     out: dict[str, dict[str, Any]] = {}
@@ -285,9 +285,9 @@ def raw_records_for_party(case: Case, party_id: str) -> dict[str, dict[str, Any]
         affected = {str(w.get("wagon_id")) for w in (incident.get("affected_wagons") or [])}
         by_wagon = {str(w.get("wagon_id")): w for w in (train.get("wagons") or [])}
 
-        # `cargo_class` haengt am Wagen. Der Betreiber fuehrt den Frachtbrief,
-        # also liegt er hier -- aber nur fuer die betroffenen Wagen, denn nur
-        # die sind Gegenstand des Vorfalls.
+        # `cargo_class` hangs off the wagon. The operator keeps the consignment
+        # note, so it lives here -- but only for the affected wagons, because
+        # only they are the subject of the incident.
         out["train"] = {
             "cargo_class": {
                 wid: str(by_wagon[wid].get("cargo_class"))
@@ -305,10 +305,10 @@ def raw_records_for_party(case: Case, party_id: str) -> dict[str, dict[str, Any]
     elif party_type == "supplier":
         supplier = _party_file(case, party_id) or {}
         block = _public((supplier.get("records") or {}).get("supplier") or {})
-        # Der Zulieferer kann vieles ersetzen. Gefragt ist aber nur, was an
-        # diesem Zug beschaedigt ist -- sonst antwortet er ueber Gefahrgut, das
-        # in diesem Vorfall nicht vorkommt. Welche Klassen betroffen sind, ist
-        # Teil der gemeinsamen Meldung, kein Geheimnis einer Partei.
+        # The supplier can replace many things. But the question is only about
+        # what is damaged on this train -- otherwise it would answer about
+        # hazmat that does not occur in this incident. Which classes are
+        # affected is part of the shared report, not a secret of any party.
         in_scope = case.affected_cargo_classes
         out["supplier"] = {
             field_name: (
@@ -325,7 +325,7 @@ def raw_records_for_party(case: Case, party_id: str) -> dict[str, dict[str, Any]
             raise EnvelopeError("unknown_role", f"no party file for {party_id!r}")
         block = _public((customer.get("records") or {}).get("customer") or {})
         consignments = block.pop("consignments", {}) or {}
-        # Je Konsignation ein Wert; `_worst` waehlt spaeter die kritischste.
+        # One value per consignment; `_worst` later picks the most critical.
         per_class: dict[str, dict[str, Any]] = {}
         for klass, entry in consignments.items():
             for field_name, value in _public(entry).items():
@@ -335,8 +335,8 @@ def raw_records_for_party(case: Case, party_id: str) -> dict[str, dict[str, Any]
     else:
         raise EnvelopeError("unknown_role", f"unknown party_type {party_type!r}")
 
-    # Vertraege: nur die eigenen. Bei mehreren gilt der schaerfste, also der mit
-    # der hoechsten Strafe -- ein Knoten fuehrt in unseren Faellen genau einen.
+    # Contracts: only its own. With several, the strictest applies, i.e. the one
+    # with the highest penalty -- in our cases a node administers exactly one.
     contracts = _own_contracts(case, party_id)
     if contracts:
         merged: dict[str, Any] = {}
@@ -347,8 +347,8 @@ def raw_records_for_party(case: Case, party_id: str) -> dict[str, dict[str, Any]
             k: (next(iter(v.values())) if len(v) == 1 else v) for k, v in merged.items()
         }
 
-    # Leere Datensatzbloecke wegwerfen, damit ein Knoten nicht behauptet, etwas
-    # zu fuehren, was er nicht hat.
+    # Drop empty record blocks, so a node does not claim to hold something it
+    # does not have.
     return {k: v for k, v in out.items() if v and any(_nonempty(x) for x in v.values())}
 
 
@@ -359,7 +359,7 @@ def _nonempty(value: Any) -> bool:
 
 
 def fields_on_party(case: Case, party_id: str) -> tuple[str, ...]:
-    """Die Felder, die dieser Knoten tatsaechlich beantworten kann."""
+    """The fields this node can actually answer."""
     records = raw_records_for_party(case, party_id)
     out: list[str] = []
     for record_type, block in records.items():

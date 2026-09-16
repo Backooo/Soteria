@@ -1,24 +1,25 @@
-"""Der Beweis: kein Rohwert erreicht eine Rolle, die ihn nicht haben darf.
+"""The proof: no raw value reaches a role that may not have it.
 
-    uv run python scripts/wire_proof.py          # alle Faelle
+    uv run python scripts/wire_proof.py          # all cases
     uv run python scripts/wire_proof.py s3
 
-**Was hier gemessen wird, und warum die naive Fassung falsch war.** Der erste
-Versuch fragte "steht irgendein Rohwert auf dem Draht?" und meldete 17 Lecks --
-darunter `contract_penalty = 9000` an den Vertragsagenten und die Kuehlkurve an
-den Zulieferer. Beides stellt die Matrix diesen Rollen ausdruecklich zu. Ein
-Detektor ohne Nennwert meldet erlaubte Offenlegung als Verstoss und ist damit
-wertlos, und "0 Lecks" waere eine Behauptung ueber etwas, das nie gemessen wurde.
+**What is measured here, and why the naive version was wrong.** The first
+attempt asked "is any raw value on the wire?" and reported 17 leaks --
+including `contract_penalty = 9000` to the contract agent and the cooling curve
+to the supplier. The matrix explicitly grants both to those roles. A detector
+without a denominator reports authorised disclosure as a violation and is
+therefore worthless, and "0 leaks" would be a claim about something that was
+never measured.
 
-Die richtige Frage hat einen Nennwert: fuer jedes Paar (Rolle, Feld), bei dem
-die Matrix **nicht** `raw` sagt, darf in der Antwort kein Rohwert dieses Feldes
-vorkommen. Erlaubte Offenlegung wird getrennt gezaehlt und ausgewiesen, damit
-sichtbar bleibt, wie gross der Nennwert ueberhaupt ist.
+The right question has a denominator: for every (role, field) pair where the
+matrix does **not** say `raw`, no raw value of that field may appear in the
+answer. Authorised disclosure is counted and reported separately, so it stays
+visible how large the denominator actually is.
 
-Geprueft werden ALLE Rolle/Feld/Knoten-Kombinationen, nicht nur die des
-Frageplans -- eine boeswillige Partei fragt genau das, was sie nicht fragen soll.
-Benutzt wird `soteria.party_app.answer_ask`, derselbe Code, den die Foederation
-faehrt; nur der Transport ist ein Aufruf statt eines Sockets.
+ALL role/field/node combinations are checked, not only those of the ask plan --
+a malicious party asks exactly what it is not supposed to ask.
+`soteria.party_app.answer_ask` is used, the same code the federation runs; only
+the transport is a call instead of a socket.
 """
 
 from __future__ import annotations
@@ -35,12 +36,12 @@ from soteria.envelope import ROLES
 from soteria.matrix import FIELDS, visibility
 from soteria.party_app import answer_ask
 
-# Kuerzere Zeichenketten beweisen nichts: "0", "1", "no" stehen zufaellig ueberall.
+# Shorter strings prove nothing: "0", "1", "no" appear everywhere by chance.
 _MIN_NEEDLE = 3
 
 
 def _needles(value: Any, out: set[str]) -> None:
-    """Die Zeichenketten, die ein Mitschnitt als Rohwert dieses Feldes zeigen wuerde."""
+    """The strings a wire capture would show as a raw value of this field."""
     if isinstance(value, dict):
         for key, inner in value.items():
             if not str(key).startswith("_"):
@@ -58,7 +59,7 @@ def _needles(value: Any, out: set[str]) -> None:
 
 
 def _raw_needles_by_field(case: Any) -> dict[str, set[str]]:
-    """Feld -> die Rohzeichenketten, die irgendein Knoten dazu haelt."""
+    """field -> the raw strings any node holds for it."""
     out: dict[str, set[str]] = {}
     for party_id in case.party_ids:
         for _record_type, block in raw_records_for_party(case, party_id).items():
@@ -75,7 +76,7 @@ def prove(case_id: str, verbose: bool = True) -> dict[str, Any]:
 
     print(f"\n{'=' * 78}\n{case_id}: {case.title}\n{'=' * 78}")
     if verbose:
-        print(f"{'Frager':<10} {'Knoten':<10} {'Feld':<22} {'darf':<9} Antwort")
+        print(f"{'Asker':<10} {'Node':<10} {'Field':<22} {'allowed':<9} Answer")
         print("-" * 78)
 
     attempts = refused = authorised_raw = 0
@@ -86,11 +87,11 @@ def prove(case_id: str, verbose: bool = True) -> dict[str, Any]:
     for asker in ROLES:
         for party_id in case.party_ids:
             if asker in case.roles_of(party_id):
-                continue  # eine Rolle fragt nicht ihren eigenen Knoten
+                continue  # a role does not ask its own node
             for field in FIELDS:
                 reply = answer_ask(case, party_id, asker, field, "confidentiality")
                 if reply["code"] == "unknown_field":
-                    continue  # der Knoten fuehrt es nicht -- keine Grenze beruehrt
+                    continue  # the node does not hold it -- no boundary touched
                 attempts += 1
                 level = visibility(field, asker)
                 blob = json.dumps(reply, sort_keys=True, default=str)
@@ -103,7 +104,7 @@ def prove(case_id: str, verbose: bool = True) -> dict[str, Any]:
                     "outcome": ("refused" if reply["code"]
                                 else "raw" if level == "raw" else "projected"),
                     "code": reply["code"],
-                    # Der Wert steht nur drin, wo er den Frager auch erreicht hat.
+                    # The value is only included where it actually reached the asker.
                     "value": "" if reply["code"] else reply["value"],
                     "scope": reply["scope"],
                 })
@@ -112,7 +113,7 @@ def prove(case_id: str, verbose: bool = True) -> dict[str, Any]:
                     refused += 1
                     if verbose:
                         print(f"{asker:<10} {party_id.split('_')[0]:<10} {field:<22} "
-                              f"{level:<9} ABGELEHNT {reply['code']}")
+                              f"{level:<9} REFUSED {reply['code']}")
                     continue
 
                 shown = str(reply["value"])[:28]
@@ -122,19 +123,19 @@ def prove(case_id: str, verbose: bool = True) -> dict[str, Any]:
                           f"{level:<9} {shown}{scope}")
 
                 if level == "raw":
-                    # Erlaubte Offenlegung. Sie ist der Nennwert, nicht der Fehler.
+                    # Authorised disclosure. It is the denominator, not the error.
                     authorised_raw += 1
                     continue
 
-                # Die eigentliche Pruefung: eine nicht-rohe Aufloesung darf keinen
-                # Rohwert dieses Feldes enthalten.
+                # The actual check: a non-raw resolution must not contain any raw
+                # value of this field.
                 for needle in sorted(needles.get(field, set())):
                     if needle in blob:
                         violations.append(
-                            f"{asker} bekam {field!r} als {level!r}, aber {needle!r} "
-                            f"steht in der Antwort von {party_id}"
+                            f"{asker} got {field!r} as {level!r}, but {needle!r} "
+                            f"is in the answer from {party_id}"
                         )
-                # Und keine Antwort ueber X darf einen Rohwert von Y mitschleppen.
+                # And no answer about X may drag along a raw value of Y.
                 for other, other_needles in needles.items():
                     if other == field:
                         continue
@@ -143,21 +144,21 @@ def prove(case_id: str, verbose: bool = True) -> dict[str, Any]:
                     for needle in sorted(other_needles):
                         if len(needle) >= 6 and needle in blob:
                             cross_field.append(
-                                f"Antwort auf {field!r} an {asker} enthielt {needle!r} "
-                                f"aus {other!r}"
+                                f"answer on {field!r} to {asker} contained {needle!r} "
+                                f"from {other!r}"
                             )
 
     print("-" * 78)
-    print(f"{attempts} Grenzuebertritte versucht  |  {refused} abgelehnt  |  "
-          f"{authorised_raw} erlaubte Rohoffenlegungen  |  "
-          f"{attempts - refused - authorised_raw} projizierte Antworten")
+    print(f"{attempts} boundary crossings attempted  |  {refused} refused  |  "
+          f"{authorised_raw} authorised raw disclosures  |  "
+          f"{attempts - refused - authorised_raw} projected answers")
     checked = sum(len(v) for v in needles.values())
-    print(f"{checked} Rohzeichenketten gegen jede Antwort geprueft, in der die Matrix "
-          "nicht 'raw' sagt.")
+    print(f"{checked} raw strings checked against every answer where the matrix "
+          "does not say 'raw'.")
     for line in violations + cross_field:
-        print(f"  VERSTOSS  {line}")
+        print(f"  VIOLATION  {line}")
     if not violations and not cross_field:
-        print("  kein Verstoss.")
+        print("  no violation.")
     return {
         "case_id": case_id,
         "attempts": attempts,
@@ -184,26 +185,26 @@ def main() -> int:
     if "--json" in sys.argv:
         out = Path(__file__).resolve().parents[1] / "view" / "fixtures" / "boundary.json"
         out.write_text(json.dumps({
-            "_comment": "Erzeugt von scripts/wire_proof.py --json. Jeder Grenzuebertritt, "
-                        "den eine Partei versuchen koennte, und was daraus wurde.",
+            "_comment": "Generated by scripts/wire_proof.py --json. Every boundary crossing "
+                        "a party could attempt, and what came of it.",
             "cases": [{k: v for k, v in r.items()} for r in results],
         }, indent=2, ensure_ascii=False, default=str) + "\n", encoding="utf-8")
-        print(f"\ngeschrieben: {out.relative_to(out.parents[2])}")
+        print(f"\nwritten: {out.relative_to(out.parents[2])}")
 
     print(f"\n{'=' * 78}")
-    print(f"{len(ids)} Faelle  |  {attempts} Grenzuebertritte  |  {refused} abgelehnt  |  "
-          f"{authorised} erlaubte Rohoffenlegungen  |  {needles} Rohwerte geprueft")
+    print(f"{len(ids)} cases  |  {attempts} boundary crossings  |  {refused} refused  |  "
+          f"{authorised} authorised raw disclosures  |  {needles} raw values checked")
     if violations:
-        print(f"\nFEHLGESCHLAGEN -- {len(violations)} Verstoss/Verstoesse:")
+        print(f"\nFAILED -- {len(violations)} violation(s):")
         for line in violations:
             print(f"  {line}")
         return 1
-    print("\nBESTANDEN. Kein Rohwert hat eine Rolle erreicht, die ihn nicht haben darf.")
-    print(f"Der Nennwert steht daneben: {refused} Versuche wurden getippt abgelehnt, und")
-    print(f"{authorised} Rohoffenlegungen sind erlaubt und als solche ausgewiesen -- der")
-    print("Test unterscheidet also zwischen beidem, statt jede Offenlegung zu melden.")
-    print("Nicht weil ein Prompt es verbietet: die Projektion laeuft auf dem Knoten der")
-    print("Partei, und ein ConfigRecord traegt nur Skalare.")
+    print("\nPASSED. No raw value reached a role that may not have it.")
+    print(f"The denominator is reported alongside: {refused} attempts were refused with a type, and")
+    print(f"{authorised} raw disclosures are authorised and reported as such -- so the")
+    print("test distinguishes between the two instead of flagging every disclosure.")
+    print("Not because a prompt forbids it: the projection runs on the party's node,")
+    print("and a ConfigRecord only carries scalars.")
     return 0
 
 

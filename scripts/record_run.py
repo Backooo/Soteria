@@ -1,15 +1,14 @@
-"""Einen Vorfall fahren und als Ereignisstrom aufzeichnen.
+"""Run an incident and record it as an event stream.
 
     uv run python scripts/record_run.py s1
     uv run python scripts/record_run.py --all
 
-Schreibt `view/fixtures/<case>.json` in der Form aus `docs/EVENTS.md`.
+Writes `view/fixtures/<case>.json` in the shape described in `docs/EVENTS.md`.
 
-Laeuft **ohne** SuperLink: `local_sender` ruft die Handler der Parteiknoten
-direkt auf, statt Nachrichten zu verschicken. Alles andere ist der
-Produktionspfad -- dieselbe `Assessor`-Klasse, dieselbe Matrix, dieselben
-Riegel. Der Unterschied ist der Transport, nicht die Logik, und genau so steht
-er in der Ehrlichkeitstabelle.
+Runs **without** a SuperLink: `local_sender` calls the party nodes' handlers
+directly instead of sending messages. Everything else is the production path --
+the same `Assessor` class, the same matrix, the same bolts. The difference is the
+transport, not the logic, and that is exactly how the honesty table states it.
 """
 
 from __future__ import annotations
@@ -34,7 +33,7 @@ FIXTURES = Path(__file__).resolve().parents[1] / "view" / "fixtures"
 
 
 class Recorder:
-    """Sammelt die Ereignisse und gibt ihnen `seq` und `t`."""
+    """Collects the events and gives them `seq` and `t`."""
 
     def __init__(self) -> None:
         self.events: list[dict[str, Any]] = []
@@ -49,10 +48,10 @@ class Recorder:
 
 
 def local_sender(case: Case) -> Callable[[list[tuple[str, str]]], dict[str, list[dict[str, Any]]]]:
-    """Der Grid, ersetzt durch direkte Aufrufe der Knoten-Handler.
+    """The grid, replaced by direct calls to the node handlers.
 
-    Dieselbe Form wie in der Foederation: ein Frageplan je Knoten, Antworten je
-    Feld gesammelt.
+    Same shape as in the federation: one ask plan per node, answers collected
+    per field.
     """
 
     def send(plan: list[tuple[str, str]]) -> dict[str, list[dict[str, Any]]]:
@@ -112,13 +111,13 @@ def main() -> int:
         decision = data["outcome"]["decision"]
         verdict = (
             ", ".join(decision["measures"]) if decision
-            else f"KEINE ENTSCHEIDUNG ({data['outcome']['refusal']})"
+            else f"NO DECISION ({data['outcome']['refusal']})"
         )
         truth = data["case"]["truth"].get("measures") or []
         hit = bool(decision) and set(decision["measures"]) == set(truth)
-        print(f"{case_id}: {len(events):>3} Ereignisse, {refusals} Ablehnungen  "
-              f"-> {verdict:<30} soll {', '.join(truth):<26} "
-              f"{'TREFFER' if hit else 'ABWEICHUNG'}")
+        print(f"{case_id}: {len(events):>3} events, {refusals} refusals  "
+              f"-> {verdict:<30} expected {', '.join(truth):<26} "
+              f"{'HIT' if hit else 'MISMATCH'}")
     return 0
 
 

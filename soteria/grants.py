@@ -1,16 +1,15 @@
-"""Freigabestufen nach Umkehrbarkeit, und wer sie erteilt hat.
+"""Approval tiers by reversibility, and who granted them.
 
-Zwei Eigenschaften garantiert dieses Modul:
+This module guarantees two properties:
 
-- **Ein Agent erteilt sich keine Freigabe.** `give()` weist jede `human_id`
-  zurueck, die ein Rollenname ist. Es gibt keinen Pfad, auf dem ein Modell sich
-  eintraegt: `give()` wird nur aus der Falldatei und von der Bedienung gerufen,
-  nie aus `team.py` oder `assessor_app.py`.
-- **Eine Freigabe gilt fuer genau diese Parameter.** Der Vergleich laeuft ueber
-  `digest(params)`, also unabhaengig von der Schluesselreihenfolge und
-  empfindlich fuer jede Aenderung. Ein geaendertes Feld ergibt `grant_mismatch`,
-  nicht `no_grant` -- der Unterschied ist die halbe Demo: "es lag eine Freigabe
-  vor, aber nicht fuer das hier".
+- **An agent never grants itself approval.** `give()` rejects every `human_id`
+  that is a role name. There is no path by which a model signs itself in:
+  `give()` is only called from the case file and by the operator, never from
+  `team.py` or `assessor_app.py`.
+- **A grant is valid for exactly these parameters.** The comparison runs over
+  `digest(params)`, so it is independent of key order and sensitive to any
+  change. A changed field yields `grant_mismatch`, not `no_grant` -- that
+  difference is half the demo: "there was a grant, but not for this".
 """
 
 from __future__ import annotations
@@ -20,7 +19,7 @@ from typing import Any, Mapping
 
 from .envelope import MEASURE, ROLES, EnvelopeError, digest
 
-# Stufe nach Umkehrbarkeit: 1 autonom, 2 ein Schluessel, 3 zwei Schluessel.
+# Tier by reversibility: 1 autonomous, 2 one key, 3 two keys.
 TIER: dict[str, int] = {
     "proceed": 1,
     "hold": 1,
@@ -33,12 +32,12 @@ TIER: dict[str, int] = {
     "press": 3,
 }
 
-# Wie viele VERSCHIEDENE Menschen eine Stufe freigeben muessen.
+# How many DISTINCT humans must approve a tier.
 KEYS_REQUIRED: dict[int, int] = {1: 0, 2: 1, 3: 2}
 
 
 def tier_of(measures: tuple[str, ...]) -> int:
-    """Eine Entscheidung ist so schwer umkehrbar wie ihr schwerster Teil."""
+    """A decision is as hard to reverse as its hardest part."""
     unknown = [m for m in measures if m not in TIER]
     if unknown:
         raise EnvelopeError("bad_value", f"unknown measures {unknown}")
@@ -49,7 +48,7 @@ def tier_of(measures: tuple[str, ...]) -> int:
 
 @dataclass(frozen=True)
 class Grant:
-    """Die Freigabe eines Menschen fuer eine Maßnahme mit genau diesen Parametern."""
+    """A human's approval for one measure with exactly these parameters."""
 
     measure: str
     params_digest: str
@@ -57,7 +56,7 @@ class Grant:
 
 
 class GrantBook:
-    """Wer was freigegeben hat. Ein Modell kommt hier nicht hinein."""
+    """Who approved what. A model never gets in here."""
 
     def __init__(self) -> None:
         self._grants: list[Grant] = []
@@ -76,18 +75,17 @@ class GrantBook:
         return grant
 
     def load(self, keys: Any) -> None:
-        """Die Freigaben eines Falls eintragen -- sie stammen von Menschen."""
+        """Record the grants of a case -- they come from humans."""
         for key in keys or ():
             if not isinstance(key, Mapping):
                 raise EnvelopeError("bad_value", "a key must be an object")
             self.give(str(key.get("measure")), key.get("params") or {}, str(key.get("human_id")))
 
     def require(self, measures: tuple[str, ...], params: Mapping[str, Any]) -> tuple[str, ...]:
-        """Die Schluessel fuer `measures` mit `params`, oder eine getippte Ablehnung.
+        """The keys for `measures` with `params`, or a typed rejection.
 
-        Jede Maßnahme muss ihre eigene Stufe erfuellen. Eine Stufe-3-Maßnahme
-        laesst sich nicht dadurch freigeben, dass jemand die Stufe-2-Maßnahme
-        daneben unterschrieben hat.
+        Every measure must satisfy its own tier. A tier-3 measure cannot be
+        approved by someone having signed the tier-2 measure next to it.
         """
         tier = tier_of(measures)
         if KEYS_REQUIRED[tier] == 0:

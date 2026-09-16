@@ -9,11 +9,11 @@
       "road_access": "single_lane",
       "locality_class": "village",
       "_context": {
-        "nearest_place": "Oberbach (erfunden)",
+        "nearest_place": "Oberbach (fictional)",
         "distance_to_place_km": 0.6,
         "nearest_terminal": "Terminal West",
         "distance_to_terminal_km": 22.0,
-        "roads": ["K 14, einspurig, 12 t Beschraenkung"],
+        "roads": ["K 14, single lane, 12 t limit"],
         "alt_routes": [{"via": "R-09 / R-21 / R-08b", "extra_minutes": 145}]
       }
     }

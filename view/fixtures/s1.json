@@ -1,12 +1,12 @@
 {
   "case": {
     "id": "s1",
-    "title": "Kleines Hindernis, Kuehlaggregat an einem Frischwarenwagen beschaedigt",
+    "title": "Small obstruction, refrigeration unit damaged on a fresh-goods wagon",
     "report": {
       "incident_id": "INC-1001",
       "train_id": "TR-1001",
       "location": "Rail segment R-12, km 18.4",
-      "ts": "2026-09-16T09:15:00Z",
+      "ts": "2026-09-16T13:05:00Z",
       "symptom": "Small obstruction encountered in front of the locomotive followed by minor impact",
       "incident_type": "damage_and_obstruction",
       "severity": "low",
@@ -45,7 +45,7 @@
       ],
       "tier": 1,
       "reason_code": "safety",
-      "why": "Aggregat unrund, Ware aber noch im Fenster (gelb). Kunde hat 4,5 Tage Bestand (gruen) und Routine-Dringlichkeit, Vertragsstrafe unter der Schwelle. Kuehlen reicht; Umladen waere teuer und unnoetig.",
+      "why": "Unit running rough, but the goods are still within their window (yellow). Customer has 4.5 days of stock (green) and routine urgency, contract penalty below the threshold. Cooling is enough; transshipment would be expensive and unnecessary.",
       "must_not": [
         "reload",
         "alt_transport",
@@ -71,14 +71,14 @@
         "roles_missing": []
       },
       "reason_code": "safety",
-      "receipt_hash": "f396149942da7f05"
+      "receipt_hash": "27c8e496ceaaa29d"
     },
     "refusal": null
   },
   "events": [
     {
       "seq": 1,
-      "t": 0.0,
+      "t": 0.001,
       "type": "soteria.incident.open",
       "case_id": "s1",
       "incident_id": "INC-1001",
@@ -102,7 +102,7 @@
     },
     {
       "seq": 2,
-      "t": 0.0,
+      "t": 0.001,
       "type": "soteria.role.ready",
       "party_id": "carrier_rheinrail",
       "party_type": "carrier",
@@ -114,7 +114,7 @@
     },
     {
       "seq": 3,
-      "t": 0.0,
+      "t": 0.001,
       "type": "soteria.role.ready",
       "party_id": "supplier_nordfrost",
       "party_type": "supplier",
@@ -125,7 +125,7 @@
     },
     {
       "seq": 4,
-      "t": 0.0,
+      "t": 0.001,
       "type": "soteria.role.ready",
       "party_id": "customer_c1_frischemarkt",
       "party_type": "customer",
@@ -136,16 +136,16 @@
     },
     {
       "seq": 5,
-      "t": 0.0,
+      "t": 0.001,
       "type": "soteria.receipt",
       "seq_in_chain": 1,
       "kind": "incident",
-      "hash": "138eadfeff740883",
+      "hash": "daf0f328a398118b",
       "prev": "0000000000000000"
     },
     {
       "seq": 6,
-      "t": 0.005,
+      "t": 0.01,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "temperature_curve",
@@ -154,7 +154,7 @@
     },
     {
       "seq": 7,
-      "t": 0.005,
+      "t": 0.01,
       "type": "soteria.fact",
       "role": "intake",
       "field": "temperature_curve",
@@ -165,16 +165,16 @@
     },
     {
       "seq": 8,
-      "t": 0.005,
+      "t": 0.01,
       "type": "soteria.receipt",
       "seq_in_chain": 2,
       "kind": "fact",
-      "hash": "ac87d01fa1c8ec85",
-      "prev": "138eadfeff740883"
+      "hash": "9b8a0558ee17f245",
+      "prev": "daf0f328a398118b"
     },
     {
       "seq": 9,
-      "t": 0.005,
+      "t": 0.01,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "market_sensitive",
@@ -183,7 +183,7 @@
     },
     {
       "seq": 10,
-      "t": 0.005,
+      "t": 0.01,
       "type": "soteria.fact",
       "role": "legal",
       "field": "market_sensitive",
@@ -196,16 +196,16 @@
     },
     {
       "seq": 11,
-      "t": 0.005,
+      "t": 0.01,
       "type": "soteria.receipt",
       "seq_in_chain": 3,
       "kind": "fact",
-      "hash": "149b8b387c5c1d1c",
-      "prev": "ac87d01fa1c8ec85"
+      "hash": "6684d1f157b44082",
+      "prev": "9b8a0558ee17f245"
     },
     {
       "seq": 12,
-      "t": 0.005,
+      "t": 0.01,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "cargo_class",
@@ -214,7 +214,7 @@
     },
     {
       "seq": 13,
-      "t": 0.005,
+      "t": 0.01,
       "type": "soteria.fact",
       "role": "intake",
       "field": "cargo_class",
@@ -225,16 +225,16 @@
     },
     {
       "seq": 14,
-      "t": 0.005,
+      "t": 0.01,
       "type": "soteria.receipt",
       "seq_in_chain": 4,
       "kind": "fact",
-      "hash": "3d6fc210c7879886",
-      "prev": "149b8b387c5c1d1c"
+      "hash": "b7b54dd607a5afa3",
+      "prev": "6684d1f157b44082"
     },
     {
       "seq": 15,
-      "t": 0.005,
+      "t": 0.01,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "route_weakness",
@@ -243,7 +243,7 @@
     },
     {
       "seq": 16,
-      "t": 0.005,
+      "t": 0.01,
       "type": "soteria.fact",
       "role": "intake",
       "field": "route_weakness",
@@ -254,16 +254,16 @@
     },
     {
       "seq": 17,
-      "t": 0.005,
+      "t": 0.01,
       "type": "soteria.receipt",
       "seq_in_chain": 5,
       "kind": "fact",
-      "hash": "d3d05a206fb7218f",
-      "prev": "3d6fc210c7879886"
+      "hash": "3f1f09133cb0fdb0",
+      "prev": "b7b54dd607a5afa3"
     },
     {
       "seq": 18,
-      "t": 0.005,
+      "t": 0.01,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "alt_route_status",
@@ -272,7 +272,7 @@
     },
     {
       "seq": 19,
-      "t": 0.005,
+      "t": 0.01,
       "type": "soteria.fact",
       "role": "intake",
       "field": "alt_route_status",
@@ -283,16 +283,16 @@
     },
     {
       "seq": 20,
-      "t": 0.005,
+      "t": 0.01,
       "type": "soteria.receipt",
       "seq_in_chain": 6,
       "kind": "fact",
-      "hash": "99c3705ac218057e",
-      "prev": "d3d05a206fb7218f"
+      "hash": "adbfa956df038cc5",
+      "prev": "3f1f09133cb0fdb0"
     },
     {
       "seq": 21,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "road_access",
@@ -301,7 +301,7 @@
     },
     {
       "seq": 22,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.fact",
       "role": "intake",
       "field": "road_access",
@@ -312,16 +312,16 @@
     },
     {
       "seq": 23,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.receipt",
       "seq_in_chain": 7,
       "kind": "fact",
-      "hash": "a24d5e25948066fc",
-      "prev": "99c3705ac218057e"
+      "hash": "07a38baaff62a0d5",
+      "prev": "adbfa956df038cc5"
     },
     {
       "seq": 24,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "locality_class",
@@ -330,7 +330,7 @@
     },
     {
       "seq": 25,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.fact",
       "role": "intake",
       "field": "locality_class",
@@ -341,16 +341,16 @@
     },
     {
       "seq": 26,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.receipt",
       "seq_in_chain": 8,
       "kind": "fact",
-      "hash": "fd56fc051862e1b5",
-      "prev": "a24d5e25948066fc"
+      "hash": "df8da839e08410fe",
+      "prev": "07a38baaff62a0d5"
     },
     {
       "seq": 27,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "replacement_available",
@@ -359,7 +359,7 @@
     },
     {
       "seq": 28,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.fact",
       "role": "supplier",
       "field": "replacement_available",
@@ -370,16 +370,16 @@
     },
     {
       "seq": 29,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.receipt",
       "seq_in_chain": 9,
       "kind": "fact",
-      "hash": "cb07388eaa2bade3",
-      "prev": "fd56fc051862e1b5"
+      "hash": "4d08681e9a8738b1",
+      "prev": "df8da839e08410fe"
     },
     {
       "seq": 30,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "cooling_required",
@@ -388,7 +388,7 @@
     },
     {
       "seq": 31,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.fact",
       "role": "supplier",
       "field": "cooling_required",
@@ -399,16 +399,16 @@
     },
     {
       "seq": 32,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.receipt",
       "seq_in_chain": 10,
       "kind": "fact",
-      "hash": "3827b16186354b41",
-      "prev": "cb07388eaa2bade3"
+      "hash": "08d6673284f1fa91",
+      "prev": "4d08681e9a8738b1"
     },
     {
       "seq": 33,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "customer_stock",
@@ -417,7 +417,7 @@
     },
     {
       "seq": 34,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.fact",
       "role": "customer",
       "field": "customer_stock",
@@ -428,16 +428,16 @@
     },
     {
       "seq": 35,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.receipt",
       "seq_in_chain": 11,
       "kind": "fact",
-      "hash": "7e3acef81851dced",
-      "prev": "3827b16186354b41"
+      "hash": "058293ff178fa990",
+      "prev": "08d6673284f1fa91"
     },
     {
       "seq": 36,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "customer_urgency",
@@ -446,7 +446,7 @@
     },
     {
       "seq": 37,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.fact",
       "role": "customer",
       "field": "customer_urgency",
@@ -457,16 +457,16 @@
     },
     {
       "seq": 38,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.receipt",
       "seq_in_chain": 12,
       "kind": "fact",
-      "hash": "bee7db059f84846c",
-      "prev": "7e3acef81851dced"
+      "hash": "dfe943c9667e476f",
+      "prev": "058293ff178fa990"
     },
     {
       "seq": 39,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "contract_penalty",
@@ -475,7 +475,7 @@
     },
     {
       "seq": 40,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.fact",
       "role": "legal",
       "field": "contract_penalty",
@@ -486,16 +486,16 @@
     },
     {
       "seq": 41,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.receipt",
       "seq_in_chain": 13,
       "kind": "fact",
-      "hash": "5151b4f9eb68a6f6",
-      "prev": "bee7db059f84846c"
+      "hash": "05dcb0daf6b84007",
+      "prev": "dfe943c9667e476f"
     },
     {
       "seq": 42,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "contract_deadline_h",
@@ -504,7 +504,7 @@
     },
     {
       "seq": 43,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.fact",
       "role": "legal",
       "field": "contract_deadline_h",
@@ -515,16 +515,16 @@
     },
     {
       "seq": 44,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.receipt",
       "seq_in_chain": 14,
       "kind": "fact",
-      "hash": "3df24ff9c88fdbd7",
-      "prev": "5151b4f9eb68a6f6"
+      "hash": "2cc1f2f416c4389b",
+      "prev": "05dcb0daf6b84007"
     },
     {
       "seq": 45,
-      "t": 0.005,
+      "t": 0.011,
       "type": "soteria.coverage",
       "answered": 13,
       "asked": 13,
@@ -537,7 +537,48 @@
     },
     {
       "seq": 46,
-      "t": 0.005,
+      "t": 0.011,
+      "type": "soteria.model.request",
+      "model": "flower-endeavor-v1.0",
+      "federation": "supergrid",
+      "signals": [
+        "alt_route_status",
+        "cargo_class",
+        "contract_deadline_h",
+        "contract_penalty",
+        "cooling_required",
+        "customer_stock",
+        "customer_urgency",
+        "locality_class",
+        "market_sensitive",
+        "replacement_available",
+        "road_access",
+        "route_weakness",
+        "temperature_curve"
+      ]
+    },
+    {
+      "seq": 47,
+      "t": 49.741,
+      "type": "soteria.model.decision",
+      "model": "flower-endeavor-v1.0",
+      "decided_by": "llm",
+      "measures": [
+        "cool"
+      ],
+      "reason_code": "safety",
+      "rationale": "Yellow temperature with required cooling and green customer stock calls only for cooling. Track is clear and train is operational, so no stop or reroute is needed.",
+      "policy_measures": [
+        "cool"
+      ],
+      "agrees_with_policy": true,
+      "floor_added": [],
+      "error": "",
+      "latency_seconds": 49.73
+    },
+    {
+      "seq": 48,
+      "t": 49.741,
       "type": "soteria.grant.required",
       "measures": [
         "cool"
@@ -546,17 +587,17 @@
       "keys_needed": 0
     },
     {
-      "seq": 47,
-      "t": 0.005,
+      "seq": 49,
+      "t": 49.741,
       "type": "soteria.receipt",
       "seq_in_chain": 15,
       "kind": "decision",
-      "hash": "f396149942da7f05",
-      "prev": "3df24ff9c88fdbd7"
+      "hash": "27c8e496ceaaa29d",
+      "prev": "2cc1f2f416c4389b"
     },
     {
-      "seq": 48,
-      "t": 0.005,
+      "seq": 50,
+      "t": 49.741,
       "type": "soteria.decision",
       "measures": [
         "cool"
@@ -573,7 +614,7 @@
         "roles_missing": []
       },
       "reason_code": "safety",
-      "receipt_hash": "f396149942da7f05",
+      "receipt_hash": "27c8e496ceaaa29d",
       "parties_missing": [],
       "scopes": {
         "temperature_curve": "W02",
@@ -582,20 +623,23 @@
         "cooling_required": "cooled",
         "customer_stock": "cooled",
         "customer_urgency": "cooled"
-      }
+      },
+      "decided_by": "llm",
+      "model": "flower-endeavor-v1.0",
+      "rationale": "Yellow temperature with required cooling and green customer stock calls only for cooling. Track is clear and train is operational, so no stop or reroute is needed."
     },
     {
-      "seq": 49,
-      "t": 0.005,
+      "seq": 51,
+      "t": 49.741,
       "type": "soteria.done",
-      "elapsed_seconds": 0.01,
+      "elapsed_seconds": 49.74,
       "refusals": 0,
       "refusal_codes": {},
       "asks": 13,
       "answers": 13,
       "quarantined": false,
       "receipt_chain_verified": true,
-      "receipt_head": "f396149942da7f05"
+      "receipt_head": "27c8e496ceaaa29d"
     }
   ]
 }

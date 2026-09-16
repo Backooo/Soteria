@@ -44,6 +44,10 @@ clientapp = "soteria.party_app:app"
 [tool.flwr.app.config]
 case = "s1"
 budget_seconds = 240
+# The assessor decides with this LLM, via the AgentApp in agent/ on SuperGrid.
+llm = true
+model = "flower-endeavor-v1.0"
+federation = "supergrid"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

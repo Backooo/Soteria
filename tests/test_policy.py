@@ -1,7 +1,7 @@
-"""Die Regelmaschine sieht nur Projektionen -- nie eine Zahl, nie eine Fall-ID.
+"""The rule engine sees only projections -- never a number, never a case ID.
 
-Das ist die Integritaetsbedingung dieser Datei. Sonst waere die Trefferquote
-eine Zahl ueber sich selbst.
+That is the integrity condition of this file. Otherwise the hit rate would be a
+number about itself.
 """
 
 import inspect
@@ -11,10 +11,10 @@ from soteria.envelope import MEASURE, REASON
 
 
 def _code_strings_and_names(module) -> set[str]:
-    """Alle Bezeichner und Literale des Moduls -- ohne Docstrings und Kommentare.
+    """All identifiers and literals of the module -- without docstrings and comments.
 
-    Ein Rohtext-Scan wuerde die Warnung im Docstring selbst als Fund melden.
-    Geprueft wird der Code, nicht die Prosa darueber.
+    A raw-text scan would report the warning in the docstring itself as a hit.
+    The code is checked, not the prose about it.
     """
     import ast
 
@@ -48,8 +48,8 @@ def test_decide_cannot_see_the_case_id_or_the_truth():
     for forbidden in ("case_id", "truth", "s1", "s2", "s3", "h1", "load_case",
                       "load_scenario", "cases", "party_id", "display_name"):
         assert forbidden not in tokens, (
-            f"policy.py benutzt {forbidden!r} im Code -- damit koennte eine Regel "
-            "einen einzelnen Fall erkennen, und die Trefferquote waere wertlos"
+            f"policy.py uses {forbidden!r} in code -- a rule could then recognise "
+            "a single case, and the hit rate would be worthless"
         )
 
 
@@ -71,7 +71,7 @@ def test_hazmat_next_to_housing_stops_even_if_the_train_could_move():
 
 
 def test_hazmat_in_open_country_on_a_rolling_train_does_not_escalate():
-    """Gefahrgut allein ist kein Grund fuer Stufe 3. Die Lage macht den Unterschied."""
+    """Hazmat alone is no reason for tier 3. The situation makes the difference."""
     measures, _ = policy.decide(
         {"locality_class": "open_country", "temperature_curve": "gruen"}, ("hazmat",), (),
         {"train_operational": "normal", "track_blocked": False},
@@ -151,7 +151,7 @@ def test_a_penalty_above_the_threshold_reloads():
 
 
 def test_an_amber_temperature_with_full_stock_only_cools():
-    """Die Ampel auf dem Bestand verhindert die teure Maßnahme."""
+    """The traffic light on stock prevents the expensive measure."""
     measures, reason = policy.decide(
         {"temperature_curve": "gelb", "cooling_required": True, "customer_stock": "gruen",
          "contract_penalty": "below"},

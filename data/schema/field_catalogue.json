@@ -1,22 +1,22 @@
 {
   "catalogue_version": 1,
   "_comment": [
-    "DER FELDKATALOG. Das ist die Need-to-know-Matrix als Daten.",
-    "soteria/matrix.py laedt diese Datei und validiert sie beim Import.",
+    "THE FIELD CATALOGUE. This is the need-to-know matrix as data.",
+    "soteria/matrix.py loads this file and validates it on import.",
     "",
-    "Ein neues Feld hinzufuegen  : Eintrag unter 'fields' anlegen. Kein Codeeingriff,",
-    "                             solange der 'projectors'-Eintrag nur Namen aus",
-    "                             'known_projectors' benutzt.",
-    "Ein Feld entfernen          : Eintrag loeschen. Der Validator meldet danach jede",
-    "                             Datendatei, die es noch fuehrt.",
-    "Sichtbarkeit aendern        : 'visibility' bearbeiten. Das ist die eigentliche",
-    "                             Sicherheitsentscheidung und der Ort, an dem sie",
-    "                             bestritten werden kann.",
-    "Schwelle aendern            : 'thresholds' bearbeiten. Ein Szenario darf sie",
-    "                             ueberschreiben, ohne diese Datei anzufassen.",
-    "Neue ART von Projektion     : Funktion in soteria/matrix.py ergaenzen UND hier",
-    "                             unter 'known_projectors' eintragen.",
-    "Ein Rohobjekt kann den Draht nicht ueberqueren -- ConfigRecord traegt nur Skalare. Ein Feld, dessen Rohform ein Objekt ist, braucht daher auch fuer 'raw' einen Projektor, der einen Skalar liefert (contact_line, curve_line). Das schwaecht nichts ab: die Matrix entscheidet weiter, WER es bekommt."
+    "Add a new field           : create an entry under 'fields'. No code change,",
+    "                            as long as the 'projectors' entry only uses names",
+    "                            from 'known_projectors'.",
+    "Remove a field            : delete the entry. The validator then reports every",
+    "                            data file that still holds it.",
+    "Change visibility         : edit 'visibility'. This is the actual security",
+    "                            decision and the place where it can be",
+    "                            disputed.",
+    "Change a threshold        : edit 'thresholds'. A scenario may override it",
+    "                            without touching this file.",
+    "New KIND of projection    : add a function in soteria/matrix.py AND list it",
+    "                            here under 'known_projectors'.",
+    "A raw object cannot cross the wire -- ConfigRecord only carries scalars. A field whose raw form is an object therefore needs a projector that returns a scalar even for 'raw' (contact_line, curve_line). That weakens nothing: the matrix still decides WHO gets it."
   ],
   "roles": [
     "intake",
@@ -26,7 +26,7 @@
     "customer"
   ],
   "record_types": {
-    "_comment": "Welcher Datensatz welchem Parteityp gehoert. Ein Knoten laedt genau die Datensaetze seines Parteityps -- und bei 'scoped_by' nur die eigenen Zeilen.",
+    "_comment": "Which record belongs to which party type. A node loads exactly the records of its party type -- and with 'scoped_by' only its own rows.",
     "incident": {
       "held_by": "carrier",
       "speaks_as": "intake"
@@ -60,7 +60,7 @@
       "held_by": "shared",
       "speaks_as": "legal",
       "scoped_by": "parties",
-      "_comment": "Ein Vertrag gehoert einem (Kunde, Zulieferer)-Paar. Beide Knoten laden ihn, der Vertragsagent des Betreibers auch. Kunde 2 laedt Vertrag 1 nie -- das ist Zeilenschutz durch die Foederation, nicht Feldschutz durch die Matrix."
+      "_comment": "A contract belongs to a (customer, supplier) pair. Both nodes load it, and so does the operator's contract agent. Customer 2 never loads contract 1 -- that is row-level protection by the federation, not field-level protection by the matrix."
     }
   },
   "known_projectors": [
@@ -88,7 +88,7 @@
       "kind": "enum",
       "vocabulary": "cargo_class",
       "per": "wagon",
-      "note": "Die Ladungsklasse eines Wagens. Der Bewerter erfaehrt die Regulierungslage, nicht die Ware.",
+      "note": "The cargo class of a wagon. The assessor learns the regulatory status, not the goods.",
       "projectors": {
         "raw": "raw",
         "coarse": "coarse_cargo"
@@ -111,7 +111,7 @@
         "limit_c": "number",
         "minutes_out": "number"
       },
-      "note": "Die Kuehlkurve eines betroffenen Wagens. Der Bewerter bekommt eine Ampel.",
+      "note": "The cooling curve of an affected wagon. The assessor gets a traffic light.",
       "projectors": {
         "raw": "curve_line",
         "ampel": "ampel_temperature"
@@ -133,7 +133,7 @@
       "kind": "number",
       "unit": "days",
       "per": "consignment",
-      "note": "Bestandsdeckung in Tagen. Der Bewerter muss wissen DASS es knapp ist, nie WIE knapp.",
+      "note": "Stock cover in days. The assessor needs to know THAT it is low, never HOW low.",
       "projectors": {
         "raw": "raw",
         "ampel": "ampel_stock"
@@ -155,7 +155,7 @@
       "kind": "enum",
       "vocabulary": "urgency",
       "per": "consignment",
-      "note": "Wie dringend der Kunde die Ware braucht. Der Zulieferer darf das nicht sehen -- er wuerde danach bepreisen.",
+      "note": "How urgently the customer needs the goods. The supplier may not see this -- it would price accordingly.",
       "projectors": {
         "raw": "raw",
         "ampel": "ampel_urgency"
@@ -172,7 +172,7 @@
       "owner": "customer",
       "kind": "enum",
       "vocabulary": "trade",
-      "note": "Gewerbe des Kunden. Grob genug, dass der Bewerter Pflege von Handel unterscheiden kann, ohne den Kunden zu kennen.",
+      "note": "The customer's trade. Coarse enough for the assessor to tell care from retail without knowing the customer.",
       "projectors": {
         "raw": "raw",
         "coarse": "coarse_trade"
@@ -195,7 +195,7 @@
         "phone": "string",
         "hours": "string"
       },
-      "note": "Zustaendige Person beim Kunden. Personendaten -- nur die Aufnahme und der Kunde selbst. Der Bewerter erfaehrt nicht einmal, wie viele es sind: eine Anzahl ist auch Information.",
+      "note": "Responsible person at the customer. Personal data -- only the intake and the customer itself. The assessor does not even learn how many there are: a count is information too.",
       "projectors": {
         "raw": "contact_line"
       },
@@ -214,7 +214,7 @@
       "owner": "contract",
       "kind": "number",
       "unit": "EUR",
-      "note": "Vertragsstrafe. Kunde und Zulieferer sind die Vertragsparteien und sehen sie beide; der Vertragsagent des Betreibers fuehrt den Vertrag. Der Bewerter bekommt nur ueber/unter.",
+      "note": "Contract penalty. Customer and supplier are the contracting parties and both see it; the operator's contract agent administers the contract. The assessor only gets above/below.",
       "projectors": {
         "raw": "raw",
         "schwelle": "schwelle_money"
@@ -234,7 +234,7 @@
       "owner": "contract",
       "kind": "number",
       "unit": "hours",
-      "note": "Restzeit bis zur vertraglichen Frist. Der Bewerter erfaehrt, ob sie reisst.",
+      "note": "Time left until the contractual deadline. The assessor learns whether it will be missed.",
       "projectors": {
         "raw": "raw",
         "schwelle": "schwelle_hours"
@@ -254,7 +254,7 @@
       "owner": "contract",
       "kind": "number",
       "unit": "EUR",
-      "note": "Haftungshoechstgrenze. Reine Vertragssache -- der Bewerter braucht sie nicht, um eine Maßnahme zu waehlen.",
+      "note": "Liability cap. Purely a contract matter -- the assessor does not need it to choose a measure.",
       "projectors": {
         "raw": "raw"
       },
@@ -275,7 +275,7 @@
         "eta_min": "number",
         "terminal": "string"
       },
-      "note": "Ersatzlieferung. Der Kunde sieht eine Ampel, damit er planen kann, aber nicht das Terminal des Zulieferers.",
+      "note": "Replacement delivery. The customer sees a traffic light so it can plan, but not the supplier's terminal.",
       "projectors": {
         "raw": "offer_line",
         "ampel": "ampel_replacement"
@@ -295,7 +295,7 @@
       "owner": "supplier",
       "kind": "bool",
       "per": "cargo_class",
-      "note": "Ob die Ware aktiv gekuehlt werden muss. Ein Flag reicht dem Bewerter.",
+      "note": "Whether the goods must be actively cooled. A flag is enough for the assessor.",
       "projectors": {
         "raw": "raw",
         "flag": "flag"
@@ -312,7 +312,7 @@
       "owner": "network",
       "kind": "number",
       "unit": "severity_0_3",
-      "note": "Bekannte Schwachstelle des Streckenabschnitts. Betriebsgeheimnis des Betreibers -- niemand ausser dem Bewerter sieht davon etwas, und der nur als Ampel.",
+      "note": "Known weakness of the line segment. The operator's trade secret -- nobody except the assessor sees any of it, and the assessor only as a traffic light.",
       "projectors": {
         "ampel": "ampel_route"
       },
@@ -331,7 +331,7 @@
       "owner": "network",
       "kind": "enum",
       "vocabulary": "alt_route_status",
-      "note": "Alternativroute fuer den Zug. Entscheidet, ob alt_transport ueberhaupt machbar ist.",
+      "note": "Alternative route for the train. Decides whether alt_transport is feasible at all.",
       "projectors": {
         "raw": "raw",
         "ampel": "ampel_route"
@@ -348,7 +348,7 @@
       "owner": "network",
       "kind": "enum",
       "vocabulary": "road_access",
-      "note": "Wie gut die Stelle mit dem Lkw erreichbar ist. Ohne Strasse ist Umladen keine Option.",
+      "note": "How well the site can be reached by truck. Without a road, transshipment is not an option.",
       "projectors": {
         "raw": "raw",
         "ampel": "ampel_road"
@@ -365,7 +365,7 @@
       "owner": "network",
       "kind": "enum",
       "vocabulary": "locality_class",
-      "note": "Umgebung der Unfallstelle. Bei Gefahrgut entscheidet die Naehe einer Ortschaft ueber die Stufe -- deshalb sieht der Vertragsagent sie auch.",
+      "note": "Surroundings of the accident site. With hazmat, the proximity of a settlement decides the tier -- that is why the contract agent sees it too.",
       "projectors": {
         "raw": "raw",
         "coarse": "coarse_locality"
@@ -381,7 +381,7 @@
     "market_sensitive": {
       "owner": "carrier",
       "kind": "bool",
-      "note": "Ob der Vorfall kursrelevant ist. Sobald gelesen, ist jeder ausgehende Kanal fuer den Rest des Laufs zu.",
+      "note": "Whether the incident is market sensitive. Once read, every outbound channel is shut for the rest of the run.",
       "projectors": {
         "flag": "flag"
       },

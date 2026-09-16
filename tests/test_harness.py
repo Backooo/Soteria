@@ -756,7 +756,7 @@ def test_policy_violation_is_raisable_and_typed():
 
 
 @pytest.mark.skip(
-    reason="prueft das geerbte librarian/researcher-Roster; fuer Soteria "
+    reason="checks the inherited librarian/researcher roster; for Soteria "
     "uebernimmt tests/test_roles.py diese Aufgabe mit den fuenf Rollen"
 )
 def test_demo_charter_is_valid_and_demonstrates_the_policy():

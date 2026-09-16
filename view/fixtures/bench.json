@@ -1,11 +1,11 @@
 {
-  "generated_at": 1789565069.245905,
+  "generated_at": 1789565187.213386,
   "baseline_source": "Angenommene Dauer einer Telefonkette aus fuenf Parteien einschliesslich Rueckrufen. Nicht gemessen -- eine Annahme, die als solche ausgewiesen ist.",
   "numbers": {
     "1_time": {
-      "logic_median_ms": 5.1,
-      "federation_median_s": 69.1,
-      "federation_max_s": 126.9,
+      "logic_median_ms": 9.1,
+      "federation_median_s": 6.2,
+      "federation_max_s": 6.4,
       "baseline_minutes": 47,
       "baseline_is_assumption": true
     },
@@ -50,8 +50,8 @@
       "tier": 1,
       "grants": [],
       "receipt_hash": "f396149942da7f05",
-      "seconds_logic": 0.0088,
-      "seconds_federation": 69.1,
+      "seconds_logic": 0.0117,
+      "seconds_federation": 6.4,
       "quarantined": false,
       "gap": {
         "offline": [
@@ -86,8 +86,8 @@
         "ops-lead-rheinrail-1"
       ],
       "receipt_hash": "6335c2a68bbe6712",
-      "seconds_logic": 0.0051,
-      "seconds_federation": 126.9,
+      "seconds_logic": 0.0064,
+      "seconds_federation": 6.2,
       "quarantined": false,
       "gap": {
         "offline": [
@@ -124,8 +124,8 @@
         "safety-officer-rheinrail-2"
       ],
       "receipt_hash": "6fce468926dfda37",
-      "seconds_logic": 0.0051,
-      "seconds_federation": 68.0,
+      "seconds_logic": 0.0091,
+      "seconds_federation": 3.2,
       "quarantined": true,
       "gap": {
         "offline": [
@@ -158,7 +158,7 @@
     },
     {
       "claim": "Entscheidung in Minuten statt Telefonkette",
-      "real": "Logik 5.1 ms, Foederation 69.1 s im Median",
+      "real": "Logik 9.1 ms, Foederation 6.2 s im Median",
       "simulated": "die Basislinie von 47 min ist eine ANNAHME"
     },
     {

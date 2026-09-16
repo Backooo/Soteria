@@ -70,7 +70,7 @@ beide Vertragsparteien, aber Kunde 2 lädt Vertrag 1 nie.
 ```
                     SuperLink
                         │
-   ServerApp  assessor  │  query.ask_field, ein Feld je Nachricht
+   ServerApp  assessor  │  query.ask_fields, der ganze Frageplan in einer Nachricht je Knoten
    (Bewerter)           │
         ┌───────────────┼────────────────┐
         ▼               ▼                ▼
@@ -92,7 +92,7 @@ uv run python scripts/bench.py
 
 | | |
 |---|---|
-| **Zeit** | Logik ~10 ms · echte Föderation 69 s im Median, 127 s maximal · Basislinie Telefonkette 47 min — **eine Annahme, keine Messung** |
+| **Zeit** | Logik ~5 ms · echte Föderation 3–6 s je Vorfall (7–12 s inklusive App-Installation) · Basislinie Telefonkette 47 min — **eine Annahme, keine Messung** |
 | **Treffer** | 3/3 auf den bekannten Fällen · Begründung passt 2/3 · **keine Holdout-Fälle, Wahrheit unbestätigt** |
 | **Dichtheit** | 234 Übertritte, 96 abgelehnt, 81 erlaubt, 0 Verstöße |
 | **Lücke** | 3/3 Fälle entschieden, obwohl der Kunde schweigt |
@@ -101,7 +101,7 @@ uv run python scripts/bench.py
 
 ```shell
 uv sync
-uv run pytest -q                            # 151 Tests
+uv run pytest -q                            # 163 Tests
 uv run python scripts/validate_data.py      # Datenbaum prüfen
 uv run python scripts/wire_proof.py         # der Grenzbeweis, ohne Netz
 uv run python scripts/bench.py              # die vier Zahlen

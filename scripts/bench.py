@@ -8,7 +8,7 @@ den Grenzbeweis und schreibt `view/fixtures/bench.json` fuer die Fallübersicht.
 **Was jede Zahl behauptet -- und was nicht.**
 
 1. Zeit bis zur Entscheidung. Gemessen wird die Logik ohne Transport; die echte
-   Foederation braucht 69-127 s (docs/RISKS.md). Beides wird ausgewiesen. Die
+   Foederation braucht 3-7 s (docs/RISKS.md). Beides wird ausgewiesen. Die
    Basislinie der Telefonkette ist eine ANNAHME, keine Messung.
 2. Trefferquote. Getrennt nach bekannten Faellen und Holdout. `policy.py` wurde
    gegen die bekannten Faelle geschrieben, deren Quote ist eine
@@ -54,8 +54,9 @@ BASELINE_SOURCE = (
     "Rueckrufen. Nicht gemessen -- eine Annahme, die als solche ausgewiesen ist."
 )
 
-# Aus docs/RISKS.md, gemessen 15:25 auf der echten Foederation.
-FEDERATION_SECONDS = {"s1": 69.1, "s2": 126.9, "s3": 68.0}
+# Aus docs/RISKS.md, gemessen auf der echten Foederation mit gebuendelter
+# Nachfrage (eine Nachricht je Knoten). Vorher, mit 13 Runden: 69,1 / 126,9 / 68,0 s.
+FEDERATION_SECONDS = {"s1": 6.4, "s2": 6.2, "s3": 3.2}
 
 
 def _run(case: Any) -> tuple[dict[str, Any] | None, str | None, float, list[dict]]:

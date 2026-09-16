@@ -2,29 +2,32 @@
 
 Was hier steht, ist gemessen oder am Quellcode nachgelesen — nicht erinnert.
 
-## Die Föderation läuft — gemessen 15:25
+## Die Föderation läuft — gemessen
 
-Drei SuperNodes, ein SuperLink, echte Flower-Nachrichten, lokal auf einem Rechner:
+Drei SuperNodes, ein SuperLink, echte Flower-Nachrichten, lokal auf einem Rechner.
+Zweimal gemessen, weil die erste Messung ein Bühnenrisiko aufgedeckt hat:
 
-| Fall | Entscheidung | Stufe | Schlüssel | Wahrheit | Dauer |
-|---|---|---|---|---|---|
-| s1 | `cool` | 1 | keine | TREFFER | 69,1 s |
-| s2 | `alt_transport` | 2 | ops-lead-rheinrail-1 | TREFFER | **126,9 s** |
-| s3 | `stop_train`, `notify_authority` | 3 | ops-lead + safety-officer | TREFFER | 68,0 s |
+| Fall | Entscheidung | Stufe | Schlüssel | Wahrheit | 13 Runden | **gebündelt** |
+|---|---|---|---|---|---:|---:|
+| s1 | `cool` | 1 | keine | TREFFER | 69,1 s | **6,4 s** |
+| s2 | `alt_transport` | 2 | ops-lead-rheinrail-1 | TREFFER | 126,9 s | **6,2 s** |
+| s3 | `stop_train`, `notify_authority` | 3 | ops-lead + safety-officer | TREFFER | 68,0 s | **3,2 s** |
 
 In s3 greift die Quarantäne (`browser_use`, `press`, `start_automation`,
-`web_fetch`, `web_search` gesperrt).
+`web_fetch`, `web_search` gesperrt). Die Wanduhr von `flwr run` bis zum Ergebnis,
+einschließlich der App-Installation auf dem SuperLink, lag bei 7–12 s.
+
+**Was die Beschleunigung war.** Jede Flower-Nachricht startet auf dem Knoten einen
+ClientApp-Prozess. 13 Nachfragerunden × 3 Knoten waren 39 Prozessstarts. Jetzt
+trägt eine Nachricht je Knoten den ganzen Frageplan (`query.ask_fields`), die
+Antwort ist ein `RecordDict` mit einem `ConfigRecord` je Feld. Gebündelt ist der
+Transport, nicht die Prüfung — jedes Feld geht weiter einzeln durch Matrix und
+Skalar-Riegel, und `tests/test_bundle.py` weist für s1–s3 nach, dass die
+gebündelte Antwort Feld für Feld gleich der Einzelantwort ist.
 
 **Befund zur Begründung:** s2 trifft die Maßnahmen, begründet sie aber mit
 `feasibility`; die hinterlegte Wahrheit sagt `safety`. Die Trefferquote zählt
 Maßnahmen, nicht Gründe — das ist offen auszuweisen, nicht zu verschweigen.
-
-**Risiko Laufzeit:** 69–127 s bei 13 Nachfragerunden, mit großer Streuung. Das
-passt zu Anlaufkosten der ClientApp-Unterprozesse, nicht zu der Logik (lokal
-ohne Föderation: unter 0,1 s je Fall). Für die Bühne heißt das:
-**den aufgezeichneten Lauf (`view/fixtures/`) zeigen**, den echten Lauf parallel
-starten. Eine zwei Minuten stehende Bühne verliert jede Jury. Behebbar, falls Zeit
-bleibt: alle Felder in **eine** Nachricht je Knoten bündeln statt 13 Runden.
 
 ## Plattformbefunde, am Quellcode belegt
 

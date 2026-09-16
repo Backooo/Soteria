@@ -122,3 +122,49 @@ def test_a_broken_catalogue_fails_at_import(tmp_path, label, mutate, needle):
     run = _import_with_broken_catalogue(tmp_path, mutate)
     assert run.returncode != 0, f"{label}: der Import ging durch"
     assert needle in run.stderr, f"{label}: erwartete {needle!r}, bekam:\n{run.stderr[-600:]}"
+
+
+def test_no_object_valued_field_uses_the_plain_raw_projector():
+    """Ein Rohobjekt kann den Draht nicht ueberqueren (ConfigRecord traegt nur
+    Skalare). Ein Objektfeld mit dem schlichten `raw`-Projektor liefert der Rolle,
+    der die Matrix es zugesteht, daher `bad_value` statt der Antwort.
+
+    Die Regel wurde erst fuer zwei Felder einzeln angewandt und dann beim dritten
+    vergessen. Dieser Test macht sie systematisch.
+    """
+    offenders = [
+        name for name, f in FIELDS.items()
+        if f.kind == "object" and f.projectors.get("raw") == "raw"
+    ]
+    assert not offenders, (
+        f"{offenders} sind Objektfelder mit schlichtem raw-Projektor; "
+        "gib ihnen einen skalaren Projektor (siehe contact_line, curve_line, offer_line)"
+    )
+
+
+def test_every_projection_to_every_allowed_role_is_a_scalar():
+    """Der Beweis zur Regel: jedes Feld, jede erlaubte Rolle, echte Falldaten."""
+    from soteria.cases import available_cases, load_case, raw_records_for_party
+    from soteria.envelope import ROLES
+    from soteria.wire import SCALARS
+
+    checked = 0
+    for case_id in available_cases():
+        case = load_case(case_id)
+        for party_id in case.party_ids:
+            for record_type, block in raw_records_for_party(case, party_id).items():
+                for field_name, raw in block.items():
+                    if field_name not in FIELDS:
+                        continue
+                    spec = FIELDS[field_name]
+                    values = raw.values() if isinstance(raw, dict) and spec.per else [raw]
+                    for value in values:
+                        for role in ROLES:
+                            if spec.visibility[role] == "none":
+                                continue
+                            projected = spec.project(value, role, case.thresholds)
+                            assert isinstance(projected, SCALARS), (
+                                f"{case_id}/{field_name} an {role}: {type(projected).__name__}"
+                            )
+                            checked += 1
+    assert checked > 100

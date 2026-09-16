@@ -77,7 +77,9 @@ def test_cargo_class_reaches_the_assessor_only_coarsely():
     """Das Vokabular kommt vom Datenstrang: pharmaceutical, perishable, hazmat, general_goods."""
     assert project("cargo_class", "pharmaceutical", "assessor", DEFAULT_THRESHOLDS) == "regulated"
     assert project("cargo_class", "hazmat", "assessor", DEFAULT_THRESHOLDS) == "hazardous"
-    assert project("cargo_class", "perishable", "assessor", DEFAULT_THRESHOLDS) == "perishable"
+    # Die Grobklasse heisst absichtlich NICHT wie der Feinwert -- sonst waere
+    # nicht pruefbar, ob vergroebert wurde. Siehe test_wire_proof.py.
+    assert project("cargo_class", "perishable", "assessor", DEFAULT_THRESHOLDS) == "cooled"
     assert project("cargo_class", "general_goods", "assessor", DEFAULT_THRESHOLDS) == "general"
     # Der Zulieferer behaelt die Ware selbst, nicht die Regulierungslage.
     assert project("cargo_class", "pharmaceutical", "supplier", DEFAULT_THRESHOLDS) == "pharmaceutical"
@@ -91,7 +93,10 @@ def test_replacement_availability_is_a_traffic_light_for_two_roles():
     assert project("replacement_available", near, "assessor", DEFAULT_THRESHOLDS) == "gruen"
     assert project("replacement_available", far, "assessor", DEFAULT_THRESHOLDS) == "gelb"
     assert project("replacement_available", none_, "assessor", DEFAULT_THRESHOLDS) == "rot"
-    assert project("replacement_available", near, "supplier", DEFAULT_THRESHOLDS) == near
+    # Der Zulieferer kennt sein Angebot -- als Zeile, weil ein Objekt den Draht
+    # nicht ueberqueren kann.
+    assert project("replacement_available", near, "supplier", DEFAULT_THRESHOLDS) == "Ersatz in 30 min"
+    assert project("replacement_available", none_, "supplier", DEFAULT_THRESHOLDS) == "kein Ersatz"
 
 
 def test_contact_person_never_reaches_the_assessor():

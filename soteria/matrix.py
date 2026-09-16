@@ -214,6 +214,15 @@ def _curve_line(raw: Any, th: Mapping[str, Any]) -> str:
     )
 
 
+def _offer_line(raw: Any, th: Mapping[str, Any]) -> str:
+    """Ein Ersatzangebot als eine Zeile, aus demselben Grund wie `_contact_line`."""
+    offer = _mapping(raw, "replacement_available")
+    if not bool(offer.get("available")):
+        return "kein Ersatz"
+    where = f" ab {offer['terminal']}" if offer.get("terminal") else ""
+    return f"Ersatz in {offer.get('eta_min', '?')} min{where}"
+
+
 def _flag(raw: Any, th: Mapping[str, Any]) -> bool:
     """Ein Flag ist immer ein bool. Ein Text wuerde Inhalt durchlassen."""
     return bool(raw)
@@ -238,6 +247,7 @@ PROJECTORS: dict[str, Callable[[Any, Mapping[str, Any]], Any]] = {
     "schwelle_hours": _schwelle_hours,
     "contact_line": _contact_line,
     "curve_line": _curve_line,
+    "offer_line": _offer_line,
     "flag": _flag,
     "count": _count,
 }
@@ -267,6 +277,28 @@ class Field:
     def speaks_as(self) -> str:
         """Die Agentenrolle, die fuer diesen Datensatz antwortet."""
         return str((RECORD_TYPES.get(self.owner) or {}).get("speaks_as", ""))
+
+    def project_at(
+        self, level: str, raw: Any, thresholds: Mapping[str, Any] | None = None
+    ) -> Any:
+        """Auf eine bestimmte Aufloesung projizieren, unabhaengig von einer Rolle.
+
+        Gebraucht, um bei einem mehrwertigen Feld die schlimmste Bezugsgroesse zu
+        waehlen: welche Konsignation die kritischste ist, darf nicht davon
+        abhaengen, wer fragt.
+        """
+        if level not in self.projectors:
+            raise EnvelopeError("bad_value", f"{self.name} has no {level!r} projector")
+        th = {**self.thresholds, **((thresholds or {}).get(self.name) or {})}
+        return PROJECTORS[self.projectors[level]](raw, th)
+
+    @property
+    def ranking_level(self) -> str | None:
+        """Die Aufloesung, nach der sich Bezugsgroessen vergleichen lassen."""
+        for level in ("ampel", "schwelle", "flag"):
+            if level in self.projectors:
+                return level
+        return None
 
     def project(self, raw: Any, role: str, thresholds: Mapping[str, Any] | None = None) -> Any:
         level = self.visibility.get(role)

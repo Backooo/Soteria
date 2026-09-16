@@ -32,10 +32,31 @@ from flwr.clientapp import ClientApp
 
 from .cases import Case, _worst, load_case, raw_records_for_party
 from .envelope import EnvelopeError
-from .matrix import FIELDS, visibility
+from .matrix import FIELDS, visibility, vocabulary
 from .wire import fact_record, read_ask, refusal_record, unwrap, wrap
 
 app = ClientApp()
+
+
+def _project_scope(scope: str, asker: str, thresholds: Mapping[str, Any]) -> str:
+    """Den Bezug einer Antwort auf die erlaubte Aufloesung bringen.
+
+    Eine Wagennummer (`W02`) ist kein Geheimnis -- sie steht in der gemeinsamen
+    Meldung. Eine Ladungsklasse ist eines: sie faellt unter `cargo_class` und
+    darf den Frager nur in der Aufloesung erreichen, die die Matrix ihm dort
+    zugesteht. Ohne diese Zeile waere `scope` ein Seitenkanal um die Matrix
+    herum.
+    """
+    if not scope:
+        return ""
+    if scope not in vocabulary("cargo_class"):
+        return scope
+    try:
+        return str(FIELDS["cargo_class"].project(scope, asker, thresholds))
+    except EnvelopeError:
+        # Der Frager darf die Ladungsklasse gar nicht kennen. Dann auch nicht
+        # als Bezug -- der Wert selbst bleibt gueltig.
+        return ""
 
 
 def answer_ask(
@@ -72,15 +93,28 @@ def answer_ask(
     scope = ""
     try:
         if isinstance(raw, Mapping):
-            # Mehrwertig: je Wagen, Konsignation oder Ladungsklasse. Projizieren,
-            # dann die schlimmste Bezugsgroesse nennen.
-            projected = {
-                str(key): spec.project(value, asker, case.thresholds)
-                for key, value in raw.items()
-            }
-            if not projected:
+            # Mehrwertig: je Wagen, Konsignation oder Ladungsklasse.
+            candidates = {str(k): v for k, v in raw.items() if not str(k).startswith("_")}
+            if not candidates:
                 return refuse("unknown_field")
-            scope, value = _worst(projected)
+            # Erst den Bezug waehlen, nach einer KANONISCHEN Schwere -- welche
+            # Konsignation die kritischste ist, darf nicht davon abhaengen, wer
+            # fragt. Dann den Wert fuer den Frager projizieren.
+            level = spec.ranking_level
+            if level:
+                severity = {
+                    key: spec.project_at(level, value, case.thresholds)
+                    for key, value in candidates.items()
+                }
+                scope, _ = _worst(severity)
+            else:
+                scope = next(iter(candidates))
+            value = spec.project(candidates[scope], asker, case.thresholds)
+            # Der Bezug muss durch dieselbe Matrix wie der Wert. Sonst waere
+            # `scope` ein unauditierter Seitenkanal: "customer_stock = gelb
+            # @pharmaceutical" verraet die Ladungsklasse, die der Bewerter nur
+            # grob sehen darf. Gefunden von scripts/wire_proof.py.
+            scope = _project_scope(scope, asker, case.thresholds)
         else:
             value = spec.project(raw, asker, case.thresholds)
     except EnvelopeError as exc:

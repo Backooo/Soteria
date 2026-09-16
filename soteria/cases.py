@@ -39,8 +39,11 @@ _RANK: dict[Any, int] = {
     # Ladungsklassen, grob und fein: Gefahrgut schlaegt Pharma schlaegt
     # Frischware schlaegt Stueckgut. Damit nennt ein Zug mit beidem den
     # Gefahrgutwagen als schlimmsten und nicht den erstgenannten.
-    "general": 0, "perishable": 1, "regulated": 2, "hazardous": 3,
-    "general_goods": 0, "livestock": 1, "high_value": 1,
+    # grob (die Grobklasse heisst nie wie ein Feinwert, sonst waere die
+    # Vergroeberung nicht pruefbar -- daher "cooled", nicht "perishable"):
+    "general": 0, "cooled": 1, "regulated": 2, "hazardous": 3,
+    # fein:
+    "general_goods": 0, "perishable": 1, "livestock": 1, "high_value": 1,
     "pharmaceutical": 2, "hazmat": 3,
 }
 

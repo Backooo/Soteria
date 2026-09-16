@@ -174,10 +174,21 @@ def test_worst_ranks_traffic_lights_thresholds_and_flags():
         _worst({})
 
 
-def test_a_missing_replacement_is_the_worst_case_for_hazmat():
-    reply = answer_ask(s(), "supplier_nordfrost", "assessor", "replacement_available", "feasibility")
-    assert reply["value"] == "rot"
-    assert reply["scope"] == "hazmat"
+def test_a_missing_replacement_is_the_worst_case_and_its_scope_is_coarsened():
+    """Der Bezug nennt die kritischste Ladungsklasse -- aber nur so grob, wie
+    die Matrix es dem Frager zugesteht. `hazmat` wird zu `hazardous`."""
+    for_assessor = answer_ask(
+        s(), "supplier_nordfrost", "assessor", "replacement_available", "feasibility"
+    )
+    assert for_assessor["value"] == "rot"
+    assert for_assessor["scope"] == "hazardous"
+    assert for_assessor["scope"] != "hazmat"
+
+    # Der Zulieferer kennt seine eigene Ware fein.
+    for_supplier = answer_ask(
+        s(), "supplier_nordfrost", "supplier", "replacement_available", "feasibility"
+    )
+    assert for_supplier["scope"] == "hazmat"
 
 
 # --- Ausfaelle und Fehlkonfiguration ------------------------------------
@@ -202,7 +213,7 @@ def test_a_party_that_is_not_in_the_case_is_refused():
 
 def test_the_case_report_carries_no_raw_cargo_and_no_person():
     report = s().report
-    assert report["cargo_classes_coarse"] == ["general", "hazardous", "perishable", "regulated"]
+    assert report["cargo_classes_coarse"] == ["cooled", "general", "hazardous", "regulated"]
     blob = str(report)
     for secret in ("hazmat", "pharmaceutical", "Varga", "TF-1108"):
         assert secret not in blob, f"{secret!r} steht in der gemeinsamen Meldung"

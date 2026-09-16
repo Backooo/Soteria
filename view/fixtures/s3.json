@@ -19,9 +19,9 @@
         "W05"
       ],
       "cargo_classes_coarse": [
+        "cooled",
         "general",
         "hazardous",
-        "perishable",
         "regulated"
       ]
     },
@@ -91,7 +91,7 @@
         "roles_missing": []
       },
       "reason_code": "safety",
-      "receipt_hash": "70dad1eb10e0baf4"
+      "receipt_hash": "6fce468926dfda37"
     },
     "refusal": null
   },
@@ -114,9 +114,9 @@
         "W05"
       ],
       "cargo_classes_coarse": [
+        "cooled",
         "general",
         "hazardous",
-        "perishable",
         "regulated"
       ],
       "flags": [
@@ -166,7 +166,7 @@
       "type": "soteria.receipt",
       "seq_in_chain": 1,
       "kind": "incident",
-      "hash": "766c6b5a50781dd0",
+      "hash": "bbdfdfd7df50e1ec",
       "prev": "0000000000000000"
     },
     {
@@ -195,8 +195,8 @@
       "type": "soteria.receipt",
       "seq_in_chain": 2,
       "kind": "fact",
-      "hash": "fba607c569474cb9",
-      "prev": "766c6b5a50781dd0"
+      "hash": "081af1095e9558d1",
+      "prev": "bbdfdfd7df50e1ec"
     },
     {
       "seq": 9,
@@ -226,8 +226,8 @@
       "type": "soteria.receipt",
       "seq_in_chain": 3,
       "kind": "fact",
-      "hash": "b063933490aab53c",
-      "prev": "fba607c569474cb9"
+      "hash": "5348762aa96fca70",
+      "prev": "081af1095e9558d1"
     },
     {
       "seq": 12,
@@ -260,27 +260,27 @@
     },
     {
       "seq": 15,
-      "t": 0.002,
+      "t": 0.001,
       "type": "soteria.fact",
       "role": "intake",
       "field": "cargo_class",
       "visibility": "coarse",
-      "value": "hazardous",
-      "scope": "W05",
+      "value": "regulated",
+      "scope": "W02",
       "flags": []
     },
     {
       "seq": 16,
-      "t": 0.002,
+      "t": 0.001,
       "type": "soteria.receipt",
       "seq_in_chain": 4,
       "kind": "fact",
-      "hash": "322adf3b287e420d",
-      "prev": "b063933490aab53c"
+      "hash": "723ce0a29d0dd5ec",
+      "prev": "5348762aa96fca70"
     },
     {
       "seq": 17,
-      "t": 0.002,
+      "t": 0.001,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "route_weakness",
@@ -304,8 +304,8 @@
       "type": "soteria.receipt",
       "seq_in_chain": 5,
       "kind": "fact",
-      "hash": "aa941a7e8a8c636a",
-      "prev": "322adf3b287e420d"
+      "hash": "9f126cdfab0ec85c",
+      "prev": "723ce0a29d0dd5ec"
     },
     {
       "seq": 20,
@@ -318,7 +318,7 @@
     },
     {
       "seq": 21,
-      "t": 0.003,
+      "t": 0.002,
       "type": "soteria.fact",
       "role": "intake",
       "field": "alt_route_status",
@@ -329,16 +329,16 @@
     },
     {
       "seq": 22,
-      "t": 0.003,
+      "t": 0.002,
       "type": "soteria.receipt",
       "seq_in_chain": 6,
       "kind": "fact",
-      "hash": "c8ead60a67887d2f",
-      "prev": "aa941a7e8a8c636a"
+      "hash": "5c6c127ef6212be7",
+      "prev": "9f126cdfab0ec85c"
     },
     {
       "seq": 23,
-      "t": 0.003,
+      "t": 0.002,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "road_access",
@@ -362,8 +362,8 @@
       "type": "soteria.receipt",
       "seq_in_chain": 7,
       "kind": "fact",
-      "hash": "3f1086f55156156d",
-      "prev": "c8ead60a67887d2f"
+      "hash": "ea72f1c9ce029181",
+      "prev": "5c6c127ef6212be7"
     },
     {
       "seq": 26,
@@ -376,7 +376,7 @@
     },
     {
       "seq": 27,
-      "t": 0.004,
+      "t": 0.003,
       "type": "soteria.fact",
       "role": "intake",
       "field": "locality_class",
@@ -387,16 +387,16 @@
     },
     {
       "seq": 28,
-      "t": 0.004,
+      "t": 0.003,
       "type": "soteria.receipt",
       "seq_in_chain": 8,
       "kind": "fact",
-      "hash": "f4ce0110cfa95d6e",
-      "prev": "3f1086f55156156d"
+      "hash": "b2f63087278a59e3",
+      "prev": "ea72f1c9ce029181"
     },
     {
       "seq": 29,
-      "t": 0.004,
+      "t": 0.003,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "replacement_available",
@@ -405,27 +405,27 @@
     },
     {
       "seq": 30,
-      "t": 0.004,
+      "t": 0.003,
       "type": "soteria.fact",
       "role": "supplier",
       "field": "replacement_available",
       "visibility": "ampel",
       "value": "rot",
-      "scope": "hazmat",
+      "scope": "hazardous",
       "flags": []
     },
     {
       "seq": 31,
-      "t": 0.004,
+      "t": 0.003,
       "type": "soteria.receipt",
       "seq_in_chain": 9,
       "kind": "fact",
-      "hash": "74f64826a716e4bc",
-      "prev": "f4ce0110cfa95d6e"
+      "hash": "b8fb217fc3fdd17a",
+      "prev": "b2f63087278a59e3"
     },
     {
       "seq": 32,
-      "t": 0.004,
+      "t": 0.003,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "cooling_required",
@@ -440,7 +440,7 @@
       "field": "cooling_required",
       "visibility": "flag",
       "value": true,
-      "scope": "pharmaceutical",
+      "scope": "regulated",
       "flags": []
     },
     {
@@ -449,8 +449,8 @@
       "type": "soteria.receipt",
       "seq_in_chain": 10,
       "kind": "fact",
-      "hash": "43ac2aa58ab41d1a",
-      "prev": "74f64826a716e4bc"
+      "hash": "b3eee7f1ea9ca750",
+      "prev": "b8fb217fc3fdd17a"
     },
     {
       "seq": 35,
@@ -463,27 +463,27 @@
     },
     {
       "seq": 36,
-      "t": 0.005,
+      "t": 0.004,
       "type": "soteria.fact",
       "role": "customer",
       "field": "customer_stock",
       "visibility": "ampel",
       "value": "gelb",
-      "scope": "pharmaceutical",
+      "scope": "regulated",
       "flags": []
     },
     {
       "seq": 37,
-      "t": 0.005,
+      "t": 0.004,
       "type": "soteria.receipt",
       "seq_in_chain": 11,
       "kind": "fact",
-      "hash": "d27b3fd8ee9fa4aa",
-      "prev": "43ac2aa58ab41d1a"
+      "hash": "50ad7df02a43e5ab",
+      "prev": "b3eee7f1ea9ca750"
     },
     {
       "seq": 38,
-      "t": 0.005,
+      "t": 0.004,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "customer_urgency",
@@ -492,27 +492,27 @@
     },
     {
       "seq": 39,
-      "t": 0.005,
+      "t": 0.004,
       "type": "soteria.fact",
       "role": "customer",
       "field": "customer_urgency",
       "visibility": "ampel",
       "value": "rot",
-      "scope": "pharmaceutical",
+      "scope": "regulated",
       "flags": []
     },
     {
       "seq": 40,
-      "t": 0.005,
+      "t": 0.004,
       "type": "soteria.receipt",
       "seq_in_chain": 12,
       "kind": "fact",
-      "hash": "ff36eca296c637be",
-      "prev": "d27b3fd8ee9fa4aa"
+      "hash": "bd84b55d1fcc2ffd",
+      "prev": "50ad7df02a43e5ab"
     },
     {
       "seq": 41,
-      "t": 0.005,
+      "t": 0.004,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "contract_penalty",
@@ -521,7 +521,7 @@
     },
     {
       "seq": 42,
-      "t": 0.006,
+      "t": 0.005,
       "type": "soteria.fact",
       "role": "legal",
       "field": "contract_penalty",
@@ -532,16 +532,16 @@
     },
     {
       "seq": 43,
-      "t": 0.006,
+      "t": 0.005,
       "type": "soteria.receipt",
       "seq_in_chain": 13,
       "kind": "fact",
-      "hash": "4a1111c9a27e3d7b",
-      "prev": "ff36eca296c637be"
+      "hash": "c6cde228a0e1a7a2",
+      "prev": "bd84b55d1fcc2ffd"
     },
     {
       "seq": 44,
-      "t": 0.006,
+      "t": 0.005,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "contract_deadline_h",
@@ -550,7 +550,7 @@
     },
     {
       "seq": 45,
-      "t": 0.006,
+      "t": 0.005,
       "type": "soteria.fact",
       "role": "legal",
       "field": "contract_deadline_h",
@@ -561,16 +561,16 @@
     },
     {
       "seq": 46,
-      "t": 0.006,
+      "t": 0.005,
       "type": "soteria.receipt",
       "seq_in_chain": 14,
       "kind": "fact",
-      "hash": "3130fe1891ee2b5c",
-      "prev": "4a1111c9a27e3d7b"
+      "hash": "e21e54ea2b9bc3d9",
+      "prev": "c6cde228a0e1a7a2"
     },
     {
       "seq": 47,
-      "t": 0.006,
+      "t": 0.005,
       "type": "soteria.coverage",
       "answered": 13,
       "asked": 13,
@@ -583,7 +583,7 @@
     },
     {
       "seq": 48,
-      "t": 0.006,
+      "t": 0.005,
       "type": "soteria.grant.required",
       "measures": [
         "stop_train",
@@ -594,7 +594,7 @@
     },
     {
       "seq": 49,
-      "t": 0.006,
+      "t": 0.005,
       "type": "soteria.grant.given",
       "measures": [
         "stop_train",
@@ -606,7 +606,7 @@
     },
     {
       "seq": 50,
-      "t": 0.006,
+      "t": 0.005,
       "type": "soteria.grant.given",
       "measures": [
         "stop_train",
@@ -618,16 +618,16 @@
     },
     {
       "seq": 51,
-      "t": 0.006,
+      "t": 0.005,
       "type": "soteria.receipt",
       "seq_in_chain": 15,
       "kind": "decision",
-      "hash": "70dad1eb10e0baf4",
-      "prev": "3130fe1891ee2b5c"
+      "hash": "6fce468926dfda37",
+      "prev": "e21e54ea2b9bc3d9"
     },
     {
       "seq": 52,
-      "t": 0.006,
+      "t": 0.005,
       "type": "soteria.decision",
       "measures": [
         "stop_train",
@@ -648,15 +648,15 @@
         "roles_missing": []
       },
       "reason_code": "safety",
-      "receipt_hash": "70dad1eb10e0baf4",
+      "receipt_hash": "6fce468926dfda37",
       "parties_missing": [],
       "scopes": {
         "temperature_curve": "W02",
-        "cargo_class": "W05",
-        "replacement_available": "hazmat",
-        "cooling_required": "pharmaceutical",
-        "customer_stock": "pharmaceutical",
-        "customer_urgency": "pharmaceutical"
+        "cargo_class": "W02",
+        "replacement_available": "hazardous",
+        "cooling_required": "regulated",
+        "customer_stock": "regulated",
+        "customer_urgency": "regulated"
       }
     },
     {
@@ -670,7 +670,7 @@
       "answers": 13,
       "quarantined": true,
       "receipt_chain_verified": true,
-      "receipt_head": "70dad1eb10e0baf4"
+      "receipt_head": "6fce468926dfda37"
     }
   ]
 }

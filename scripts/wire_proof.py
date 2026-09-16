@@ -79,6 +79,7 @@ def prove(case_id: str, verbose: bool = True) -> dict[str, Any]:
         print("-" * 78)
 
     attempts = refused = authorised_raw = 0
+    rows: list[dict[str, Any]] = []
     violations: list[str] = []
     cross_field: list[str] = []
 
@@ -93,6 +94,19 @@ def prove(case_id: str, verbose: bool = True) -> dict[str, Any]:
                 attempts += 1
                 level = visibility(field, asker)
                 blob = json.dumps(reply, sort_keys=True, default=str)
+                rows.append({
+                    "asker": asker,
+                    "party_id": party_id,
+                    "party_type": case.party_type(party_id),
+                    "field": field,
+                    "allowed": level,
+                    "outcome": ("refused" if reply["code"]
+                                else "raw" if level == "raw" else "projected"),
+                    "code": reply["code"],
+                    # Der Wert steht nur drin, wo er den Frager auch erreicht hat.
+                    "value": "" if reply["code"] else reply["value"],
+                    "scope": reply["scope"],
+                })
 
                 if reply["code"]:
                     refused += 1
@@ -151,6 +165,7 @@ def prove(case_id: str, verbose: bool = True) -> dict[str, Any]:
         "authorised_raw": authorised_raw,
         "needles": checked,
         "violations": violations + cross_field,
+        "rows": rows,
     }
 
 
@@ -165,6 +180,15 @@ def main() -> int:
     authorised = sum(r["authorised_raw"] for r in results)
     needles = sum(r["needles"] for r in results)
     violations = [f"{r['case_id']}: {v}" for r in results for v in r["violations"]]
+
+    if "--json" in sys.argv:
+        out = Path(__file__).resolve().parents[1] / "view" / "fixtures" / "boundary.json"
+        out.write_text(json.dumps({
+            "_comment": "Erzeugt von scripts/wire_proof.py --json. Jeder Grenzuebertritt, "
+                        "den eine Partei versuchen koennte, und was daraus wurde.",
+            "cases": [{k: v for k, v in r.items()} for r in results],
+        }, indent=2, ensure_ascii=False, default=str) + "\n", encoding="utf-8")
+        print(f"\ngeschrieben: {out.relative_to(out.parents[2])}")
 
     print(f"\n{'=' * 78}")
     print(f"{len(ids)} Faelle  |  {attempts} Grenzuebertritte  |  {refused} abgelehnt  |  "

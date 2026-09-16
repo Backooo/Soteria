@@ -92,10 +92,26 @@ uv run python scripts/bench.py
 
 | | |
 |---|---|
-| **Time** | logic ~5 ms · real federation 3–6 s per incident (7–12 s including app install) · phone-chain baseline 47 min — **an assumption, not a measurement** |
-| **Hits** | 3/3 on the known cases · reason matches 2/3 · **no holdout cases, ground truth unconfirmed** |
+| **Time** | logic ~5 ms · real federation 3-6 s per incident · **with the model call 50-90 s** · phone-chain baseline 47 min - **an assumption, not a measurement** |
+| **Hits** | s1 matches the stored answer; in s2 and s3 the model adds reversible measures on top · **no holdout cases, ground truth unconfirmed** |
 | **Tightness** | 234 crossings, 96 refused, 81 authorised, 0 violations |
 | **Gap** | 3/3 cases decided although the customer is silent |
+
+## What it looks like
+
+The operator dashboard. Three concurrent incidents, each one switchable; the
+open card shows the decision the agents reached, who decided it and the receipt
+hash. Map, fleet cards and the bottom metrics are mock — the decision block is
+not.
+
+![Operator dashboard with the decision for the hazmat incident](docs/images/dashboard.png)
+
+The Agent Live Console, opened from the green button in the sidebar. It shows
+the flow from the report through the three party nodes to the model, the
+approvals and the receipt chain. **Run live** starts a real run on the local
+federation and streams its events while they happen.
+
+![Agent Live Console replaying the s3 incident](docs/images/agent-live-console.png)
 
 ## Getting started
 
@@ -110,6 +126,25 @@ uv run python scripts/record_run.py --all   # event streams for the views
 ./scripts/federation.sh up s3               # SuperLink + three party nodes
 ./scripts/federation.sh run s3              # the incident over real messages
 ./scripts/federation.sh down
+```
+
+The dashboard, the console and a live run:
+
+```shell
+uv run python scripts/bridge.py             # live bridge on 127.0.0.1:8765
+cd "Soteria - Frontend" && npm install && npm run dev
+```
+
+Then open http://localhost:5173 for the dashboard, and the **Agent Live
+Console** button in the incident sidebar for
+http://localhost:5173/console.html. **Run live** there needs the bridge and a
+valid `flwr login supergrid`, because the assessor calls the model on SuperGrid.
+Without the bridge the console replays the recorded runs and says so.
+
+Mapbox needs a token in `Soteria - Frontend/.env.local`:
+
+```
+VITE_MAPBOX_ACCESS_TOKEN=pk....
 ```
 
 `~/.flwr/config.toml` needs:
@@ -128,6 +163,10 @@ insecure = true
 | s2 | Track blocked, hospital supplies on board | `alt_transport` | 2 — one key |
 | s3 | Impact, hazmat wagon damaged, residential buildings 300 m away | `stop_train`, `notify_authority` | 3 — two keys, quarantine |
 
+The tier and the keys are decided by code. The measures come from the model,
+which in s2 and s3 adds a reversible measure (`cool`, `hold`) to the stored
+answer above.
+
 ## Real versus simulated
 
 | Claim | Real | Not real |
@@ -135,8 +174,9 @@ insecure = true
 | No raw value reaches a role that may not have it | 234 crossings measured, with a denominator | — |
 | Three parties, three nodes | three SuperNodes, real Flower messages, all three cases hit | all three run on **one** machine |
 | One federation per party | one federation with three party nodes | a ServerApp cannot reach three SuperLinks together — **next stage** |
-| Agent team | one assessor as a ServerApp, parties as ClientApps | the assessor is a **rule engine**, not a language model |
-| Hit rate 3/3 | measured | rules written against exactly these cases; ground truth **proposed by the engine track, not confirmed**; **no holdout** |
+| Agent team | one assessor as a ServerApp, parties as ClientApps | — |
+| The decision is made by an LLM | `flower-endeavor-v1.0` decides the measures, as a Flower AgentApp on SuperGrid, from projections only | the guardrails are code, not the model: unknown measures rejected, tier-3 safety floor from the rule policy, human keys and quarantine unchanged |
+| Hit rate | s1 matches the stored answer; in s2 and s3 the model adds reversible measures (`cool`, `hold`) on top, so the benchmark counts them as a **mismatch** | rules and stored answers written against exactly these cases; ground truth **not confirmed**; **no holdout** |
 | Minutes instead of a phone chain | logic and federation measured | the 47 min baseline is an **assumption** |
 | Data | schema, validation | **all invented** — no real railway data, people or companies |
 | Receipts | chain across the whole incident, verifiable | 16 hex characters, a checksum, not cryptography for real emergencies |

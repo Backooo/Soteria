@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "soteria"
-version = "0.2.0"
+version = "0.3.0"
 description = "Soteria: a five-role agent team that decides on freight damage without any party learning more than it may"
 license = { file = "LICENSE" }
 requires-python = ">=3.11,<4.0"

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "soteria-assessor-agent"
-version = "0.1.0"
+version = "0.1.1"
 description = "Soteria assessor reasoning as a Flower AgentApp: decides measures from projected signals only"
 license = { file = "LICENSE" }
 requires-python = ">=3.11,<4.0"

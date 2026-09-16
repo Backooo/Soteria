@@ -6,12 +6,32 @@
     "customer": {
       "customer_trade": "hospital",
       "consignments": {
-        "pharmaceutical": {"customer_stock": 0.5, "customer_urgency": "life_safety"},
-        "perishable":     {"customer_stock": 2.0, "customer_urgency": "elevated"}
+        "pharmaceutical": {
+          "customer_stock": 0.5,
+          "customer_urgency": "life_safety"
+        },
+        "perishable": {
+          "customer_stock": 2.0,
+          "customer_urgency": "elevated"
+        },
+        "general_goods": {
+          "customer_stock": 9.0,
+          "customer_urgency": "routine"
+        }
       },
       "contact_person": [
-        {"name": "Dr. Hanna Loos", "function": "Apothekenleitung", "phone": "+49 40 000-21", "hours": "24/7"},
-        {"name": "Peer Salzmann", "function": "Technischer Dienst", "phone": "+49 40 000-22", "hours": "24/7"}
+        {
+          "name": "Dr. Hanna Loos",
+          "function": "Apothekenleitung",
+          "phone": "+49 40 000-21",
+          "hours": "24/7"
+        },
+        {
+          "name": "Peer Salzmann",
+          "function": "Technischer Dienst",
+          "phone": "+49 40 000-22",
+          "hours": "24/7"
+        }
       ]
     }
   }

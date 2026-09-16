@@ -80,6 +80,16 @@ zwei Kundenföderationen gleichzeitig.
 }
 ```
 
+**Ein Zug gehört einem Kunden.** Für die Demo bleibt es dabei: alle Wagen eines
+Zuges haben denselben Besteller, also fällt genau eine Entscheidung je Vorfall,
+und ihre Stufe ist die höchste beteiligte. Mehrere Kunden auf einem Zug sind
+strukturell möglich — `federations` ist eine Liste und `wagon_consignees` bindet
+je Wagen —, aber kein Fall nutzt das, und wir behaupten es in der Demo nicht.
+
+Jede Ladungsklasse im Zug braucht beim Besteller eine Konsignation, sonst hat der
+Bewerter für diesen Wagen keinen Bestand und keine Dringlichkeit. Der Validator
+sagt dir, welche fehlt.
+
 Dazu ein Vertrag in `data/contracts/`, dessen `parties` den neuen Kunden und den
 Zulieferer nennt. **Vertragsdaten sind (Kunde, Zulieferer)-spezifisch:** beide
 Vertragsparteien laden die Datei, der Vertragsagent des Betreibers führt sie, und

@@ -231,6 +231,29 @@ def check_case(case_dir: Path, vocabs: dict, catalogue: dict, party_ids: set[str
                 out.append(f"{name}: wagon_consignees gives {wid} to {pid!r}, which is not a "
                            "federation in this case")
 
+    # Jede Ladungsklasse im Zug braucht beim Besteller eine Konsignation, sonst
+    # hat der Bewerter fuer diesen Wagen keinen Bestand und keine Dringlichkeit.
+    if train:
+        by_wagon = {w.get("wagon_id"): w.get("cargo_class") for w in (train.get("wagons") or [])}
+        consignees = case.get("wagon_consignees") or {}
+        held: dict[str, set[str]] = {}
+        for rel in sources.get("customers") or []:
+            party = _load(ROOT / str(rel), out)
+            if not party:
+                continue
+            block = (party.get("records") or {}).get("customer") or {}
+            held[str(party.get("party_id"))] = set(
+                (block.get("consignments") or {}).keys()
+            )
+        for wid, pid in consignees.items():
+            klass = by_wagon.get(wid)
+            if klass is None or pid not in held:
+                continue
+            if klass not in held[pid]:
+                out.append(f"{name}: wagon {wid} carries {klass!r} for {pid}, but that party "
+                           f"has no {klass!r} consignment (it holds {sorted(held[pid])}) -- "
+                           "add one or give the wagon to another consignee")
+
     # Telemetrie nur fuer Wagen, die es gibt.
     if train:
         wagons = {w.get("wagon_id") for w in (train.get("wagons") or [])}

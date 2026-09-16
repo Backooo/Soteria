@@ -6,12 +6,36 @@
     "customer": {
       "customer_trade": "chemical_plant",
       "consignments": {
-        "hazmat":        {"customer_stock": 6.0, "customer_urgency": "elevated"},
-        "general_goods": {"customer_stock": 8.0, "customer_urgency": "routine"}
+        "hazmat": {
+          "customer_stock": 6.0,
+          "customer_urgency": "elevated"
+        },
+        "general_goods": {
+          "customer_stock": 8.0,
+          "customer_urgency": "routine"
+        },
+        "pharmaceutical": {
+          "customer_stock": 1.0,
+          "customer_urgency": "critical"
+        },
+        "perishable": {
+          "customer_stock": 5.0,
+          "customer_urgency": "routine"
+        }
       },
       "contact_person": [
-        {"name": "Marion Kell", "function": "Werkssicherheit", "phone": "+49 351 000-31", "hours": "24/7"},
-        {"name": "Ulf Petersen", "function": "Gefahrgutbeauftragter", "phone": "+49 351 000-32", "hours": "24/7"}
+        {
+          "name": "Marion Kell",
+          "function": "Werkssicherheit",
+          "phone": "+49 351 000-31",
+          "hours": "24/7"
+        },
+        {
+          "name": "Ulf Petersen",
+          "function": "Gefahrgutbeauftragter",
+          "phone": "+49 351 000-32",
+          "hours": "24/7"
+        }
       ]
     }
   }

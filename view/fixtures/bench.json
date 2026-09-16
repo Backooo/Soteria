@@ -1,9 +1,9 @@
 {
-  "generated_at": 1789564892.143268,
+  "generated_at": 1789565069.245905,
   "baseline_source": "Angenommene Dauer einer Telefonkette aus fuenf Parteien einschliesslich Rueckrufen. Nicht gemessen -- eine Annahme, die als solche ausgewiesen ist.",
   "numbers": {
     "1_time": {
-      "logic_median_ms": 15.2,
+      "logic_median_ms": 5.1,
       "federation_median_s": 69.1,
       "federation_max_s": 126.9,
       "baseline_minutes": 47,
@@ -50,7 +50,7 @@
       "tier": 1,
       "grants": [],
       "receipt_hash": "f396149942da7f05",
-      "seconds_logic": 0.0158,
+      "seconds_logic": 0.0088,
       "seconds_federation": 69.1,
       "quarantined": false,
       "gap": {
@@ -86,7 +86,7 @@
         "ops-lead-rheinrail-1"
       ],
       "receipt_hash": "6335c2a68bbe6712",
-      "seconds_logic": 0.0152,
+      "seconds_logic": 0.0051,
       "seconds_federation": 126.9,
       "quarantined": false,
       "gap": {
@@ -124,7 +124,7 @@
         "safety-officer-rheinrail-2"
       ],
       "receipt_hash": "6fce468926dfda37",
-      "seconds_logic": 0.0102,
+      "seconds_logic": 0.0051,
       "seconds_federation": 68.0,
       "quarantined": true,
       "gap": {
@@ -158,7 +158,7 @@
     },
     {
       "claim": "Entscheidung in Minuten statt Telefonkette",
-      "real": "Logik 15.2 ms, Foederation 69.1 s im Median",
+      "real": "Logik 5.1 ms, Foederation 69.1 s im Median",
       "simulated": "die Basislinie von 47 min ist eine ANNAHME"
     },
     {

@@ -24,13 +24,12 @@ from .ledger import Ledger
 from .matrix import visibility
 from .policy import ASK_PLAN, decide
 from .receipts import ReceiptChain
-from .wire import ASK_FIELD, ask_record, read_reply, unwrap, wrap
+from .wire import ASK_FIELDS, bundle_ask_record, read_bundle_reply
 
 app = ServerApp()
 
-# Eine Nachfragerunde darf nie laenger dauern als das, was von der Wanduhr
-# bleibt; 30 s ist die Obergrenze je Runde, damit ein stummer Knoten den Lauf
-# nicht ueber SuperGrids 5-Minuten-Grenze traegt.
+# Obergrenze fuer das Warten auf die Knoten, halbiert gegen die 240 s des
+# Budgets. Die gebuendelte Runde wartet das Doppelte, weil sie alles traegt.
 ROUND_TIMEOUT = 30.0
 
 
@@ -96,22 +95,32 @@ class Assessor:
         self._receipt("incident", report)
         return report
 
-    def gather(self, send: Callable[[str, str], list[dict[str, Any]]]) -> None:
-        """Den Frageplan abarbeiten. Jede Runde ein Feld an alle Knoten."""
-        for field, reason_code in ASK_PLAN:
-            self._ledger.require_time(f"asking for {field}", floor=2.0)
-            level = visibility(field, "assessor")
-            if level == "none":
-                # Der Bewerter darf das Feld nicht sehen. Dann fragt er nicht --
-                # ein Frageplan, der die Matrix ignoriert, waere ein Fehler.
-                continue
+    def plan(self) -> list[tuple[str, str]]:
+        """Der Frageplan ohne die Felder, die der Bewerter gar nicht sehen darf.
+
+        Ein Frageplan, der die Matrix ignoriert, waere ein Fehler -- also fragt
+        der Bewerter nur, was er in irgendeiner Aufloesung bekommen kann.
+        """
+        return [(f, r) for f, r in ASK_PLAN if visibility(f, "assessor") != "none"]
+
+    def gather(self, send: Callable[[list[tuple[str, str]]], dict[str, list[dict[str, Any]]]]) -> None:
+        """Den ganzen Frageplan in EINER Runde an alle Knoten.
+
+        Die Ereignisse bleiben je Feld in Planreihenfolge -- Frage, dann
+        Antworten --, damit der Ereignisvertrag der Ansichten unveraendert gilt
+        und `market_sensitive` weiterhin vor allem anderen verarbeitet wird.
+        """
+        plan = self.plan()
+        self._ledger.require_time("asking the plan", floor=2.0)
+        answers = send(plan)
+        for field, reason_code in plan:
             self._asked += 1
             self._ledger.emit(
                 "soteria.ask",
                 {"from_role": "assessor", "field": field,
-                 "reason_code": reason_code, "visibility": level},
+                 "reason_code": reason_code, "visibility": visibility(field, "assessor")},
             )
-            for payload in send(field, reason_code):
+            for payload in answers.get(field, []):
                 self._absorb(field, payload)
 
     def _absorb(self, field: str, payload: Mapping[str, Any]) -> None:
@@ -260,39 +269,52 @@ class Assessor:
         return self._chain
 
 
-def _grid_sender(grid: Grid, case: Case, ledger: Ledger) -> Callable[[str, str], list[dict]]:
-    """Eine Nachfrage an alle Knoten dieses Falls, ueber echte Flower-Nachrichten."""
+Sender = Callable[[list[tuple[str, str]]], dict[str, list[dict[str, Any]]]]
+
+
+def _grid_sender(grid: Grid, case: Case, ledger: Ledger) -> Sender:
+    """Der ganze Frageplan als EINE Flower-Nachricht je Knoten.
+
+    Gemessen: dreizehn Runden kosteten 69-127 s, weil jede Nachricht auf dem
+    Knoten einen ClientApp-Prozess startet. Eine Runde je Knoten traegt jetzt
+    alles.
+    """
     node_ids = list(grid.get_node_ids())
     if not node_ids:
         raise EnvelopeError("quota", "no SuperNode is connected to this federation")
-    round_no = {"n": 0}
 
-    def send(field: str, reason_code: str) -> list[dict[str, Any]]:
-        round_no["n"] += 1
-        # `Grid.create_message` ist ab flwr 1.37 veraltet; der Konstruktor
-        # von `Message` ist der Nachfolger.
+    def send(plan: list[tuple[str, str]]) -> dict[str, list[dict[str, Any]]]:
         messages = [
             Message(
-                content=wrap(ask_record("assessor", field, reason_code, case.case_id)),
-                message_type=ASK_FIELD,
+                content=bundle_ask_record("assessor", plan, case.case_id),
+                message_type=ASK_FIELDS,
                 dst_node_id=node_id,
-                group_id=str(round_no["n"]),
+                group_id="1",
             )
             for node_id in node_ids
         ]
-        out: list[dict[str, Any]] = []
-        timeout = min(ROUND_TIMEOUT, max(2.0, ledger.remaining_seconds()))
-        for reply in grid.send_and_receive(messages, timeout=timeout):
+        by_field: dict[str, list[dict[str, Any]]] = {field: [] for field, _ in plan}
+        timeout = min(ROUND_TIMEOUT * 2, max(5.0, ledger.remaining_seconds()))
+        replies = list(grid.send_and_receive(messages, timeout=timeout))
+        if len(replies) < len(node_ids):
+            # Ein Knoten hat nicht rechtzeitig geantwortet. Das ist eine Luecke,
+            # keine Blockade -- conclude() nennt sie in der Abdeckung.
+            ledger.emit("soteria.warning", {
+                "detail": f"{len(node_ids) - len(replies)} of {len(node_ids)} nodes "
+                          f"did not answer within {timeout:.0f}s"})
+        for reply in replies:
             if reply.has_error():
-                ledger.note_refusal("node", f"ask {field}", "quota", str(reply.error))
+                ledger.note_refusal("node", "ask bundle", "quota", str(reply.error))
                 continue
-            out.append(read_reply(unwrap(reply.content)))
-        return out
+            for payload in read_bundle_reply(reply.content):
+                if payload["field"] in by_field:
+                    by_field[payload["field"]].append(payload)
+        return by_field
 
     return send
 
 
-def run_incident(case: Case, ledger: Ledger, send: Callable[[str, str], list[dict]]) -> Decision:
+def run_incident(case: Case, ledger: Ledger, send: Sender) -> Decision:
     started = time.monotonic()
     assessor = Assessor(case, ledger)
     assessor.open()

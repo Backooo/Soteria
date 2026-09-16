@@ -33,7 +33,15 @@ from flwr.clientapp import ClientApp
 from .cases import Case, _worst, load_case, raw_records_for_party
 from .envelope import EnvelopeError
 from .matrix import FIELDS, visibility, vocabulary
-from .wire import fact_record, read_ask, refusal_record, unwrap, wrap
+from .wire import (
+    bundle_reply,
+    fact_record,
+    read_ask,
+    read_bundle_ask,
+    refusal_record,
+    unwrap,
+    wrap,
+)
 
 app = ClientApp()
 
@@ -168,3 +176,65 @@ def ask_field(message: Message, context: Context) -> Message:
         )
     )
     return Message(content=wrap(record), reply_to=message)
+
+
+def answer_bundle(
+    case: Case, party_id: str, asker: str, plan: list[tuple[str, str]]
+) -> list[dict[str, Any]]:
+    """Den ganzen Frageplan beantworten, Feld fuer Feld mit `answer_ask`.
+
+    Gebuendelt wird nur der Transport. Jedes Feld geht einzeln durch Matrix und
+    Skalar-Riegel -- ein Feld kann abgelehnt werden, ohne die anderen zu kippen.
+    """
+    return [answer_ask(case, party_id, asker, field, reason) for field, reason in plan]
+
+
+def _record_of(reply: dict[str, Any], party_id: str, field: str):
+    if reply["code"]:
+        return refusal_record(reply["role"] or party_id, field, reply["code"])
+    return fact_record(
+        reply["role"], field, reply["visibility"], reply["value"],
+        tuple(reply["flags"]), reply["scope"],
+    )
+
+
+@app.query("ask_fields")
+def ask_fields(message: Message, context: Context) -> Message:
+    """Beantworte den ganzen Frageplan in einer Nachricht.
+
+    Eine Nachricht statt dreizehn: jede Nachricht startet auf dem Knoten einen
+    ClientApp-Prozess, und dreizehn davon kosteten 69-127 s.
+    """
+    party_id = str(context.node_config.get("party", "")).strip()
+    try:
+        asker, case_id, plan = read_bundle_ask(message.content)
+    except EnvelopeError as exc:
+        return Message(
+            content=bundle_reply([refusal_record(party_id or "unknown", "?", exc.code)]),
+            reply_to=message,
+        )
+
+    def refuse_all(code: str) -> Message:
+        return Message(
+            content=bundle_reply(
+                [refusal_record(party_id or "unknown", field, code) for field, _ in plan]
+            ),
+            reply_to=message,
+        )
+
+    configured = str(context.node_config.get("case", "")).strip()
+    if configured and configured != case_id:
+        return refuse_all("quota")
+    try:
+        case = load_case(case_id)
+        case.party_type(party_id)
+    except EnvelopeError as exc:
+        return refuse_all(exc.code)
+
+    replies = answer_bundle(case, party_id, asker, plan)
+    return Message(
+        content=bundle_reply(
+            [_record_of(r, party_id, field) for r, (field, _) in zip(replies, plan)]
+        ),
+        reply_to=message,
+    )

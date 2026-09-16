@@ -27,7 +27,7 @@ from soteria.cases import Case, available_cases, load_case
 from soteria.charter import Budget
 from soteria.envelope import EnvelopeError
 from soteria.ledger import Ledger
-from soteria.party_app import answer_ask
+from soteria.party_app import answer_bundle
 from soteria.policy import ASK_PLAN
 
 FIXTURES = Path(__file__).resolve().parents[1] / "view" / "fixtures"
@@ -48,14 +48,19 @@ class Recorder:
         )
 
 
-def local_sender(case: Case) -> Callable[[str, str], list[dict[str, Any]]]:
-    """Der Grid, ersetzt durch direkte Aufrufe der Knoten-Handler."""
+def local_sender(case: Case) -> Callable[[list[tuple[str, str]]], dict[str, list[dict[str, Any]]]]:
+    """Der Grid, ersetzt durch direkte Aufrufe der Knoten-Handler.
 
-    def send(field: str, reason_code: str) -> list[dict[str, Any]]:
-        return [
-            answer_ask(case, party_id, "assessor", field, reason_code)
-            for party_id in case.party_ids
-        ]
+    Dieselbe Form wie in der Foederation: ein Frageplan je Knoten, Antworten je
+    Feld gesammelt.
+    """
+
+    def send(plan: list[tuple[str, str]]) -> dict[str, list[dict[str, Any]]]:
+        by_field: dict[str, list[dict[str, Any]]] = {field: [] for field, _ in plan}
+        for party_id in case.party_ids:
+            for payload in answer_bundle(case, party_id, "assessor", plan):
+                by_field[payload["field"]].append(payload)
+        return by_field
 
     return send
 

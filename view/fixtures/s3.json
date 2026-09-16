@@ -171,7 +171,7 @@
     },
     {
       "seq": 6,
-      "t": 0.0,
+      "t": 0.005,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "temperature_curve",
@@ -180,7 +180,7 @@
     },
     {
       "seq": 7,
-      "t": 0.001,
+      "t": 0.005,
       "type": "soteria.fact",
       "role": "intake",
       "field": "temperature_curve",
@@ -191,7 +191,7 @@
     },
     {
       "seq": 8,
-      "t": 0.001,
+      "t": 0.005,
       "type": "soteria.receipt",
       "seq_in_chain": 2,
       "kind": "fact",
@@ -200,7 +200,7 @@
     },
     {
       "seq": 9,
-      "t": 0.001,
+      "t": 0.005,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "market_sensitive",
@@ -209,7 +209,7 @@
     },
     {
       "seq": 10,
-      "t": 0.001,
+      "t": 0.005,
       "type": "soteria.fact",
       "role": "legal",
       "field": "market_sensitive",
@@ -222,7 +222,7 @@
     },
     {
       "seq": 11,
-      "t": 0.001,
+      "t": 0.005,
       "type": "soteria.receipt",
       "seq_in_chain": 3,
       "kind": "fact",
@@ -231,13 +231,13 @@
     },
     {
       "seq": 12,
-      "t": 0.001,
+      "t": 0.005,
       "type": "collab.taint",
       "source": "legal"
     },
     {
       "seq": 13,
-      "t": 0.001,
+      "t": 0.005,
       "type": "soteria.quarantine",
       "trigger_role": "legal",
       "field": "market_sensitive",
@@ -251,7 +251,7 @@
     },
     {
       "seq": 14,
-      "t": 0.001,
+      "t": 0.005,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "cargo_class",
@@ -260,7 +260,7 @@
     },
     {
       "seq": 15,
-      "t": 0.001,
+      "t": 0.005,
       "type": "soteria.fact",
       "role": "intake",
       "field": "cargo_class",
@@ -271,7 +271,7 @@
     },
     {
       "seq": 16,
-      "t": 0.001,
+      "t": 0.005,
       "type": "soteria.receipt",
       "seq_in_chain": 4,
       "kind": "fact",
@@ -280,7 +280,7 @@
     },
     {
       "seq": 17,
-      "t": 0.001,
+      "t": 0.005,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "route_weakness",
@@ -289,7 +289,7 @@
     },
     {
       "seq": 18,
-      "t": 0.002,
+      "t": 0.005,
       "type": "soteria.fact",
       "role": "intake",
       "field": "route_weakness",
@@ -300,7 +300,7 @@
     },
     {
       "seq": 19,
-      "t": 0.002,
+      "t": 0.005,
       "type": "soteria.receipt",
       "seq_in_chain": 5,
       "kind": "fact",
@@ -309,7 +309,7 @@
     },
     {
       "seq": 20,
-      "t": 0.002,
+      "t": 0.005,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "alt_route_status",
@@ -318,7 +318,7 @@
     },
     {
       "seq": 21,
-      "t": 0.002,
+      "t": 0.005,
       "type": "soteria.fact",
       "role": "intake",
       "field": "alt_route_status",
@@ -329,7 +329,7 @@
     },
     {
       "seq": 22,
-      "t": 0.002,
+      "t": 0.005,
       "type": "soteria.receipt",
       "seq_in_chain": 6,
       "kind": "fact",
@@ -338,7 +338,7 @@
     },
     {
       "seq": 23,
-      "t": 0.002,
+      "t": 0.005,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "road_access",
@@ -347,7 +347,7 @@
     },
     {
       "seq": 24,
-      "t": 0.003,
+      "t": 0.005,
       "type": "soteria.fact",
       "role": "intake",
       "field": "road_access",
@@ -358,7 +358,7 @@
     },
     {
       "seq": 25,
-      "t": 0.003,
+      "t": 0.005,
       "type": "soteria.receipt",
       "seq_in_chain": 7,
       "kind": "fact",
@@ -367,7 +367,7 @@
     },
     {
       "seq": 26,
-      "t": 0.003,
+      "t": 0.005,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "locality_class",
@@ -376,7 +376,7 @@
     },
     {
       "seq": 27,
-      "t": 0.003,
+      "t": 0.005,
       "type": "soteria.fact",
       "role": "intake",
       "field": "locality_class",
@@ -387,7 +387,7 @@
     },
     {
       "seq": 28,
-      "t": 0.003,
+      "t": 0.005,
       "type": "soteria.receipt",
       "seq_in_chain": 8,
       "kind": "fact",
@@ -396,7 +396,7 @@
     },
     {
       "seq": 29,
-      "t": 0.003,
+      "t": 0.005,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "replacement_available",
@@ -405,7 +405,7 @@
     },
     {
       "seq": 30,
-      "t": 0.003,
+      "t": 0.005,
       "type": "soteria.fact",
       "role": "supplier",
       "field": "replacement_available",
@@ -416,7 +416,7 @@
     },
     {
       "seq": 31,
-      "t": 0.003,
+      "t": 0.005,
       "type": "soteria.receipt",
       "seq_in_chain": 9,
       "kind": "fact",
@@ -425,7 +425,7 @@
     },
     {
       "seq": 32,
-      "t": 0.003,
+      "t": 0.005,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "cooling_required",
@@ -434,7 +434,7 @@
     },
     {
       "seq": 33,
-      "t": 0.004,
+      "t": 0.005,
       "type": "soteria.fact",
       "role": "supplier",
       "field": "cooling_required",
@@ -445,7 +445,7 @@
     },
     {
       "seq": 34,
-      "t": 0.004,
+      "t": 0.005,
       "type": "soteria.receipt",
       "seq_in_chain": 10,
       "kind": "fact",
@@ -454,7 +454,7 @@
     },
     {
       "seq": 35,
-      "t": 0.004,
+      "t": 0.005,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "customer_stock",
@@ -463,7 +463,7 @@
     },
     {
       "seq": 36,
-      "t": 0.004,
+      "t": 0.005,
       "type": "soteria.fact",
       "role": "customer",
       "field": "customer_stock",
@@ -474,7 +474,7 @@
     },
     {
       "seq": 37,
-      "t": 0.004,
+      "t": 0.005,
       "type": "soteria.receipt",
       "seq_in_chain": 11,
       "kind": "fact",
@@ -483,7 +483,7 @@
     },
     {
       "seq": 38,
-      "t": 0.004,
+      "t": 0.005,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "customer_urgency",
@@ -492,7 +492,7 @@
     },
     {
       "seq": 39,
-      "t": 0.004,
+      "t": 0.005,
       "type": "soteria.fact",
       "role": "customer",
       "field": "customer_urgency",
@@ -503,7 +503,7 @@
     },
     {
       "seq": 40,
-      "t": 0.004,
+      "t": 0.005,
       "type": "soteria.receipt",
       "seq_in_chain": 12,
       "kind": "fact",
@@ -512,7 +512,7 @@
     },
     {
       "seq": 41,
-      "t": 0.004,
+      "t": 0.005,
       "type": "soteria.ask",
       "from_role": "assessor",
       "field": "contract_penalty",
@@ -661,7 +661,7 @@
     },
     {
       "seq": 53,
-      "t": 0.006,
+      "t": 0.005,
       "type": "soteria.done",
       "elapsed_seconds": 0.01,
       "refusals": 0,

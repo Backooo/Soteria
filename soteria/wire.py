@@ -125,3 +125,64 @@ def unwrap(records: RecordDict) -> ConfigRecord:
         return records[RECORD_KEY]
     except KeyError:
         raise EnvelopeError("bad_value", f"message carries no {RECORD_KEY!r} record") from None
+
+
+# --- gebuendelte Nachfrage: eine Nachricht je Knoten statt eine je Feld -----
+#
+# Gemessen auf der echten Foederation: 13 Runden kosteten 69-127 s, weil jede
+# Nachricht einen ClientApp-Prozess startet. Eine Nachricht je Knoten traegt
+# jetzt den ganzen Frageplan; die Antwort ist ein RecordDict mit EINEM
+# ConfigRecord je Feld. Der Skalar-Riegel gilt damit weiter fuer jedes Feld
+# einzeln -- gebuendelt wird der Transport, nicht die Pruefung.
+
+ASK_FIELDS = "query.ask_fields"
+_BUNDLE_KEY = "soteria.ask"
+
+
+def bundle_ask_record(
+    asker: str, plan: list[tuple[str, str]], case_id: str
+) -> RecordDict:
+    """Der ganze Frageplan als eine Nachfrage. Zwei String-Listen, kein Freitext."""
+    if asker not in ROLES:
+        raise EnvelopeError("unknown_role", f"{asker!r} is not one of {ROLES}")
+    bad = [reason for _, reason in plan if reason not in REASON]
+    if bad:
+        raise EnvelopeError("bad_value", f"reason_codes {bad} are not in {REASON}")
+    if not plan:
+        raise EnvelopeError("bad_value", "an ask bundle needs at least one field")
+    return RecordDict({
+        _BUNDLE_KEY: ConfigRecord({
+            "asker": asker,
+            "case_id": case_id,
+            "fields": [field for field, _ in plan],
+            "reasons": [reason for _, reason in plan],
+        })
+    })
+
+
+def read_bundle_ask(records: RecordDict) -> tuple[str, str, list[tuple[str, str]]]:
+    """(asker, case_id, [(field, reason), ...]) aus einer gebuendelten Nachfrage."""
+    try:
+        record = records[_BUNDLE_KEY]
+        fields = [str(f) for f in record["fields"]]
+        reasons = [str(r) for r in record["reasons"]]
+        asker, case_id = str(record["asker"]), str(record["case_id"])
+    except KeyError as exc:
+        raise EnvelopeError("bad_value", f"ask bundle is missing {exc.args[0]!r}") from None
+    if len(fields) != len(reasons):
+        raise EnvelopeError("bad_value", "fields and reasons differ in length")
+    return asker, case_id, list(zip(fields, reasons))
+
+
+def _answer_key(index: int) -> str:
+    return f"soteria.answer.{index:03d}"
+
+
+def bundle_reply(records: list[ConfigRecord]) -> RecordDict:
+    """Die Antworten eines Knotens, in Frageplan-Reihenfolge."""
+    return RecordDict({_answer_key(i): r for i, r in enumerate(records)})
+
+
+def read_bundle_reply(records: RecordDict) -> list[dict[str, Any]]:
+    keys = sorted(k for k in records.config_records if k.startswith("soteria.answer."))
+    return [read_reply(records[k]) for k in keys]

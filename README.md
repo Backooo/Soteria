@@ -52,22 +52,21 @@ receipt.
 flowchart LR
     R([Driver report]) --> A
 
-    subgraph FED["Flower federation — one SuperNode per party, each keeps its raw data"]
-        A["<b>Assessor</b><br/>ServerApp"]
+    A["<b>Assessor</b><br/>ServerApp"] -- "ask plan · 13 fields<br/>one message per node" --> P
+
+    subgraph P["Party SuperNodes — every raw value stays here"]
+        direction TB
         C["<b>Carrier</b><br/>intake · legal"]
         S["<b>Supplier</b>"]
         K["<b>Customer</b>"]
     end
 
-    A -- "asks: field + reason" --> C & S & K
-    C & S & K -- "traffic light · threshold · coarse class" --> A
-
+    P -- "traffic lights · thresholds<br/>coarse classes" --> A
     A -- "projections only" --> M["<b>flower-endeavor-v1.0</b><br/>AgentApp on SuperGrid"]
     M -- "proposed measures" --> G{"Guardrails<br/>in code"}
-    G --> H["Human keys<br/>0 · 1 · 2 by tier"]
-    H --> D(["Decision<br/>+ receipt chain"])
-
-    A -. "market-sensitive flag" .-> Q["Quarantine:<br/>outbound channels blocked"]
+    G -- "tier 1 · 2 · 3" --> H["Human keys<br/>0 · 1 · 2"]
+    H --> D([" Decision<br/>+ receipt chain "])
+    A -. "market-sensitive" .-> Q["Quarantine:<br/>outbound channels blocked"]
 ```
 
 <details>

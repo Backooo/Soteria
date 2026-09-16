@@ -13,7 +13,7 @@ from __future__ import annotations
 import time
 from typing import Any, Callable, Mapping
 
-from flwr.app import Context
+from flwr.app import Context, Message
 from flwr.serverapp import Grid, ServerApp
 
 from .cases import Case, load_case
@@ -269,8 +269,10 @@ def _grid_sender(grid: Grid, case: Case, ledger: Ledger) -> Callable[[str, str],
 
     def send(field: str, reason_code: str) -> list[dict[str, Any]]:
         round_no["n"] += 1
+        # `Grid.create_message` ist ab flwr 1.37 veraltet; der Konstruktor
+        # von `Message` ist der Nachfolger.
         messages = [
-            grid.create_message(
+            Message(
                 content=wrap(ask_record("assessor", field, reason_code, case.case_id)),
                 message_type=ASK_FIELD,
                 dst_node_id=node_id,

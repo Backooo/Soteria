@@ -21,16 +21,29 @@ publisher = "flwrlabs"
 display-name = "Soteria"
 fab-format-version = 1
 flwr-version-target = "1.35.0"
-fab-include = ["soteria/**/*.py", "soteria/scenarios/*.json", "LICENSE"]
+# Die Knoten laden ihre Daten aus data/ -- ohne diese Muster fehlen sie im FAB.
+fab-include = [
+  "soteria/**/*.py",
+  "data/schema/*.json",
+  "data/parties/*.json",
+  "data/contracts/*.json",
+  "data/network/*.json",
+  "data/s*/*.json",
+  "LICENSE",
+]
 
+# KEIN agentapp-Eintrag. flwr entscheidet in
+# superlink/servicer/control/control_handlers.py:2159:
+#   TaskType.AGENT_APP if "agentapp" in components else TaskType.SERVER_APP
+# Mit agentapp wuerde die ServerApp also nie ausgefuehrt. Die Foederation ist
+# ein ServerApp/ClientApp-Bundle; eine AgentApp waere ein eigenes Bundle.
 [tool.flwr.app.components]
-agentapp = "soteria.agent_app:app"
+serverapp = "soteria.assessor_app:app"
+clientapp = "soteria.party_app:app"
 
-[tool.flwr.app.config.agent]
-model = "flower-endeavor-v1.0"
-scenario = "s1_pharma_cooling"
+[tool.flwr.app.config]
+case = "s1"
 budget_seconds = 240
-input = "Kuehlausfall an Bord, Pharma-Ladung, Ersatzkuehlung am naechsten Terminal."
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

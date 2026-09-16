@@ -2,3 +2,4 @@
 *.fab
 __pycache__/
 !README.md
+.federation/

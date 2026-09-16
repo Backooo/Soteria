@@ -6,7 +6,10 @@ from soteria.envelope import AMPEL, ROLES, EnvelopeError
 from soteria.matrix import (
     DEFAULT_THRESHOLDS,
     FIELDS,
+    RECORD_TYPES,
     fields_for,
+    fields_held_by,
+    holders,
     matrix_table,
     owners,
     project,
@@ -67,8 +70,13 @@ def test_temperature_curve_becomes_a_traffic_light_for_the_assessor():
 
 
 def test_cargo_class_reaches_the_assessor_only_coarsely():
-    assert project("cargo_class", "pharma_cooled", "assessor", DEFAULT_THRESHOLDS) == "regulated"
-    assert project("cargo_class", "pharma_cooled", "supplier", DEFAULT_THRESHOLDS) == "pharma_cooled"
+    """Das Vokabular kommt vom Datenstrang: pharmaceutical, perishable, hazmat, general_goods."""
+    assert project("cargo_class", "pharmaceutical", "assessor", DEFAULT_THRESHOLDS) == "regulated"
+    assert project("cargo_class", "hazmat", "assessor", DEFAULT_THRESHOLDS) == "hazardous"
+    assert project("cargo_class", "perishable", "assessor", DEFAULT_THRESHOLDS) == "perishable"
+    assert project("cargo_class", "general_goods", "assessor", DEFAULT_THRESHOLDS) == "general"
+    # Der Zulieferer behaelt die Ware selbst, nicht die Regulierungslage.
+    assert project("cargo_class", "pharmaceutical", "supplier", DEFAULT_THRESHOLDS) == "pharmaceutical"
     assert visibility("cargo_class", "legal") == "none"
 
 
@@ -126,13 +134,41 @@ def test_fields_for_lists_only_what_a_role_can_ever_receive():
     assert "route_weakness" in fields_for("assessor")
 
 
-def test_every_field_has_an_owner_that_holds_the_raw_value():
+def test_every_field_is_owned_by_a_declared_record_type_on_a_real_party():
+    """Der Eigentuemer ist ein Datensatztyp, und jeder liegt auf einem Parteityp."""
+    party_types = {"carrier", "customer", "supplier", "shared"}
     for name, owner in owners().items():
-        fld = FIELDS[name]
-        if owner in ROLES:
-            assert fld.visibility[owner] == "raw", f"{name}: Eigentuemer {owner} haelt kein raw"
-        else:
-            assert owner == "infra", f"{name}: unerwarteter Eigentuemer {owner}"
+        assert owner in RECORD_TYPES, f"{name}: Eigentuemer {owner} ist kein Datensatztyp"
+        assert holders()[name] in party_types, f"{name}: liegt auf {holders()[name]!r}"
+
+
+def test_the_assessor_holds_no_raw_field_of_another_party():
+    """Die eigentliche Aussage. Praezise: der Bewerter sieht Rohwerte nur aus
+    der eigenen Organisation (dem Betreiber), nie aus Kunden-, Zulieferer- oder
+    Vertragsdaten."""
+    for name, fld in FIELDS.items():
+        if fld.visibility["assessor"] != "raw":
+            continue
+        assert fld.held_by == "carrier", (
+            f"{name} gehoert {fld.held_by!r} und erreicht den Bewerter als raw"
+        )
+
+
+def test_a_node_only_holds_the_fields_of_its_own_party_type():
+    """Der Knoten des Kunden haelt keine Vertragsstrafe... ausser seiner eigenen.
+
+    `contract` ist `shared`: beide Vertragsparteien laden ihn. Das ist Feldschutz
+    plus Zeilenschutz -- Kunde 2 laedt Vertrag 1 nie, weil sein Knoten ihn nicht
+    kennt.
+    """
+    customer_side = set(fields_held_by("customer"))
+    assert "customer_stock" in customer_side
+    assert "contract_penalty" in customer_side  # shared, aber nur die eigene Zeile
+    assert "route_weakness" not in customer_side
+    assert "market_sensitive" not in customer_side
+    supplier_side = set(fields_held_by("supplier"))
+    assert "customer_stock" not in supplier_side
+    assert "replacement_available" in supplier_side
 
 
 def test_matrix_table_renders_every_field_and_role():

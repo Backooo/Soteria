@@ -1,0 +1,185 @@
+{
+  "generated_at": 1789564892.143268,
+  "baseline_source": "Angenommene Dauer einer Telefonkette aus fuenf Parteien einschliesslich Rueckrufen. Nicht gemessen -- eine Annahme, die als solche ausgewiesen ist.",
+  "numbers": {
+    "1_time": {
+      "logic_median_ms": 15.2,
+      "federation_median_s": 69.1,
+      "federation_max_s": 126.9,
+      "baseline_minutes": 47,
+      "baseline_is_assumption": true
+    },
+    "2_hits": {
+      "known": "3/3",
+      "holdout": null,
+      "reasons_matching": "2/3",
+      "truth_unconfirmed": [
+        "s1",
+        "s2",
+        "s3"
+      ]
+    },
+    "3_boundary": {
+      "attempts": 234,
+      "refused": 96,
+      "authorised_raw": 81,
+      "violations": 0
+    },
+    "4_gap": {
+      "cases": 3,
+      "still_decided": 3
+    }
+  },
+  "cases": [
+    {
+      "id": "s1",
+      "title": "Kleines Hindernis, Kuehlaggregat an einem Frischwarenwagen beschaedigt",
+      "holdout": false,
+      "truth": [
+        "cool"
+      ],
+      "truth_reason": "safety",
+      "truth_confirmed": false,
+      "decided": [
+        "cool"
+      ],
+      "decided_reason": "safety",
+      "refusal": null,
+      "hit": true,
+      "reason_matches": true,
+      "tier": 1,
+      "grants": [],
+      "receipt_hash": "f396149942da7f05",
+      "seconds_logic": 0.0158,
+      "seconds_federation": 69.1,
+      "quarantined": false,
+      "gap": {
+        "offline": [
+          "customer_c1_frischemarkt"
+        ],
+        "decided": [
+          "cool",
+          "hold"
+        ],
+        "reason": "missing_data",
+        "refusal": null
+      }
+    },
+    {
+      "id": "s2",
+      "title": "Gleis blockiert, Klinikversorgung im Zug, Umleitung noetig",
+      "holdout": false,
+      "truth": [
+        "alt_transport"
+      ],
+      "truth_reason": "safety",
+      "truth_confirmed": false,
+      "decided": [
+        "alt_transport"
+      ],
+      "decided_reason": "feasibility",
+      "refusal": null,
+      "hit": true,
+      "reason_matches": false,
+      "tier": 2,
+      "grants": [
+        "ops-lead-rheinrail-1"
+      ],
+      "receipt_hash": "6335c2a68bbe6712",
+      "seconds_logic": 0.0152,
+      "seconds_federation": 126.9,
+      "quarantined": false,
+      "gap": {
+        "offline": [
+          "customer_c2_stadtklinik"
+        ],
+        "decided": [
+          "alt_transport"
+        ],
+        "reason": "feasibility",
+        "refusal": null
+      }
+    },
+    {
+      "id": "s3",
+      "title": "Aufprall, Zug nicht fahrbereit, Gefahrgutwagen beschaedigt, Wohnbebauung 300 m",
+      "holdout": false,
+      "truth": [
+        "notify_authority",
+        "stop_train"
+      ],
+      "truth_reason": "safety",
+      "truth_confirmed": false,
+      "decided": [
+        "notify_authority",
+        "stop_train"
+      ],
+      "decided_reason": "safety",
+      "refusal": null,
+      "hit": true,
+      "reason_matches": true,
+      "tier": 3,
+      "grants": [
+        "ops-lead-rheinrail-1",
+        "safety-officer-rheinrail-2"
+      ],
+      "receipt_hash": "6fce468926dfda37",
+      "seconds_logic": 0.0102,
+      "seconds_federation": 68.0,
+      "quarantined": true,
+      "gap": {
+        "offline": [
+          "customer_c3_chemiewerk"
+        ],
+        "decided": [
+          "notify_authority",
+          "stop_train"
+        ],
+        "reason": "safety",
+        "refusal": null
+      }
+    }
+  ],
+  "honesty": [
+    {
+      "claim": "Kein Rohwert erreicht eine Rolle, die ihn nicht haben darf",
+      "real": "234 Grenzuebertritte versucht, 96 abgelehnt, 0 Verstoesse -- mit Nennwert gemessen",
+      "simulated": "nichts. Der Grenzbeweis ruft die Knoten-Handler direkt auf; derselbe Code laeuft in der Foederation"
+    },
+    {
+      "claim": "Drei Parteien, drei Knoten",
+      "real": "drei SuperNodes mit eigener node-config, echte Flower-Nachrichten, alle drei Faelle getroffen",
+      "simulated": "die drei Knoten laufen auf einem Rechner"
+    },
+    {
+      "claim": "Eine Foederation je Partei",
+      "real": "eine Foederation mit drei Parteiknoten",
+      "simulated": "drei SuperLinks erreicht ein ServerApp in flwr nicht gemeinsam -- das ist die Ausbaustufe, nicht der Stand"
+    },
+    {
+      "claim": "Entscheidung in Minuten statt Telefonkette",
+      "real": "Logik 15.2 ms, Foederation 69.1 s im Median",
+      "simulated": "die Basislinie von 47 min ist eine ANNAHME"
+    },
+    {
+      "claim": "Trefferquote",
+      "real": "3/3 auf den bekannten Faellen",
+      "simulated": "die Regeln wurden gegen genau diese Faelle geschrieben -- eine Konsistenzpruefung, keine Verallgemeinerung. Die Wahrheit ist zudem unbestaetigt (VORSCHLAG). Holdout-Faelle fehlen."
+    },
+    {
+      "claim": "Agenten",
+      "real": "ein Bewerter als ServerApp, Parteiknoten als ClientApps",
+      "simulated": "der Bewerter ist eine Regelmaschine, kein Sprachmodell. Die Parteiknoten brauchen keins: eine Projektion ist eine Funktion"
+    },
+    {
+      "claim": "Daten",
+      "real": "Schema, Validierung, Vokabulare",
+      "simulated": "alle Daten erfunden -- keine echten Bahndaten, Personen oder Firmen"
+    },
+    {
+      "claim": "Quittungen",
+      "real": "Kette ueber den ganzen Vorfall, verify() rechnet sie nach",
+      "simulated": "16 Hex-Zeichen aus SHA-256 -- eine Pruefsumme, keine Kryptografie fuer den Ernstfall"
+    }
+  ]
+}

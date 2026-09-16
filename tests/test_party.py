@@ -224,3 +224,13 @@ def test_flags_are_derived_from_the_data_not_hand_maintained():
     assert "market_sensitive" in s("s3").flags
     assert "hazmat" not in s("s1").flags
     assert "market_sensitive" not in s("s1").flags
+
+
+def test_an_unconfirmed_truth_is_reported_as_unconfirmed():
+    """REGRESSION: `_public` verwarf `truth._status`, also galt jede Wahrheit als
+    bestaetigt -- auch die, die der Engine-Strang nur vorgeschlagen hat."""
+    case = s("s1")
+    assert case.truth_status.startswith("VORSCHLAG")
+    assert case.truth_confirmed is False
+    confirmed = dataclasses.replace(case, truth_status="bestaetigt 16.09.")
+    assert confirmed.truth_confirmed is True

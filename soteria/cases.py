@@ -85,6 +85,14 @@ class Case:
     truth: Mapping[str, Any]
     offline_parties: tuple[str, ...]
     carrier_overrides: Mapping[str, Any]
+    # Getrennt gehalten, weil `_public` alle `_`-Schluessel verwirft -- und
+    # `truth._status` darf nicht verloren gehen: sonst haelt jede Auswertung
+    # eine unbestaetigte Wahrheit fuer bestaetigt.
+    truth_status: str = ""
+
+    @property
+    def truth_confirmed(self) -> bool:
+        return bool(self.truth) and not self.truth_status.upper().startswith("VORSCHLAG")
 
     @property
     def party_ids(self) -> tuple[str, ...]:
@@ -185,6 +193,7 @@ def load_case(case_id: str) -> Case:
         truth=_public(raw.get("truth") or {}),
         offline_parties=tuple(raw.get("offline_parties") or ()),
         carrier_overrides=_public(raw.get("carrier_overrides") or {}),
+        truth_status=str((raw.get("truth") or {}).get("_status", "")),
     )
 
 

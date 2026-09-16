@@ -1,0 +1,32 @@
+{
+  "incident_id": "INC-1003",
+  "train_id": "TR-1003",
+  "timestamp": "2026-09-16T13:05:00Z",
+  "location": "Rail segment R-04, km 56.2",
+  "reporter_role": "driver",
+  "incident_type": "damage_and_obstruction",
+  "symptom": "Train collided with a large obstruction and came to a complete stop",
+  "obstruction": {
+    "present": true,
+    "type": "large_structure",
+    "position": "in_front_of_locomotive",
+    "blocking_track": true
+  },
+  "affected_wagons": [
+    {
+      "wagon_id": "W02",
+      "damage_description": "Refrigeration equipment damaged"
+    },
+    {
+      "wagon_id": "W03",
+      "damage_description": "Severe structural damage to wagon side"
+    },
+    {
+      "wagon_id": "W05",
+      "damage_description": "Damage detected around cargo compartment"
+    }
+  ],
+  "train_operational": "immobilized",
+  "track_blocked": true,
+  "severity": "high"
+}

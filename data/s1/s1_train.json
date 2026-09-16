@@ -1,0 +1,40 @@
+{
+    "train_id": "TR-1001",
+    "locomotive": {
+      "position": "front",
+      "cab": "driver_cab"
+    },
+    "wagon_count": 6,
+    "wagons": [
+      {
+        "wagon_id": "W01",
+        "wagon_type": "standard",
+        "cargo_class": "general_goods"
+      },
+      {
+        "wagon_id": "W02",
+        "wagon_type": "refrigerated",
+        "cargo_class": "perishable"
+      },
+      {
+        "wagon_id": "W03",
+        "wagon_type": "standard",
+        "cargo_class": "general_goods"
+      },
+      {
+        "wagon_id": "W04",
+        "wagon_type": "standard",
+        "cargo_class": "general_goods"
+      },
+      {
+        "wagon_id": "W05",
+        "wagon_type": "refrigerated",
+        "cargo_class": "perishable"
+      },
+      {
+        "wagon_id": "W06",
+        "wagon_type": "standard",
+        "cargo_class": "general_goods"
+      }
+    ]
+  }

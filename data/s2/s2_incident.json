@@ -1,0 +1,24 @@
+{
+  "incident_id": "INC-1002",
+  "train_id": "TR-1002",
+  "timestamp": "2026-09-16T11:40:00Z",
+  "location": "Rail segment R-08, km 31.7",
+  "reporter_role": "driver",
+  "incident_type": "obstruction",
+  "symptom": "Large object obstructing the track ahead of the train",
+  "obstruction": {
+    "present": true,
+    "type": "large_object",
+    "position": "in_front_of_locomotive",
+    "blocking_track": true
+  },
+  "affected_wagons": [
+    {
+      "wagon_id": "W02",
+      "damage_description": "Damage to rear coupling area caused by emergency braking"
+    }
+  ],
+  "train_operational": "restricted",
+  "track_blocked": true,
+  "severity": "medium"
+}

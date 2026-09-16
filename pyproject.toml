@@ -3,24 +3,34 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "agent"
+name = "soteria"
 version = "0.2.0"
-description = "A minimal Flower AgentApp"
+description = "Soteria: a five-role agent team that decides on freight damage without any party learning more than it may"
 license = { file = "LICENSE" }
 requires-python = ">=3.11,<4.0"
 dependencies = ["flwr>=1.35.0,<2.0", "openai>=2.16.0,<3.0.0"]
 
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
 [tool.hatch.build.targets.wheel]
-packages = ["agent"]
+packages = ["soteria"]
 
 [tool.flwr.app]
 publisher = "flwrlabs"
+display-name = "Soteria"
 fab-format-version = 1
 flwr-version-target = "1.35.0"
-fab-include = ["agent/**/*.py", "LICENSE"]
-
-[tool.flwr.app.config.agent]
-input = "Explain why flowers turn toward light."
+fab-include = ["soteria/**/*.py", "soteria/scenarios/*.json", "LICENSE"]
 
 [tool.flwr.app.components]
-agentapp = "agent.agent_app:app"
+agentapp = "soteria.agent_app:app"
+
+[tool.flwr.app.config.agent]
+model = "flower-endeavor-v1.0"
+scenario = "s1_pharma_cooling"
+budget_seconds = 240
+input = "Kuehlausfall an Bord, Pharma-Ladung, Ersatzkuehlung am naechsten Terminal."
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

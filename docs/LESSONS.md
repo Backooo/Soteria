@@ -30,6 +30,12 @@ What saved us was that the fallback carries its reason in the event:
 it*, in the data, not in a log line — and the UI prints it. `decided_by: "llm" | "policy_fallback"
 | "policy"` is three words in a JSON payload and it is the difference between a demo and a claim.
 
+It happened twice more. After the packaging fix, live runs still fell back — and the event only
+said `ValueError: no SOTERIA_LLM result line in AgentApp output`, because we had thrown the
+subprocess output away. Once the error carried the CLI's own words, the cause was one line long:
+the materialized bundle had no `LICENSE`, so its own build failed before the model was ever called.
+**An error message that does not quote the tool it called is a dead end.**
+
 A related version of the same mistake was pointed out to us in review earlier that day: the repo
 had model code in `team.py` that nothing imported, so the system was a distributed expert system
 while the README implied agents. Dead code that *looks* like the feature is worse than no code.
@@ -123,7 +129,8 @@ files do.
 |---|---|
 | Boundary crossings attempted / refused / authorised / violations | 234 / 96 / 81 / 0 |
 | Federation run, no model call | 3–6 s per incident |
-| Federation run with the SuperGrid model call | 50–90 s per incident |
+| Federation run with the SuperGrid model call | 41 s measured live; 50–84 s for the recorded runs |
 | Events in one s3 run | 55 |
+| Live runs before one reached the model | 4 |
 | Tests | 188 passed, 1 skipped |
-| Model calls made in anger | 8, all returned parseable JSON |
+| Model calls we inspected | 5, all returned valid JSON on the first attempt |

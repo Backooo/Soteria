@@ -264,6 +264,8 @@ docs/                 matrix, event contract, risks
 
 | | |
 |---|---|
+| What we learned building it | [`docs/LESSONS.md`](docs/LESSONS.md) |
+| Findings and suggestions for Flower | [`docs/FLOWER-FEEDBACK.md`](docs/FLOWER-FEEDBACK.md) |
 | Need-to-know matrix | [`docs/MATRIX.md`](docs/MATRIX.md) |
 | Changing the data schema | [`data/schema/README.md`](data/schema/README.md) |
 | Event contract for the views | [`docs/EVENTS.md`](docs/EVENTS.md) |

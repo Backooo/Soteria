@@ -167,7 +167,7 @@ uv run python scripts/bench.py
 
 | | |
 |---|---|
-| **Time** | logic ~5 ms · real federation 3-6 s per incident · **with the model call 50-90 s** · phone-chain baseline 47 min — **an assumption, not a measurement** |
+| **Time** | logic ~5 ms · real federation 3-6 s per incident · **with the model call 40-90 s** · phone-chain baseline 47 min — **an assumption, not a measurement** |
 | **Hits** | s1 matches the stored answer; in s2 and s3 the model adds reversible measures on top · **no holdout cases, ground truth unconfirmed** |
 | **Tightness** | 234 crossings, 96 refused, 81 authorised, 0 violations |
 | **Gap** | 3/3 cases decided although the customer is silent |

@@ -170,6 +170,11 @@ def bundle_dir() -> Path:
         shutil.rmtree(target, ignore_errors=True)
         shutil.copytree(AGENT_BUNDLE, target)
         (target / FAB_MANIFEST).replace(target / "pyproject.toml")
+    if not (target / "LICENSE").is_file():
+        # The bundle manifest requires a LICENSE; inside the FAB it lives at the app root.
+        root_license = AGENT_BUNDLE.parent / "LICENSE"
+        if root_license.is_file():
+            shutil.copyfile(root_license, target / "LICENSE")
     return target
 
 
@@ -182,7 +187,17 @@ def _call_model(config: LLMConfig, prompt: str, timeout: float) -> tuple[str, st
          "--run-config", run_config],
         capture_output=True, text=True, timeout=timeout, check=False,
     )
-    return parse_run_output(completed.stdout + "\n" + completed.stderr)
+    output = completed.stdout + "\n" + completed.stderr
+    try:
+        return parse_run_output(output)
+    except ValueError as exc:
+        # Without the CLI's own words, a failed run is indistinguishable from a
+        # silent one -- and the fallback would hide why the model never answered.
+        tail = " / ".join(
+            line.strip() for line in re.sub(r"\x1b\[[0-9;]*m", "", output).splitlines()
+            if line.strip()
+        )[-300:]
+        raise ValueError(f"{exc} (exit {completed.returncode}; output: {tail})") from exc
 
 
 def propose(
